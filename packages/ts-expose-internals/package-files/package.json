@@ -1,0 +1,32 @@
+{
+  "name": "@roblox-ts/ts-expose-internals",
+  "private": true,
+  "description": "Augment the TypeScript compiler module's types to expose hidden internal types",
+  "version": "4.5.0-beta",
+  "license": "MIT",
+  "types": "index.d.ts",
+  "author": {
+    "name": "Ron Spickenagel",
+    "url": "https://twitter.com/ron"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git@github.com:roblox-ts/ts-expose-internals.git"
+  },
+  "files": [
+    "index.d.ts",
+    "README.md",
+    "typescript.d.ts"
+  ],
+  "keywords": [
+    "typescript",
+    "internal types",
+    "internals",
+    "byots",
+    "types"
+  ],
+  "publishConfig": {
+    "access": "public",
+    "registry": "https://registry.npmjs.org"
+  }
+}
