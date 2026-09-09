@@ -19,10 +19,13 @@ jobs:
           path: roblox-ts
 
       - name: Setup roblox-ts repo
-        run: |
-          cd roblox-ts
-          npm install
-          npm run build
+        uses: ./roblox-ts/.github/actions/setup
+        with:
+          directory: roblox-ts
+
+      - name: Pack compiler
+        working-directory: roblox-ts
+        run: pnpm --filter roblox-ts pack --out ../../roblox-ts.tgz
 
       - name: Create template project
         run: npm init roblox-ts@latest ${{ matrix.type }} -- -y --dir project --skipBuild
@@ -30,7 +33,7 @@ jobs:
       - name: Install local roblox-ts
         run: |
           cd project
-          npm install --install-links ../roblox-ts
+          npm install ../roblox-ts/roblox-ts.tgz
 
       - name: Build
         run: |

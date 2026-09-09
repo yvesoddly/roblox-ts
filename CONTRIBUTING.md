@@ -8,11 +8,15 @@ First, we'll need to setup the development build of **roblox-ts**.
 
 This guide assumes you have the following installed:
 
--   Git
--   NodeJS
--   NPM
+- Git
+- NodeJS
+- pnpm 11.25.0 (the version pinned in `package.json`)
 
 We'll also assume you understand some basic terminal navigation commands (`cd`, `ls`/`dir`, etc.).
+
+The repository is a pnpm workspace. `packages/roblox-ts` contains the published compiler,
+`tests` contains the private Roblox runtime test project, and `devlink` provides the development CLI.
+Run the commands below from the repository root; one install sets up all packages.
 
 1. Begin by creating a fork of roblox-ts.
 
@@ -26,11 +30,11 @@ git clone https://github.com/YOUR_GITHUB_USERNAME/roblox-ts.git
 # Navigate into the roblox-ts folder
 cd roblox-ts
 # Install dependency packages (node_modules)
-npm install
+pnpm install --frozen-lockfile
 # build the compiler
-npm run build
+pnpm run build
 # link
-npm run devlink
+pnpm run devlink
 ```
 
 3. You should now be able to use the command `rbxtsc-dev` to run the development compiler!
@@ -41,7 +45,7 @@ npm run devlink
 # pull latest changes
 git pull
 # build the compiler
-npm run build
+pnpm run build
 ```
 
 It is not necessary to run the "devlink" script again.
@@ -73,9 +77,15 @@ You can run this process yourself if you have [rokit](https://github.com/rojo-rb
 # install rojo + lune
 rokit install
 # Compile tests, build .rbxl, run with lune
-npm test
+pnpm test
 ```
 
-After building the compiler, you can also run just the Jest tests with `npm run test-compile`.
-For an intentional emit change, update snapshots with `npm run test-compile -- --updateSnapshot`
+After building the compiler, you can also run just the Jest tests with `pnpm run test-compile`.
+For an intentional emit change, update snapshots with `pnpm run test-compile --updateSnapshot`
 and review the resulting diff before committing.
+
+Normal test runs use the versions and Git commits recorded in `pnpm-lock.yaml`. To intentionally refresh
+the compiler and Roblox test types, run `pnpm run update-test-types` and review the manifest and lockfile changes.
+
+To build a distributable compiler tarball, run `pnpm --filter roblox-ts pack`. The package keeps its
+`rbxtsc` CLI, Node entry point, browser entry point, and bundled runtime files.

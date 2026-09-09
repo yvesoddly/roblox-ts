@@ -10,6 +10,8 @@ import { ProjectOptions } from "Shared/types";
 import { formatDiagnostics } from "Shared/util/formatDiagnostics";
 import ts from "typescript";
 
+import { TEST_ROOT } from "./constants";
+
 export class ReferenceFixture {
 	// Windows short paths from TEMP can crash libuv's native filesystem watcher
 	public readonly directory = fs.realpathSync.native(fs.mkdtempSync(path.join(os.tmpdir(), "rbxts-references-")));
@@ -17,7 +19,9 @@ export class ReferenceFixture {
 	private readonly builds = new Array<ProjectBuild>();
 
 	constructor() {
-		fs.copySync(path.join(PACKAGE_ROOT, "tests/node_modules"), this.file("node_modules"));
+		fs.copySync(path.join(TEST_ROOT, "node_modules/@rbxts"), this.file("node_modules/@rbxts"), {
+			dereference: true,
+		});
 
 		this.json("package.json", { name: "reference-fixture", version: "1.0.0" });
 		this.json("base.json", {

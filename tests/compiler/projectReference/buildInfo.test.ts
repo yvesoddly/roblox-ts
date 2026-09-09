@@ -1,7 +1,6 @@
 import { execFileSync } from "child_process";
 import fs from "fs-extra";
 import path from "path";
-import { PACKAGE_ROOT } from "Shared/constants";
 import { assert } from "Shared/util/assert";
 
 import { expectSuccess, ReferenceFixture } from "../referenceFixture";
@@ -29,13 +28,9 @@ it.each(["../cache/game.tsbuildinfo", "../out/game/build.tsbuildinfo"])(
 		assert(buildInfo);
 		const before = fs.readFileSync(buildInfo, "utf8");
 
-		execFileSync(
-			process.execPath,
-			[path.join(PACKAGE_ROOT, "node_modules/typescript/lib/tsc.js"), "--build", fixture.file("game")],
-			{
-				cwd: fixture.directory,
-			},
-		);
+		execFileSync(process.execPath, [require.resolve("typescript/lib/tsc.js"), "--build", fixture.file("game")], {
+			cwd: fixture.directory,
+		});
 
 		expect(fs.readFileSync(buildInfo, "utf8")).toBe(before);
 		const tsBuildInfo = path.resolve(fixture.file("game"), tsBuildInfoFile);

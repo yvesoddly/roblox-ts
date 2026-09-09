@@ -17,7 +17,7 @@
 			"request": "launch",
 			"name": "demo",
 			"preLaunchTask": "npm: build",
-			"program": "${workspaceFolder}/out/CLI/cli.js",
+			"program": "${workspaceFolder}/packages/roblox-ts/out/CLI/cli.js",
 			"cwd": "/path/to/project",
 			"args": ["--verbose"],
 			"sourceMaps": true,

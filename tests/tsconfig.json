@@ -9,6 +9,8 @@
 		"jsxFactory": "Roact.jsx",
 		"module": "commonjs",
 		"moduleResolution": "Node",
+		// keep Roblox declaration paths inside this project when dependencies are symlinked
+		"preserveSymlinks": true,
 		"noLib": true,
 		"resolveJsonModule": true,
 		"forceConsistentCasingInFileNames": true,

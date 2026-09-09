@@ -8,17 +8,19 @@ import { createPathTranslator } from "Project/functions/createPathTranslator";
 import { createProjectProgram } from "Project/functions/createProjectProgram";
 import { getChangedSourceFiles } from "Project/functions/getChangedSourceFiles";
 import { getOutputRoots } from "Project/functions/getProjectOutputs";
-import { PACKAGE_ROOT, TS_EXT, TSX_EXT } from "Shared/constants";
+import { TS_EXT, TSX_EXT } from "Shared/constants";
 import { DiagnosticFactory, errors, getDiagnosticId } from "Shared/diagnostics";
 import { assert } from "Shared/util/assert";
 import { formatDiagnostics } from "Shared/util/formatDiagnostics";
 import { getRootDirs } from "Shared/util/getRootDirs";
 import { isPathDescendantOf } from "Shared/util/isPathDescendantOf";
 
+import { TEST_ROOT } from "./constants";
+
 const DIAGNOSTIC_TEST_NAME_REGEX = /^(\w+)(?:\.\d+)?$/;
 
 describe("should compile tests project", () => {
-	const build = new ProjectBuild(path.join(PACKAGE_ROOT, "tests", "tsconfig.json"), {
+	const build = new ProjectBuild(path.join(TEST_ROOT, "tsconfig.json"), {
 		allowCommentDirectives: true,
 		optimizedLoops: true,
 	});
@@ -49,7 +51,7 @@ describe("should compile tests project", () => {
 	it("should copy non-compiled files", () =>
 		copyFiles(data, pathTranslator, new Set(getRootDirs(program.getCompilerOptions()))));
 
-	const diagnosticsFolder = path.join(PACKAGE_ROOT, "tests", "src", "diagnostics");
+	const diagnosticsFolder = path.join(TEST_ROOT, "src", "diagnostics");
 
 	for (const sourceFile of getChangedSourceFiles(program)) {
 		const fileName = path.relative(process.cwd(), sourceFile.fileName);

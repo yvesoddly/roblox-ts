@@ -1,5 +1,5 @@
 {
-	"extends": "../../tsconfig-base.json",
+	"extends": "../../packages/roblox-ts/tsconfig-base.json",
 	"compilerOptions": {
 		"composite": false,
 		"noEmit": true,

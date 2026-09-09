@@ -18,7 +18,7 @@ export default defineConfig(
 				project: [
 					"./tsconfig.json",
 					"./tsconfig.eslint.json",
-					"./src/*/tsconfig.json",
+					"./packages/*/src/*/tsconfig.json",
 					"./tests/compiler/tsconfig.json",
 				],
 				ecmaFeatures: { jsx: true },
@@ -72,13 +72,13 @@ export default defineConfig(
 	{
 		ignores: [
 			".local/",
-			"node_modules/",
+			"**/node_modules/",
 			"tests/src/",
 			"tests/projects/",
 			"tests/out/",
 			"tests/include/",
 			"tests/node_modules/",
-			"out/",
+			"**/out/",
 			"coverage/",
 			"devlink/",
 			"jest.config.ts",

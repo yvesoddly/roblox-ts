@@ -2,9 +2,9 @@ import { execFileSync } from "child_process";
 import fs from "fs-extra";
 import path from "path";
 import { ProjectBuild } from "Project/classes/ProjectBuild";
-import { PACKAGE_ROOT } from "Shared/constants";
 import ts from "typescript";
 
+import { TEST_ROOT } from "./constants";
 import { expectSuccess, ReferenceFixture, startWatch } from "./referenceFixture";
 import {
 	CONTENT_COUNT,
@@ -175,7 +175,7 @@ it("runs the representative game through Rojo and Lune", () => {
 	expectSuccess(fixture.createBuild().build());
 	const place = fixture.file("representative.rbxl");
 	execFileSync("rojo", ["build", fixture.file("default.project.json"), "-o", place], { encoding: "utf8" });
-	const output = execFileSync("lune", ["run", path.join(PACKAGE_ROOT, "tests/runTestsWithLune.luau"), place], {
+	const output = execFileSync("lune", ["run", path.join(TEST_ROOT, "runTestsWithLune.luau"), place], {
 		encoding: "utf8",
 	});
 	expect(output).toContain("representative game passed");
