@@ -1,4 +1,6 @@
 import * as luau from "LuauAST/bundle";
-export default luau;
+
+// keep the binding live when renderer imports cycle back through this entry point
+export { luau as default };
 
 export * from "LuauRenderer";

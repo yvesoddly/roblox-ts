@@ -1,4 +1,4 @@
-// keep tests alphabetized by name to match Jest's snapshot ordering
+// keep tests alphabetized by name to match Vitest's snapshot ordering
 import { DiagnosticError } from "Shared/errors/DiagnosticError";
 
 import { createTestProject } from "./createTestProject";

@@ -1,3 +1,4 @@
+import { vi } from "vite-plus/test";
 /**
  * NOTE: To debug this, uncomment the Debug entries in Config
  */
@@ -35,7 +36,7 @@ let wipeTmp: boolean | undefined;
  * Config
  * ********************************************************* */
 
-jest.setTimeout(300_000); // 5 minutes
+vi.setConfig({ testTimeout: 300_000, hookTimeout: 300_000 });
 
 const tags = [
   'v1.0.0', // Skips

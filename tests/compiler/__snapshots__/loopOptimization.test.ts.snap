@@ -1,6 +1,6 @@
-// Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
 
-exports[`fallback arithmetic bound 1`] = `
+exports[`fallback > arithmetic bound 1`] = `
 "do
 	local i = 0
 	local _shouldIncrement = false
@@ -20,7 +20,7 @@ return nil
 "
 `;
 
-exports[`fallback changing array-size bound 1`] = `
+exports[`fallback > changing array-size bound 1`] = `
 "local values = { 1, 2, 3, 4 }
 do
 	local i = 0
@@ -41,7 +41,7 @@ return nil
 "
 `;
 
-exports[`fallback constant identifier bound 1`] = `
+exports[`fallback > constant identifier bound 1`] = `
 "local limit = 3
 do
 	local i = 0
@@ -62,7 +62,7 @@ return nil
 "
 `;
 
-exports[`fallback destructuring write to induction variable 1`] = `
+exports[`fallback > destructuring write to induction variable 1`] = `
 "do
 	local _i = 0
 	local _shouldIncrement = false
@@ -84,7 +84,7 @@ return nil
 "
 `;
 
-exports[`fallback different condition variable 1`] = `
+exports[`fallback > different condition variable 1`] = `
 "local condition = 2
 do
 	local i = 0
@@ -106,7 +106,7 @@ return nil
 "
 `;
 
-exports[`fallback different decrement target 1`] = `
+exports[`fallback > different decrement target 1`] = `
 "local remaining = 3
 do
 	local i = 3
@@ -130,7 +130,7 @@ return nil
 "
 `;
 
-exports[`fallback effectful bound with a literal return type 1`] = `
+exports[`fallback > effectful bound with a literal return type 1`] = `
 "local function limit()
 	print("limit")
 	return 2
@@ -154,7 +154,7 @@ return nil
 "
 `;
 
-exports[`fallback fractional initializer 1`] = `
+exports[`fallback > fractional initializer 1`] = `
 "do
 	local i = 0.5
 	local _shouldIncrement = false
@@ -174,7 +174,7 @@ return nil
 "
 `;
 
-exports[`fallback multiplicative step 1`] = `
+exports[`fallback > multiplicative step 1`] = `
 "do
 	local i = 1
 	local _shouldIncrement = false
@@ -194,7 +194,7 @@ return nil
 "
 `;
 
-exports[`fallback negated identifier bound 1`] = `
+exports[`fallback > negated identifier bound 1`] = `
 "local limit = 3
 do
 	local i = 0
@@ -215,7 +215,7 @@ return nil
 "
 `;
 
-exports[`fallback nonmutating unary incrementor 1`] = `
+exports[`fallback > nonmutating unary incrementor 1`] = `
 "do
 	local i = 0
 	local _shouldIncrement = false
@@ -236,7 +236,7 @@ return nil
 "
 `;
 
-exports[`fallback unsafe integer bound 1`] = `
+exports[`fallback > unsafe integer bound 1`] = `
 "do
 	local i = 0
 	local _shouldIncrement = false
@@ -257,7 +257,7 @@ return nil
 "
 `;
 
-exports[`fallback wrong step direction 1`] = `
+exports[`fallback > wrong step direction 1`] = `
 "do
 	local i = 3
 	local _shouldIncrement = false
@@ -277,7 +277,7 @@ return nil
 "
 `;
 
-exports[`fallback zero step 1`] = `
+exports[`fallback > zero step 1`] = `
 "do
 	local i = 0
 	local _shouldIncrement = false
@@ -298,7 +298,7 @@ return nil
 "
 `;
 
-exports[`optimized ascending exclusive bound 1`] = `
+exports[`optimized > ascending exclusive bound 1`] = `
 {
   "optimized": "for i = 0, 2 do
 	print(i)
@@ -325,7 +325,7 @@ return nil
 }
 `;
 
-exports[`optimized ascending inclusive bound with a step 1`] = `
+exports[`optimized > ascending inclusive bound with a step 1`] = `
 {
   "optimized": "for i = 0, 4, 2 do
 	print(i)
@@ -352,7 +352,7 @@ return nil
 }
 `;
 
-exports[`optimized descending exclusive bound 1`] = `
+exports[`optimized > descending exclusive bound 1`] = `
 {
   "optimized": "for i = 3, 1, -1 do
 	print(i)
@@ -379,7 +379,7 @@ return nil
 }
 `;
 
-exports[`optimized descending inclusive bound with a step 1`] = `
+exports[`optimized > descending inclusive bound with a step 1`] = `
 {
   "optimized": "for i = 4, 0, -2 do
 	print(i)
@@ -406,7 +406,7 @@ return nil
 }
 `;
 
-exports[`optimized literal spelling 1`] = `
+exports[`optimized > literal spelling 1`] = `
 {
   "optimized": "for i = 0x10, 19 do
 	print(i)
@@ -433,7 +433,7 @@ return nil
 }
 `;
 
-exports[`optimized negative bounds 1`] = `
+exports[`optimized > negative bounds 1`] = `
 {
   "optimized": "for i = -1, -3, -1 do
 	print(i)
@@ -460,7 +460,7 @@ return nil
 }
 `;
 
-exports[`optimized negative zero initializer 1`] = `
+exports[`optimized > negative zero initializer 1`] = `
 {
   "optimized": "for i = -0, 0 do
 	print(1 / i)

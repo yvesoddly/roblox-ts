@@ -1,4 +1,4 @@
-// Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
 
 exports[`numbers repeated temporary hints without rescanning earlier names 1`] = `
 "local _value = 1
@@ -16,7 +16,7 @@ exports[`preserves concatenation grouping for metamethods 1`] = `
 "
 `;
 
-exports[`renders contextual keyword fields as executable Luau 1`] = `
+exports[`renders 'contextual keyword fields' as executable Luau 1`] = `
 "return {
 	continue = 1,
 	const = 1,
@@ -26,22 +26,22 @@ exports[`renders contextual keyword fields as executable Luau 1`] = `
 "
 `;
 
-exports[`renders escaped strings as executable Luau 1`] = `
+exports[`renders 'escaped strings' as executable Luau 1`] = `
 "return { "\\n", "\\\\n", "trailing\\\\" }
 "
 `;
 
-exports[`renders interpolated backticks as executable Luau 1`] = `
+exports[`renders 'interpolated backticks' as executable Luau 1`] = `
 "return \`\\\`\\{\\}\`
 "
 `;
 
-exports[`renders left-nested exponentiation as executable Luau 1`] = `
+exports[`renders 'left-nested exponentiation' as executable Luau 1`] = `
 "return (2 ^ 3) ^ 2
 "
 `;
 
-exports[`renders mixed tables as executable Luau 1`] = `
+exports[`renders 'mixed tables' as executable Luau 1`] = `
 "return {
 	5,
 	count = 9,
@@ -49,12 +49,12 @@ exports[`renders mixed tables as executable Luau 1`] = `
 "
 `;
 
-exports[`renders right-nested exponentiation as executable Luau 1`] = `
+exports[`renders 'right-nested exponentiation' as executable Luau 1`] = `
 "return 2 ^ 3 ^ 2
 "
 `;
 
-exports[`renders sets as executable Luau 1`] = `
+exports[`renders 'sets' as executable Luau 1`] = `
 "return {
 	["first"] = true,
 	[2] = true,

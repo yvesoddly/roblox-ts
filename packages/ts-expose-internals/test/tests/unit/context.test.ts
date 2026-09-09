@@ -1,3 +1,4 @@
+import { vi, type MockInstance } from "vite-plus/test";
 import { createContext } from '../../../src/context';
 import * as storageModule from '../../../src/storage';
 
@@ -7,13 +8,13 @@ import * as storageModule from '../../../src/storage';
 /* ****************************************************************************************************************** */
 
 describe('context.ts', () => {
-  let getStorageSpy: jest.SpyInstance;
+  let getStorageSpy: MockInstance;
   beforeAll(() => {
-    getStorageSpy = jest.spyOn(storageModule, 'getStorage').mockImplementation();
+    getStorageSpy = vi.spyOn(storageModule, 'getStorage').mockImplementation(vi.fn());
   });
 
   afterAll(() => {
-    jest.restoreAllMocks();
+    vi.restoreAllMocks();
   });
 
   describe('createContext', () => {

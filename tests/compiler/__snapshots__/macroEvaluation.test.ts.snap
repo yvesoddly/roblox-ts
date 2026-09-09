@@ -1,6 +1,6 @@
-// Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
 
-exports[`macro emit bracket native method 1`] = `
+exports[`macro emit > 'bracket native method' 1`] = `
 "-- ▼ ReadonlySet.size ▼
 local _size = 0
 for _ in values do
@@ -12,7 +12,7 @@ return nil
 "
 `;
 
-exports[`macro emit builtin callee with coalescing prerequisites 1`] = `
+exports[`macro emit > 'builtin callee with coalescing prereq…' 1`] = `
 "local _condition = tonumber(text)
 if _condition == nil then
 	_condition = 1
@@ -22,7 +22,7 @@ return nil
 "
 `;
 
-exports[`macro emit captured local writes 1`] = `
+exports[`macro emit > 'captured local writes' 1`] = `
 "local change = function()
 	x = 9
 	return 2
@@ -33,7 +33,7 @@ return nil
 "
 `;
 
-exports[`macro emit closure parameter beside a pure math call 1`] = `
+exports[`macro emit > 'closure parameter beside a pure math …' 1`] = `
 "local function gaussian(max)
 	return function(x)
 		return max * math.exp(x)
@@ -43,13 +43,7 @@ return nil
 "
 `;
 
-exports[`macro emit complex assignment base 1`] = `
-"holder.part.Color = Color3.fromRGB(255, 0, 0)
-return nil
-"
-`;
-
-exports[`macro emit complex assignment base before prerequisites 1`] = `
+exports[`macro emit > 'complex assignment base before prereq…' 1`] = `
 "local _exp = holder.part
 local _exp_1 = { 1 }
 local _arg0 = function()
@@ -66,13 +60,19 @@ return nil
 "
 `;
 
-exports[`macro emit compound assignment with pure math 1`] = `
+exports[`macro emit > 'complex assignment base' 1`] = `
+"holder.part.Color = Color3.fromRGB(255, 0, 0)
+return nil
+"
+`;
+
+exports[`macro emit > 'compound assignment with pure math' 1`] = `
 "object.angle += math.min(1, 2)
 return nil
 "
 `;
 
-exports[`macro emit effectful native receiver 1`] = `
+exports[`macro emit > 'effectful native receiver' 1`] = `
 "local _self = getPart()
 -- ▼ ReadonlySet.size ▼
 local _size = 0
@@ -85,13 +85,13 @@ return nil
 "
 `;
 
-exports[`macro emit immutable vector operands 1`] = `
+exports[`macro emit > 'immutable vector operands' 1`] = `
 "local result = a + b
 return nil
 "
 `;
 
-exports[`macro emit imported callee with optional argument 1`] = `
+exports[`macro emit > 'imported callee with optional argument' 1`] = `
 "local TS = _G[script]
 local useValue = TS.import(script, script.Parent, "stableImports").useValue
 local _result = object
@@ -103,31 +103,31 @@ return nil
 "
 `;
 
-exports[`macro emit includes and isEmpty 1`] = `
+exports[`macro emit > 'includes and isEmpty' 1`] = `
 "local result = table.find(array, 3) ~= nil and #array == 0
 return nil
 "
 `;
 
-exports[`macro emit includes property receiver 1`] = `
+exports[`macro emit > 'includes property receiver' 1`] = `
 "local result = table.find(holder.values, 3) ~= nil
 return nil
 "
 `;
 
-exports[`macro emit index offset folding 1`] = `
+exports[`macro emit > 'index offset folding' 1`] = `
 "local result = table.remove(array, index())
 return nil
 "
 `;
 
-exports[`macro emit indexOf property operands 1`] = `
+exports[`macro emit > 'indexOf property operands' 1`] = `
 "local result = (table.find(holder.values, object.value) or 0) - 1
 return nil
 "
 `;
 
-exports[`macro emit known function with no external effects 1`] = `
+exports[`macro emit > 'known function with no external effec…' 1`] = `
 "local function value()
 	return 1
 end
@@ -136,7 +136,7 @@ return nil
 "
 `;
 
-exports[`macro emit map callback reuse 1`] = `
+exports[`macro emit > 'map callback reuse' 1`] = `
 "-- ▼ ReadonlyArray.map ▼
 local _newValue = table.create(#array)
 for _k, _v in array do
@@ -148,7 +148,7 @@ return nil
 "
 `;
 
-exports[`macro emit multiple array insertions 1`] = `
+exports[`macro emit > 'multiple array insertions' 1`] = `
 "local _arg0 = value()
 local _arg1 = value()
 -- ▼ Array.push ▼
@@ -159,7 +159,7 @@ return nil
 "
 `;
 
-exports[`macro emit native method in a constructor 1`] = `
+exports[`macro emit > 'native method in a constructor' 1`] = `
 "local Example
 do
 	Example = setmetatable({}, {
@@ -180,7 +180,7 @@ return nil
 "
 `;
 
-exports[`macro emit native method with argument prerequisites 1`] = `
+exports[`macro emit > 'native method with argument prerequis…' 1`] = `
 "-- ▼ ReadonlySet.size ▼
 local _size = 0
 for _ in values do
@@ -192,7 +192,7 @@ return nil
 "
 `;
 
-exports[`macro emit native receiver rebinding 1`] = `
+exports[`macro emit > 'native receiver rebinding' 1`] = `
 "local _self = part
 local _exp = { 1 }
 local _arg0 = function()
@@ -210,7 +210,7 @@ return nil
 "
 `;
 
-exports[`macro emit nested optional native calls 1`] = `
+exports[`macro emit > 'nested optional native calls' 1`] = `
 "local _result = model
 if _result ~= nil then
 	local _result_1 = model
@@ -227,13 +227,13 @@ return nil
 "
 `;
 
-exports[`macro emit nested vector arithmetic 1`] = `
+exports[`macro emit > 'nested vector arithmetic' 1`] = `
 "local result = a - (b + c)
 return nil
 "
 `;
 
-exports[`macro emit optional bracket native method 1`] = `
+exports[`macro emit > 'optional bracket native method' 1`] = `
 "local _result = model
 if _result ~= nil then
 	-- ▼ ReadonlySet.size ▼
@@ -248,13 +248,13 @@ return nil
 "
 `;
 
-exports[`macro emit optional join separator 1`] = `
+exports[`macro emit > 'optional join separator' 1`] = `
 "local result = table.concat(array, if separator == nil then ", " else separator)
 return nil
 "
 `;
 
-exports[`macro emit optional native method 1`] = `
+exports[`macro emit > 'optional native method' 1`] = `
 "local _result = model
 if _result ~= nil then
 	-- ▼ ReadonlySet.size ▼
@@ -269,7 +269,7 @@ return nil
 "
 `;
 
-exports[`macro emit optional native receiver rebinding 1`] = `
+exports[`macro emit > 'optional native receiver rebinding' 1`] = `
 "local _result = model
 if _result ~= nil then
 	local _exp = { 1 }
@@ -289,7 +289,7 @@ return nil
 "
 `;
 
-exports[`macro emit optional replaceable method 1`] = `
+exports[`macro emit > 'optional replaceable method' 1`] = `
 "local _result = object
 if _result ~= nil then
 	local _fn = _result.SetAttribute
@@ -310,7 +310,7 @@ return nil
 "
 `;
 
-exports[`macro emit possibly empty math varargs 1`] = `
+exports[`macro emit > 'possibly empty math varargs' 1`] = `
 "local min = math.min
 local _exp = min()
 local _exp_1 = { 1 }
@@ -328,7 +328,7 @@ return nil
 "
 `;
 
-exports[`macro emit receiver rebinding inside forEach 1`] = `
+exports[`macro emit > 'receiver rebinding inside forEach' 1`] = `
 "local _exp = array
 local _arg0 = function(value, index, original)
 	array = {}
@@ -341,7 +341,7 @@ return nil
 "
 `;
 
-exports[`macro emit reduce callback reuse 1`] = `
+exports[`macro emit > 'reduce callback reuse' 1`] = `
 "-- ▼ ReadonlyArray.reduce ▼
 local _result = 0
 for _i = 1, #array do
@@ -353,7 +353,7 @@ return nil
 "
 `;
 
-exports[`macro emit replaceable library lookalike 1`] = `
+exports[`macro emit > 'replaceable library lookalike' 1`] = `
 "local library = {
 	floor = function(n)
 		return n
@@ -378,7 +378,7 @@ return nil
 "
 `;
 
-exports[`macro emit replaceable method lookalike 1`] = `
+exports[`macro emit > 'replaceable method lookalike' 1`] = `
 "local _fn = object.SetAttribute
 -- ▼ ReadonlySet.size ▼
 local _size = 0
@@ -391,31 +391,31 @@ return nil
 "
 `;
 
-exports[`macro emit required join separator 1`] = `
+exports[`macro emit > 'required join separator' 1`] = `
 "local result = table.concat(array, separator)
 return nil
 "
 `;
 
-exports[`macro emit scalar call arity 1`] = `
+exports[`macro emit > 'scalar call arity' 1`] = `
 "local result = typeof((empty()))
 return nil
 "
 `;
 
-exports[`macro emit single array insertion 1`] = `
+exports[`macro emit > 'single array insertion' 1`] = `
 "table.insert(array, value())
 return nil
 "
 `;
 
-exports[`macro emit single map assignment 1`] = `
+exports[`macro emit > 'single map assignment' 1`] = `
 "map.key = value()
 return nil
 "
 `;
 
-exports[`macro emit stable imported assignment targets 1`] = `
+exports[`macro emit > 'stable imported assignment targets' 1`] = `
 "local TS = _G[script]
 local lighting = TS.import(script, script.Parent, "stableImports").lighting
 local function apply(settings)
@@ -426,7 +426,7 @@ return nil
 "
 `;
 
-exports[`macro emit stable this assignment 1`] = `
+exports[`macro emit > 'stable this assignment' 1`] = `
 "local Example
 do
 	Example = setmetatable({}, {
@@ -450,13 +450,13 @@ return nil
 "
 `;
 
-exports[`macro emit string macro receiver 1`] = `
+exports[`macro emit > 'string macro receiver' 1`] = `
 "local words = string.split(object.text, ",")
 return nil
 "
 `;
 
-exports[`macro emit tuple spread after explicit arguments 1`] = `
+exports[`macro emit > 'tuple spread after explicit arguments' 1`] = `
 "local tuple = { 9 }
 local _spread0 = unpack(tuple)
 table.insert(array, 1, _spread0)
@@ -464,7 +464,7 @@ return nil
 "
 `;
 
-exports[`macro emit uncaptured parameter beside a property read 1`] = `
+exports[`macro emit > 'uncaptured parameter beside a propert…' 1`] = `
 "local function compare(value, object)
 	return value + object.value
 end
@@ -472,7 +472,7 @@ return nil
 "
 `;
 
-exports[`macro emit vector receiver rebinding 1`] = `
+exports[`macro emit > 'vector receiver rebinding' 1`] = `
 "local result = a + change()
 return nil
 "

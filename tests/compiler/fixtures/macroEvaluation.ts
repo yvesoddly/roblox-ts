@@ -1,4 +1,4 @@
-// keep cases alphabetized by name to match Jest's snapshot ordering
+// keep cases alphabetized by name to match Vitest's snapshot ordering
 export const macroEvaluationCases = [
 	{
 		name: "bracket native method",

@@ -1,39 +1,45 @@
+import { vi, type MockInstance } from "vite-plus/test";
 import * as storageModule from '../../../src/storage';
 import { getStorage, Storage, updateStorage } from '../../../src/storage';
-import childProcessModule, { execSync } from 'child_process';
+import * as childProcessModule from 'child_process';
 import fsModule from 'fs';
 import path from 'path';
 
+// mock the named builtin export used by execCmd, not the separate Node default export
+vi.mock("child_process", async (importOriginal) => ({
+  ...await importOriginal<typeof import("child_process")>(),
+  execSync: () => Buffer.alloc(0),
+}));
 
 /* ****************************************************************************************************************** */
 // region: Tests
 /* ****************************************************************************************************************** */
 
 describe('storage.ts', () => {
-  let execSyncSpy: jest.SpyInstance;
-  let writeFileSyncSpy: jest.SpyInstance;
-  let existsSyncSpy: jest.SpyInstance;
-  let readFileSyncSpy: jest.SpyInstance;
+  let execSyncSpy: MockInstance;
+  let writeFileSyncSpy: MockInstance;
+  let existsSyncSpy: MockInstance;
+  let readFileSyncSpy: MockInstance;
   beforeAll(() => {
-    execSyncSpy = jest.spyOn(childProcessModule, 'execSync').mockImplementation();
-    existsSyncSpy = jest.spyOn(fsModule, 'existsSync').mockImplementation();
-    writeFileSyncSpy = jest.spyOn(fsModule, 'writeFileSync').mockImplementation();
-    readFileSyncSpy = jest.spyOn(fsModule, 'readFileSync').mockImplementation();
+    execSyncSpy = vi.spyOn(childProcessModule, 'execSync').mockImplementation(vi.fn());
+    existsSyncSpy = vi.spyOn(fsModule, 'existsSync').mockImplementation(vi.fn());
+    writeFileSyncSpy = vi.spyOn(fsModule, 'writeFileSync').mockImplementation(vi.fn());
+    readFileSyncSpy = vi.spyOn(fsModule, 'readFileSync').mockImplementation(vi.fn());
   });
 
   afterAll(() => {
-    jest.restoreAllMocks();
+    vi.restoreAllMocks();
   });
 
   afterEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
   });
 
   describe('updateStorage()', () => {
     const storage: Storage = {
       settings: <never>{},
       buildDetails: [],
-      save: jest.fn()
+      save: vi.fn()
     };
     const repoRootDir = '/test/repo with spaces/root/dir';
     const filePath = path.join(repoRootDir, 'tsei-storage.json');
@@ -107,7 +113,7 @@ describe('storage.ts', () => {
       readFileSyncSpy.mockReturnValue(fileContent);
 
       // Mock the actual updateStorage function
-      const updateStorageSpy = jest.spyOn(storageModule, 'updateStorage');
+      const updateStorageSpy = vi.spyOn(storageModule, 'updateStorage');
       updateStorageSpy.mockImplementation(() => 'newCommitId');
 
       const storage = getStorage(repoRootDir);

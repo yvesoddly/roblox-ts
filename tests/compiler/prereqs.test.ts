@@ -1,6 +1,6 @@
 import { createTestProject } from "./createTestProject";
 
-// keep cases alphabetized to match Jest's snapshot ordering
+// keep cases alphabetized to match Vitest's snapshot ordering
 it.each([
 	[
 		"class field and parameter initializers",

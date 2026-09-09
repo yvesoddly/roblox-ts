@@ -4,9 +4,9 @@ import { ProjectBuild } from "Project/classes/ProjectBuild";
 import { readProjectOptions } from "Project/functions/readProjectOptions";
 import { LogService } from "Shared/classes/LogService";
 
-import { expectSuccess, ReferenceFixture } from "../referenceFixture";
+import { expectLoggableError, expectSuccess, ReferenceFixture } from "../referenceFixture";
 
-jest.setTimeout(30000);
+vi.setConfig({ testTimeout: 30000, hookTimeout: 30000 });
 
 let fixture: ReferenceFixture;
 beforeEach(() => {
@@ -44,7 +44,7 @@ it.each([
 	const config = fs.readJsonSync(fixture.file("game/tsconfig.json"));
 	fixture.json("game/tsconfig.json", { ...config, rbxts });
 
-	expect(() => fixture.createBuild()).toThrow(String(message));
+	expectLoggableError(() => fixture.createBuild(), String(message));
 });
 
 it("resolves package extends and keeps CLI paths relative to the invocation directory", () => {
@@ -103,7 +103,7 @@ it("rejects incompatible consumer mounts for an owned Rojo context", () => {
 	rojo.tree.ReplicatedStorage.moved = { $path: "out/shared" };
 	fixture.json("default.project.json", rojo);
 
-	expect(() => fixture.createBuild()).toThrow("same Roblox path");
+	expectLoggableError(() => fixture.createBuild(), "same Roblox path");
 	expect(fs.existsSync(fixture.file("out/shared/init.luau"))).toBe(false);
 });
 
@@ -168,7 +168,7 @@ it("warns about unknown and CLI-only rbxts options without applying them", () =>
 	const config = fs.readJsonSync(fixture.file("game/tsconfig.json"));
 	config.rbxts = { rojoPath: "ignored.project.json", project: "elsewhere", watch: true, verbose: true };
 	fixture.json("game/tsconfig.json", config);
-	const warn = jest.spyOn(LogService, "warn").mockImplementation(() => {});
+	const warn = vi.spyOn(LogService, "warn").mockImplementation(() => {});
 	try {
 		const build = fixture.createBuild();
 		expectSuccess(build.build());
@@ -185,7 +185,7 @@ it("warns about unknown and CLI-only rbxts options without applying them", () =>
 it.each(["./missing.json", "@config/missing"])("reports unresolved inherited rbxts options from %s", extended => {
 	fixture.json("options.json", { extends: extended });
 
-	expect(() => readProjectOptions(fixture.file("options.json"), { extends: extended })).toThrow("not found");
+	expectLoggableError(() => readProjectOptions(fixture.file("options.json"), { extends: extended }), "not found");
 });
 
 it("reports malformed inherited rbxts configuration", () => {
@@ -217,7 +217,7 @@ it("reports an unmapped module in a reference's owned Rojo context", () => {
 	const config = fs.readJsonSync(fixture.file("shared/tsconfig.json"));
 	fixture.json("shared/tsconfig.json", { ...config, rbxts: { rojo: "../owner.project.json" } });
 
-	expect(() => fixture.createBuild()).toThrow("(unmapped)");
+	expectLoggableError(() => fixture.createBuild(), "(unmapped)");
 });
 
 it("rejects a consumer without the reference's owned Rojo mounts", () => {
@@ -227,7 +227,7 @@ it("rejects a consumer without the reference's owned Rojo mounts", () => {
 	fixture.json("shared/tsconfig.json", { ...config, rbxts: { rojo: "../owner.json" } });
 	fs.renameSync(fixture.file("default.project.json"), fixture.file("owner.json"));
 
-	expect(() => fixture.createBuild({ rojo: undefined })).toThrow("same Roblox path");
+	expectLoggableError(() => fixture.createBuild({ rojo: undefined }), "same Roblox path");
 });
 
 it("builds and classifies watch paths without a Rojo project", () => {

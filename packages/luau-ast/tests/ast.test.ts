@@ -29,7 +29,7 @@ it("clones reused subtrees and their lists without changing the original parents
 	expect(luau.list.toArray(second.left.members)[0].parent).toBe(second.left);
 });
 
-it.each([null, undefined, {}, 1, "list"])("rejects non-list value %p", value => {
+it.each([null, undefined, {}, 1, "list"])("rejects non-list value %o", value => {
 	expect(luau.list.isList(value)).toBe(false);
 });
 

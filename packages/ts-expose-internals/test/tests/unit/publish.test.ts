@@ -1,11 +1,17 @@
+import { vi, type MockInstance } from "vite-plus/test";
 import fs from 'fs';
-import childProcess, { execSync } from 'child_process';
+import * as childProcess from 'child_process';
 import { TseiContext } from '../../../src/context';
 import { publish } from '../../../src/publish';
 import { BuildDetail } from '../../../src/storage';
 import path from 'path';
 import * as tmpDirModule from '../../../src/utils/tmp-dir';
 
+// mock the named builtin export used by execCmd, not the separate Node default export
+vi.mock("child_process", async (importOriginal) => ({
+  ...await importOriginal<typeof import("child_process")>(),
+  execSync: () => Buffer.alloc(0),
+}));
 
 /* ****************************************************************************************************************** */
 // region: Config
@@ -40,29 +46,29 @@ const destDir = '/tmp/publish';
 
 describe(`publish.ts`, () => {
   describe.each([ { dryRun: true }, { dryRun: false } ])(`publish() %s`, ({ dryRun }) => {
-    let readDirSyncSpy: jest.SpyInstance;
-    let copyFileSyncSpy: jest.SpyInstance;
-    let readFileSyncSpy: jest.SpyInstance;
-    let writeFileSyncSpy: jest.SpyInstance;
-    let execSyncSpy: jest.SpyInstance;
-    let withTmpDirSpy: jest.SpyInstance;
+    let readDirSyncSpy: MockInstance;
+    let copyFileSyncSpy: MockInstance;
+    let readFileSyncSpy: MockInstance;
+    let writeFileSyncSpy: MockInstance;
+    let execSyncSpy: MockInstance;
+    let withTmpDirSpy: MockInstance;
 
     beforeAll(() => {
-      readDirSyncSpy = jest.spyOn(fs, 'readdirSync').mockReturnValue([ 'file1', 'file2' ] as any);
-      readFileSyncSpy = jest.spyOn(fs, 'readFileSync').mockImplementation((p) => {
+      readDirSyncSpy = vi.spyOn(fs, 'readdirSync').mockReturnValue([ 'file1', 'file2' ] as any);
+      readFileSyncSpy = vi.spyOn(fs, 'readFileSync').mockImplementation((p) => {
         if ((p as string).endsWith('package.json')) return JSON.stringify({ version: '0.0.0', private: true });
         return '';
       });
-      writeFileSyncSpy = jest.spyOn(fs, 'writeFileSync').mockImplementation();
-      execSyncSpy = jest.spyOn(childProcess, 'execSync').mockImplementation();
-      copyFileSyncSpy = jest.spyOn(fs, 'copyFileSync').mockImplementation();
-      withTmpDirSpy = jest.spyOn(tmpDirModule, 'withTmpDir').mockImplementation((p, fn) => fn('/tmp/' + p));
+      writeFileSyncSpy = vi.spyOn(fs, 'writeFileSync').mockImplementation(vi.fn());
+      execSyncSpy = vi.spyOn(childProcess, 'execSync').mockImplementation(vi.fn());
+      copyFileSyncSpy = vi.spyOn(fs, 'copyFileSync').mockImplementation(vi.fn());
+      withTmpDirSpy = vi.spyOn(tmpDirModule, 'withTmpDir').mockImplementation((p, fn) => fn('/tmp/' + p));
 
       publish({ ...context, dryRun });
     });
 
     afterAll(() => {
-      jest.restoreAllMocks();
+      vi.restoreAllMocks();
     });
 
     test(`Copies package files`, () => {

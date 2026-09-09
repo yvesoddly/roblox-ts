@@ -3,7 +3,7 @@ import fs from "fs-extra";
 import path from "path";
 import { assert } from "Shared/util/assert";
 
-import { expectSuccess, ReferenceFixture } from "../referenceFixture";
+import { expectLoggableError, expectSuccess, ReferenceFixture } from "../referenceFixture";
 
 let fixture: ReferenceFixture;
 beforeEach(() => {
@@ -15,7 +15,7 @@ it("rejects collisions between TypeScript and rbxtsc cache paths", () => {
 	fixture.project("shared", [], { tsBuildInfoFile: "../cache/shared.tsbuildinfo" });
 	fixture.project("game", ["shared"], { tsBuildInfoFile: "../cache/shared.rbxtsc.tsbuildinfo" });
 
-	expect(() => fixture.createBuild()).toThrow("Multiple projects write");
+	expectLoggableError(() => fixture.createBuild(), "Multiple projects write");
 });
 
 it.each(["../cache/game.tsbuildinfo", "../out/game/build.tsbuildinfo"])(
