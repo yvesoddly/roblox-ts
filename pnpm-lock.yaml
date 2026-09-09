@@ -170,6 +170,25 @@ importers:
         specifier: ^3.5.5
         version: 3.5.6(typescript@5.9.3)
 
+  packages/rojo-resolver:
+    dependencies:
+      ajv:
+        specifier: ^8.17.1
+        version: 8.20.0
+      fs-extra:
+        specifier: ^11.2.0
+        version: 11.4.0
+    devDependencies:
+      '@types/fs-extra':
+        specifier: ^11.0.4
+        version: 11.0.4
+      '@types/node':
+        specifier: ^24.0.4
+        version: 24.13.3
+      typescript:
+        specifier: '=5.9.3'
+        version: 5.9.3
+
   tests:
     dependencies:
       '@rbxts/compiler-types':

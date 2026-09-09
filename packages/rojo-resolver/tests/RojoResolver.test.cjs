@@ -1,3 +1,4 @@
+/* eslint-disable typescript/no-require-imports -- exercise the published CommonJS package entry point */
 const assert = require("node:assert/strict");
 const fs = require("node:fs");
 const os = require("node:os");
@@ -20,7 +21,7 @@ function fixture(t) {
 	};
 }
 
-test("discovers configs and prefers the default without ambiguity warnings", t => {
+void test("discovers configs and prefers the default without ambiguity warnings", t => {
 	const { root, write } = fixture(t);
 	assert.deepEqual(RojoResolver.findRojoConfigFilePath(root), { path: undefined, warnings: [] });
 	const legacy = write("roblox-project.json", {});
@@ -31,7 +32,7 @@ test("discovers configs and prefers the default without ambiguity warnings", t =
 	assert.deepEqual(RojoResolver.findRojoConfigFilePath(root), { path: defaultPath, warnings: [] });
 });
 
-test("loads the packaged schema and resolves optional mounts and explicit files", t => {
+void test("loads the packaged schema and resolves optional mounts and explicit files", t => {
 	const { root, write } = fixture(t);
 	const config = write("default.project.json", {
 		name: "game",
@@ -59,7 +60,7 @@ test("loads the packaged schema and resolves optional mounts and explicit files"
 	]);
 });
 
-test("resolves nested projects inside mapped directories", t => {
+void test("resolves nested projects inside mapped directories", t => {
 	const { root, write } = fixture(t);
 	write("out/nested/default.project.json", { name: "nested", tree: { source: { $path: "src" } } });
 	const resolver = RojoResolver.fromTree(root, { shared: { $path: "out" } });
@@ -72,7 +73,7 @@ test("resolves nested projects inside mapped directories", t => {
 	]);
 });
 
-test("reports schema errors and rejects malformed JSON", t => {
+void test("reports schema errors and rejects malformed JSON", t => {
 	const { write } = fixture(t);
 	const invalid = write("invalid.project.json", { name: "invalid", tree: false });
 	const resolver = RojoResolver.fromPath(invalid);
@@ -83,7 +84,7 @@ test("reports schema errors and rejects malformed JSON", t => {
 	assert.throws(() => RojoResolver.fromPath(invalid), SyntaxError);
 });
 
-test("synthetic resolvers preserve extension and init mapping", t => {
+void test("synthetic resolvers preserve extension and init mapping", t => {
 	const { root } = fixture(t);
 	const resolver = RojoResolver.synthetic(root);
 	for (const [name, expected] of [
@@ -100,7 +101,7 @@ test("synthetic resolvers preserve extension and init mapping", t => {
 	assert.equal(resolver.isIsolated(["StarterGui", "module"]), false);
 });
 
-test("classifies Lua and Luau scripts without treating data files as scripts", t => {
+void test("classifies Lua and Luau scripts without treating data files as scripts", t => {
 	const { root } = fixture(t);
 	const resolver = RojoResolver.synthetic(root);
 	for (const [name, expected] of [
@@ -116,7 +117,7 @@ test("classifies Lua and Luau scripts without treating data files as scripts", t
 	}
 });
 
-test("preserves network boundaries and isolated-container relations", t => {
+void test("preserves network boundaries and isolated-container relations", t => {
 	const { root } = fixture(t);
 	const resolver = RojoResolver.fromTree(root, { $className: "DataModel" });
 	const shared = ["ReplicatedStorage", "module"];
@@ -135,9 +136,75 @@ test("preserves network boundaries and isolated-container relations", t => {
 	assert.equal(resolver.getFileRelation(gui, pack), FileRelation.OutToIn);
 });
 
-test("relative paths use the exported parent symbol", () => {
+void test("relative paths use the exported parent symbol", () => {
 	assert.deepEqual(RojoResolver.relative(["a", "b"], ["a", "c"]), [RbxPathParent, "c"]);
 	assert.deepEqual(RojoResolver.relative(["a"], ["a", "b"]), ["b"]);
 	assert.deepEqual(RojoResolver.relative(["a", "b"], []), [RbxPathParent, RbxPathParent]);
 	assert.deepEqual(RojoResolver.relative(["a"], ["a"]), []);
+});
+
+void test("config discovery ignores directories with project filenames", t => {
+	const { root, write } = fixture(t);
+	for (const name of ["default.project.json", "roblox-project.json", "other.project.json"]) {
+		fs.mkdirSync(path.join(root, name));
+	}
+	assert.deepEqual(RojoResolver.findRojoConfigFilePath(root), { path: undefined, warnings: [] });
+	const config = write("actual.project.json", { name: "game", tree: {} });
+	assert.deepEqual(RojoResolver.findRojoConfigFilePath(root), { path: config, warnings: [] });
+});
+
+void test("missing configs produce a warning", t => {
+	const { root } = fixture(t);
+	const config = path.join(root, "missing.project.json");
+	const resolver = RojoResolver.fromPath(config);
+	assert.deepEqual(resolver.getWarnings(), [`RojoResolver: Path does not exist "${config}"`]);
+	assert.deepEqual(resolver.getPartitions(), []);
+});
+
+void test("optional paths require a string optional property", t => {
+	const { write } = fixture(t);
+	const config = write("default.project.json", { name: "game", tree: { mount: { $path: {} } } });
+	const resolver = RojoResolver.fromPath(config);
+	assert.match(resolver.getWarnings()[0], /Invalid configuration/);
+	assert.deepEqual(resolver.getPartitions(), []);
+});
+
+void test("container ancestors are not classified as descendants", t => {
+	const { root } = fixture(t);
+	const resolver = RojoResolver.fromTree(root, { $className: "DataModel" });
+	assert.equal(resolver.isIsolated(["StarterPlayer"]), false);
+	assert.equal(resolver.getFileRelation(["StarterPlayer"], ["ReplicatedStorage", "M"]), FileRelation.OutToOut);
+	assert.equal(resolver.getNetworkType([]), NetworkType.Unknown);
+	assert.equal(resolver.isIsolated(["StarterPlayer", "StarterPlayerScripts", "M"]), true);
+});
+
+void test("descendant names can start with two dots", t => {
+	const { root } = fixture(t);
+	const resolver = RojoResolver.synthetic(path.join(root, "out"));
+	assert.deepEqual(resolver.getRbxPathFromFilePath(path.join(root, "out", "..generated", "M.luau")), [
+		"..generated",
+		"M",
+	]);
+	assert.equal(resolver.getRbxPathFromFilePath(path.join(root, "M.luau")), undefined);
+	assert.equal(resolver.getRbxPathFromFilePath(path.join(root, "outside", "M.luau")), undefined);
+	if (process.platform === "win32") {
+		const drive = path.parse(root).root.toUpperCase().startsWith("Z:") ? "Y:" : "Z:";
+		assert.equal(resolver.getRbxPathFromFilePath(path.join(drive, path.sep, "M.luau")), undefined);
+	}
+});
+
+void test("directory cycles terminate without losing separate symlink mounts", t => {
+	const { root, write } = fixture(t);
+	write("out/target/extra.project.json", { name: "extra", tree: { source: { $path: "src" } } });
+	fs.symlinkSync(path.join(root, "out"), path.join(root, "out", "target", "loop"), "junction");
+	fs.symlinkSync(path.join(root, "out", "target"), path.join(root, "out", "alias"), "junction");
+	const resolver = RojoResolver.synthetic(path.join(root, "out"));
+	for (const mount of ["alias", "target"]) {
+		assert.deepEqual(resolver.getRbxPathFromFilePath(path.join(root, "out", mount, "src", "M.luau")), [
+			mount,
+			"extra",
+			"source",
+			"M",
+		]);
+	}
 });

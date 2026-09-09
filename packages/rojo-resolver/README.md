@@ -4,7 +4,8 @@ Rojo project resolution for roblox-ts.
 
 Imported from [roblox-ts/rojo-resolver v1.2.0](https://github.com/roblox-ts/rojo-resolver/tree/f781b43e3d21cc2c075aa88022dfb542da42e908).
 The tag and npm's `gitHead` both identify commit `f781b43e3d21cc2c075aa88022dfb542da42e908`.
-The resolver source, schema, MIT license, and changelog are unchanged from that commit.
+The MIT license and changelog are unchanged from that commit. Local fixes cover config
+discovery, missing and malformed configs, directory cycles, and path-prefix checks.
 The package retains its name, version, CommonJS entry point, and public API.
 
 Build tooling uses the workspace's TypeScript 5.9.3 with plain `tsc`; this source has no
@@ -32,11 +33,12 @@ network boundaries, and relative paths.
 
 Workspace integration still requires changes outside this directory:
 
--   Change `packages/roblox-ts/package.json` to depend on this package via `workspace:*`
-    and regenerate `pnpm-lock.yaml`, including the new package importer.
--   Add this package to root TypeScript project references and to the compiler's project
-    references where needed for direct project builds. Recursive pnpm builds already
-    discover it through `packages/*`.
--   Include this package's test command in the root test/CI flow. The root Jest configuration
-    does not discover these Node tests. Run the existing compiler integration suite against
-    the workspace-linked resolver.
+- Change `packages/roblox-ts/package.json` to depend on this package via `workspace:*`
+  and regenerate `pnpm-lock.yaml` to link the compiler to it. The package importer
+  is already included for frozen workspace installs.
+- Add this package to root TypeScript project references and to the compiler's project
+  references where needed for direct project builds. Recursive pnpm builds already
+  discover it through `packages/*`.
+- Include this package's test command in the root test/CI flow. The root Jest configuration
+  does not discover these Node tests. Run the existing compiler integration suite against
+  the workspace-linked resolver.

@@ -113,8 +113,10 @@ function stripRojoExts(filePath: string) {
 }
 
 function arrayStartsWith<T>(a: ReadonlyArray<T>, b: ReadonlyArray<T>) {
-	const minLength = Math.min(a.length, b.length);
-	for (let i = 0; i < minLength; i++) {
+	if (a.length < b.length) {
+		return false;
+	}
+	for (let i = 0; i < b.length; i++) {
 		if (a[i] !== b[i]) {
 			return false;
 		}
@@ -123,7 +125,8 @@ function arrayStartsWith<T>(a: ReadonlyArray<T>, b: ReadonlyArray<T>) {
 }
 
 function isPathDescendantOf(filePath: string, dirPath: string) {
-	return dirPath === filePath || !path.relative(dirPath, filePath).startsWith("..");
+	const relativePath = path.relative(dirPath, filePath);
+	return relativePath !== ".." && !relativePath.startsWith(`..${path.sep}`) && !path.isAbsolute(relativePath);
 }
 
 class Lazy<T> {
@@ -166,14 +169,17 @@ export class RojoResolver {
 		const warnings = new Array<string>();
 
 		const defaultPath = path.join(projectPath, ROJO_DEFAULT_NAME);
-		if (fs.pathExistsSync(defaultPath)) {
+		if (fs.pathExistsSync(defaultPath) && fs.statSync(defaultPath).isFile()) {
 			return { path: defaultPath, warnings };
 		}
 
 		const candidates = new Array<string | undefined>();
 		for (const fileName of fs.readdirSync(projectPath)) {
 			if (fileName !== ROJO_DEFAULT_NAME && (fileName === ROJO_OLD_NAME || ROJO_FILE_REGEX.test(fileName))) {
-				candidates.push(path.join(projectPath, fileName));
+				const candidatePath = path.join(projectPath, fileName);
+				if (fs.statSync(candidatePath).isFile()) {
+					candidates.push(candidatePath);
+				}
 			}
 		}
 
@@ -221,11 +227,12 @@ export class RojoResolver {
 	private partitions = new Array<PartitionInfo>();
 	private filePathToRbxPathMap = new Map<string, RbxPath>();
 	private isolatedContainers = [...DEFAULT_ISOLATED_CONTAINERS];
+	private activeDirectories = new Set<string>();
 	public isGame = false;
 
 	private parseConfig(rojoConfigFilePath: string, doNotPush = false) {
-		const realPath = fs.realpathSync(rojoConfigFilePath);
-		if (fs.pathExistsSync(realPath)) {
+		if (fs.pathExistsSync(rojoConfigFilePath)) {
+			const realPath = fs.realpathSync(rojoConfigFilePath);
 			let configJson: unknown;
 			try {
 				configJson = JSON.parse(fs.readFileSync(realPath).toString());
@@ -284,6 +291,20 @@ export class RojoResolver {
 
 	private searchDirectory(directory: string, item?: string) {
 		const realPath = fs.realpathSync(directory);
+		if (this.activeDirectories.has(realPath)) {
+			return;
+		}
+
+		// track only the current traversal so separate mounts of one directory still resolve
+		this.activeDirectories.add(realPath);
+		try {
+			this.searchDirectoryChildren(directory, realPath, item);
+		} finally {
+			this.activeDirectories.delete(realPath);
+		}
+	}
+
+	private searchDirectoryChildren(directory: string, realPath: string, item?: string) {
 		const children = fs.readdirSync(realPath);
 
 		if (children.includes(ROJO_DEFAULT_NAME)) {
