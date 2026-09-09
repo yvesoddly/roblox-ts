@@ -1,3 +1,4 @@
+import { vi } from "vite-plus/test";
 /**
  * NOTE: To debug this, uncomment the Debug entries in Config
  */
@@ -27,7 +28,7 @@ let wipeTmp: boolean | undefined;
  * Config
  * ********************************************************* */
 
-jest.setTimeout(900_000); // 15 minutes
+vi.setConfig({ testTimeout: 900_000, hookTimeout: 900_000 });
 
 process.env.NODE_ENV = 'debug'; // We require this to be on to get the debug info from npm publish
 

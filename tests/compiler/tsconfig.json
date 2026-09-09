@@ -4,7 +4,9 @@
 		"composite": false,
 		"noEmit": true,
 		"rootDir": "../..",
-		"types": ["node", "jest", "ts-expose-internals"],
+		"module": "ESNext",
+		"moduleResolution": "Bundler",
+		"types": ["node", "vite-plus/test/globals", "ts-expose-internals"],
 		"paths": {
 			"*": ["../../packages/roblox-ts/src/*"],
 			"LuauAST": ["../../packages/luau-ast/src/LuauAST"],

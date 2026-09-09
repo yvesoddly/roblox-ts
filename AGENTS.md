@@ -36,7 +36,7 @@ The main pipeline is TypeScript source → TypeScript AST/type checker → Luau 
 | `packages/roblox-ts/src/TSTransformer/util/`                           | Shared lowering rules: evaluation order, type classification, truthiness, imports, assignments, tuples, and string conversion.                                                                                                     |
 | `packages/roblox-ts/src/Shared/`                                       | Options and defaults, diagnostic factories, errors, logging, and common utilities.                                                                                                                                                 |
 | `packages/roblox-ts/include/`                                          | Shipped Luau runtime support: `RuntimeLib.luau` and the bundled `Promise.luau`. Helpers requested through `state.TS(...)` must agree with this runtime.                                                                            |
-| `tests/compiler/`                                                      | Node/Jest tests for compilation, diagnostics, and exact emitted output.                                                                                                                                                            |
+| `tests/compiler/`                                                      | Node/Vitest tests for compilation, diagnostics, and exact emitted output.                                                                                                                                                          |
 | `tests/src/`                                                           | A separate roblox-ts project containing TestEZ runtime tests, diagnostic fixtures, and supporting modules.                                                                                                                         |
 | `.github/workflows/`                                                   | Build, lint, runtime tests, playground compatibility, template-project integration, and publishing.                                                                                                                                |
 
@@ -57,25 +57,25 @@ transformed TypeScript nodes cannot be assumed to retain valid symbol or type in
 
 Run commands from the repository root. pnpm installs the compiler, AST/renderer, compiler declarations, runtime tests, and devlink workspaces together.
 
-| Command                                                                 | Purpose                                                                                                                                               |
-| ----------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `pnpm install --frozen-lockfile`                                        | Install all workspace dependencies from the shared lockfile on a fresh checkout.                                                                      |
-| `pnpm run update-test-types`                                            | Intentionally refresh external Roblox types for the tests and declaration checks. This can change test package metadata; review that diff separately. |
-| `rokit install`                                                         | Install the pinned Rojo/Lune tools described in the contributor guide and `rokit.toml`.                                                               |
-| `pnpm run build`                                                        | Build the compiler's TypeScript project references with `tspc -b`, including the configured path transforms.                                          |
-| `pnpm run build-watch`                                                  | Rebuild compiler sources while editing.                                                                                                               |
-| `pnpm run test-compile`                                                 | Run Jest with coverage, check snapshots and diagnostics, and compile the runtime test project.                                                        |
-| `pnpm run test-compile tests/compiler/strings.test.ts`                  | Example of running one compiler test file.                                                                                                            |
-| `pnpm run test-compile tests/compiler/strings.test.ts --updateSnapshot` | Update that suite's snapshots for an intentional emit change. Review the generated diff.                                                              |
-| `pnpm run test-rojo`                                                    | Build `tests/test.rbxl` from the compiled test project.                                                                                               |
-| `pnpm run test-run`                                                     | Execute that place's TestEZ tests through Lune.                                                                                                       |
-| `pnpm run test-packages`                                                | Run the imported path and declaration-generator package tests.                                                                                        |
-| `pnpm test`                                                             | Build → package tests → compiler Jest tests → Rojo → Lune. Use for compiler/runtime behavior changes.                                                 |
-| `pnpm run check`                                                        | Run Oxlint with zero warnings allowed and check Oxfmt formatting.                                                                                     |
-| `git diff --check`                                                      | Check patch whitespace before finishing.                                                                                                              |
+| Command                                                         | Purpose                                                                                                                                               |
+| --------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `pnpm install --frozen-lockfile`                                | Install all workspace dependencies from the shared lockfile on a fresh checkout.                                                                      |
+| `pnpm run update-test-types`                                    | Intentionally refresh external Roblox types for the tests and declaration checks. This can change test package metadata; review that diff separately. |
+| `rokit install`                                                 | Install the pinned Rojo/Lune tools described in the contributor guide and `rokit.toml`.                                                               |
+| `pnpm run build`                                                | Build the compiler's TypeScript project references with `tspc -b`, including the configured path transforms.                                          |
+| `pnpm run build-watch`                                          | Rebuild compiler sources while editing.                                                                                                               |
+| `pnpm run test-compile`                                         | Typecheck the Node tests, run Vitest with coverage, check snapshots and diagnostics, and compile the runtime test project.                            |
+| `pnpm run test-compile tests/compiler/strings.test.ts`          | Example of running one compiler test file.                                                                                                            |
+| `pnpm run test-compile tests/compiler/strings.test.ts --update` | Update that suite's snapshots for an intentional emit change. Review the generated diff.                                                              |
+| `pnpm run test-rojo`                                            | Build `tests/test.rbxl` from the compiled test project.                                                                                               |
+| `pnpm run test-run`                                             | Execute that place's TestEZ tests through Lune.                                                                                                       |
+| `pnpm run test-packages`                                        | Run the imported path and declaration-generator package tests.                                                                                        |
+| `pnpm test`                                                     | Build → package tests → compiler Vitest tests → Rojo → Lune. Use for compiler/runtime behavior changes.                                               |
+| `pnpm run check`                                                | Run Oxlint with zero warnings allowed and check Oxfmt formatting.                                                                                     |
+| `git diff --check`                                              | Check patch whitespace before finishing.                                                                                                              |
 
 Build before validating compiler changes. A focused snapshot run does **not** refresh the complete runtime output;
-run `tests/compiler/compile.test.ts` or the full Jest suite before running Rojo and Lune separately. Inspect generated
+run `tests/compiler/compile.test.ts` or the full Vitest suite before running Rojo and Lune separately. Inspect generated
 files under `tests/out/`, but change their TypeScript sources rather than editing the output.
 
 For documentation-only changes, check formatting, paths, and the diff; a compiler test run is unnecessary. For
@@ -103,7 +103,7 @@ with Lune execution so exact output and valid runtime behavior are both checked.
   suites in `tests/compiler/`; reusable TypeScript input fixtures go in `tests/compiler/fixtures/`.
 - Runtime assertions establish behavior; snapshots establish exact spelling, parentheses, and temporary placement.
   Add both when both can regress. A snapshot alone does not prove the output parses or runs.
-- Keep snapshot cases alphabetized by test name to match Jest's snapshot ordering. Let Jest generate `.snap` files;
+- Keep snapshot cases alphabetized by test name to match Vitest's snapshot ordering. Let Vitest generate `.snap` files;
   review every intentional change instead of manually arranging snapshots or accepting updates blindly.
 - Confirm a regression test exercises the original bug, preferably by demonstrating failure before the fix. Avoid
   tests coupled to private analysis structures or fabricated internal states just to increase coverage.

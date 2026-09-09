@@ -8,7 +8,7 @@ import { DEFAULT_PROJECT_OPTIONS } from "Shared/constants";
 import { DiagnosticError } from "Shared/errors/DiagnosticError";
 import { formatDiagnostics } from "Shared/util/formatDiagnostics";
 
-import { expectSuccess, ReferenceFixture } from "../referenceFixture";
+import { expectLoggableError, expectSuccess, ReferenceFixture } from "../referenceFixture";
 
 let fixture: ReferenceFixture;
 beforeEach(() => {
@@ -41,7 +41,7 @@ it.each([
 	fixture.project("game", ["shared"]);
 	fixture.write("out/game/keep.luau", "return 7");
 
-	expect(() => fixture.createBuild()).toThrow(message);
+	expectLoggableError(() => fixture.createBuild(), message);
 	expect(fixture.read("out/game/keep.luau")).toBe("return 7");
 });
 
@@ -174,7 +174,7 @@ it.each([undefined, ["../types"], ["../node_modules/incorrect-scope"]])(
 			fixture.json("base.json", base);
 		}
 
-		expect(() => fixture.createBuild()).toThrow(/"typeRoots" must contain a node_modules\/@rbxts directory/);
+		expectLoggableError(() => fixture.createBuild(), /"typeRoots" must contain a node_modules\/@rbxts directory/);
 	},
 );
 

@@ -1,6 +1,47 @@
+import { fileURLToPath } from "node:url";
+
 import { defineConfig } from "vite-plus";
 
 export default defineConfig({
+	resolve: {
+		alias: [
+			{
+				find: /^@roblox-ts\/luau-ast$/,
+				replacement: fileURLToPath(new URL("./packages/luau-ast/src/LuauAST", import.meta.url)),
+			},
+			{
+				find: /^(LuauAST|LuauRenderer)(?=\/|$)/,
+				replacement: fileURLToPath(new URL("./packages/luau-ast/src/", import.meta.url)) + "$1",
+			},
+			{
+				find: /^(Project|Shared|TSTransformer)(?=\/|$)/,
+				replacement: fileURLToPath(new URL("./packages/roblox-ts/src/", import.meta.url)) + "$1",
+			},
+		],
+	},
+	test: {
+		environment: "node",
+		globals: true,
+		include: ["tests/compiler/**/*.test.ts", "packages/luau-ast/tests/**/*.test.ts"],
+		reporters: ["verbose"],
+		// compiler integration tests build real projects, including under coverage instrumentation
+		testTimeout: 30_000,
+		coverage: {
+			provider: "istanbul",
+			include: ["packages/roblox-ts/src/**/*.ts", "packages/luau-ast/src/**/*.ts"],
+			exclude: [
+				"packages/roblox-ts/src/index.ts",
+				"packages/roblox-ts/src/browser.ts",
+				"packages/roblox-ts/src/Shared/util/patchFs.ts",
+				"packages/roblox-ts/src/Shared/classes/LogService.ts",
+				"packages/roblox-ts/src/TSTransformer/util/getFlags.ts",
+				"packages/roblox-ts/src/TSTransformer/util/getKindName.ts",
+				"packages/roblox-ts/src/TSTransformer/util/jsx/constants.ts",
+			],
+			reportsDirectory: "coverage",
+			reporter: ["lcov", "text"],
+		},
+	},
 	lint: {
 		plugins: ["typescript"],
 		// retain the existing import ordering and explanations for lint suppressions
@@ -38,7 +79,6 @@ export default defineConfig({
 			"**/out/",
 			"coverage/",
 			"devlink/",
-			"jest.config.ts",
 		],
 		rules: {
 			"constructor-super": "error",
@@ -244,7 +284,6 @@ export default defineConfig({
 			"**/out/",
 			"coverage/",
 			"devlink/",
-			"jest.config.ts",
 			"*.yml",
 			"pnpm-lock.yaml",
 			"packages/*/CHANGELOG.md",

@@ -1,11 +1,17 @@
+import { vi, type MockInstance } from "vite-plus/test";
 import { run } from '../../../src/main';
 import * as tsTagsModule from '../../../src/ts-tags';
 import * as tsDeclarationsModule from '../../../src/ts-declarations';
 import * as publishModule from '../../../src/publish';
 import * as tmpDirModule from '../../../src/utils/tmp-dir';
-import childProcess from 'child_process';
+import * as childProcess from 'child_process';
 import fs from 'fs';
 
+// mock the named builtin export used by execCmd, not the separate Node default export
+vi.mock("child_process", async (importOriginal) => ({
+  ...await importOriginal<typeof import("child_process")>(),
+  execSync: () => Buffer.alloc(0),
+}));
 
 /* ****************************************************************************************************************** */
 // region: Config
@@ -29,34 +35,34 @@ const storageFileData = {
 
 describe('main.ts', () => {
   describe('run() - with versions', () => {
-    let getApplicableTsTagsSpy: jest.SpyInstance;
-    let buildTsDeclarationsSpy: jest.SpyInstance;
-    let execSyncSpy: jest.SpyInstance;
-    let fsExistsSyncSpy: jest.SpyInstance;
-    let fsReadFileSyncSpy: jest.SpyInstance;
-    let fsWriteFileSyncSpy: jest.SpyInstance;
-    let publishSpy: jest.SpyInstance;
-    let consoleErrorSpy: jest.SpyInstance;
+    let getApplicableTsTagsSpy: MockInstance;
+    let buildTsDeclarationsSpy: MockInstance;
+    let execSyncSpy: MockInstance;
+    let fsExistsSyncSpy: MockInstance;
+    let fsReadFileSyncSpy: MockInstance;
+    let fsWriteFileSyncSpy: MockInstance;
+    let publishSpy: MockInstance;
+    let consoleErrorSpy: MockInstance;
     beforeAll(() => {
-      fsExistsSyncSpy = jest.spyOn(fs, 'existsSync').mockReturnValue(true);
-      fsWriteFileSyncSpy = jest.spyOn(fs, 'writeFileSync').mockImplementation(() => { });
-      consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
-      execSyncSpy = jest.spyOn(childProcess, 'execSync')
+      fsExistsSyncSpy = vi.spyOn(fs, 'existsSync').mockReturnValue(true);
+      fsWriteFileSyncSpy = vi.spyOn(fs, 'writeFileSync').mockImplementation(() => { });
+      consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+      execSyncSpy = vi.spyOn(childProcess, 'execSync')
         .mockImplementation(() => Buffer.from(Math.random().toString(36).substring(2, 15)));
 
-      publishSpy = jest.spyOn(publishModule, 'publish')
+      publishSpy = vi.spyOn(publishModule, 'publish')
         .mockImplementationOnce(() => { })
         .mockImplementationOnce(() => { throw new Error('Publish failed'); })
         .mockImplementation(() => { });
 
-      getApplicableTsTagsSpy = jest.spyOn(tsTagsModule, 'getApplicableTsTags')
+      getApplicableTsTagsSpy = vi.spyOn(tsTagsModule, 'getApplicableTsTags')
         .mockReturnValue([ 'v1.1.0', 'v2.0.0', 'v3.0.0' ]);
 
-      buildTsDeclarationsSpy = jest.spyOn(tsDeclarationsModule, 'buildTsDeclarations')
+      buildTsDeclarationsSpy = vi.spyOn(tsDeclarationsModule, 'buildTsDeclarations')
         .mockImplementation((_, tag) => ({ dtsContent: 'dtsContent', tsVersion: tag.replace(/^v/g, '') }));
 
       const originalReadFileSync = fs.readFileSync;
-      fsReadFileSyncSpy = jest.spyOn(fs, 'readFileSync')
+      fsReadFileSyncSpy = vi.spyOn(fs, 'readFileSync')
         .mockImplementation(function (this: any, p) {
           if (typeof p === "string" && p.endsWith('tsei-storage.json')) return JSON.stringify(storageFileData);
           return originalReadFileSync.apply(this, <any>arguments);
@@ -70,12 +76,12 @@ describe('main.ts', () => {
     });
 
     afterAll(() => {
-      jest.restoreAllMocks();
+      vi.restoreAllMocks();
     });
 
     test('Writes correct data to storage file', () => {
-      expect(fsReadFileSyncSpy).toBeCalled();
-      expect(fsWriteFileSyncSpy).toBeCalled();
+      expect(fsReadFileSyncSpy).toHaveBeenCalled();
+      expect(fsWriteFileSyncSpy).toHaveBeenCalled();
 
       const writeArgs = fsWriteFileSyncSpy.mock.calls.slice(-1)[0][1];
       const storage = JSON.parse(writeArgs);
@@ -143,12 +149,12 @@ describe('main.ts', () => {
     });
 
     test('Builds declarations and publishes them', () => {
-      expect(buildTsDeclarationsSpy).toBeCalledTimes(3);
+      expect(buildTsDeclarationsSpy).toHaveBeenCalledTimes(3);
       expect(buildTsDeclarationsSpy).toHaveBeenNthCalledWith(1, 'repoUrl', 'v1.1.0', expect.any(String), true);
       expect(buildTsDeclarationsSpy).toHaveBeenNthCalledWith(2, 'repoUrl', 'v2.0.0', expect.any(String), true);
       expect(buildTsDeclarationsSpy).toHaveBeenNthCalledWith(3, 'repoUrl', 'v3.0.0', expect.any(String), true);
 
-      expect(publishSpy).toBeCalledTimes(3);
+      expect(publishSpy).toHaveBeenCalledTimes(3);
       expect(publishSpy.mock.calls[0][0]).toEqual(expect.objectContaining({
         dryRun: false,
         currentBuild: {
@@ -214,20 +220,20 @@ describe('main.ts', () => {
 
   describe('run() - dry run', () => {
     afterEach(() => {
-      jest.restoreAllMocks();
+      vi.restoreAllMocks();
     });
 
     test('Does not persist completed builds or run Git commands', () => {
-      jest.spyOn(fs, 'existsSync').mockReturnValue(true);
-      jest.spyOn(fs, 'readFileSync').mockReturnValue(JSON.stringify(storageFileData));
-      const writeSpy = jest.spyOn(fs, 'writeFileSync').mockImplementation(() => {});
-      const execSpy = jest.spyOn(childProcess, 'execSync').mockReturnValue('');
-      jest.spyOn(tmpDirModule, 'withTmpDir').mockImplementation((_, fn) => fn('/tmp/build'));
-      jest.spyOn(tsTagsModule, 'getApplicableTsTags').mockReturnValue(['v1.1.0']);
-      jest.spyOn(tsDeclarationsModule, 'buildTsDeclarations').mockReturnValue({
+      vi.spyOn(fs, 'existsSync').mockReturnValue(true);
+      vi.spyOn(fs, 'readFileSync').mockReturnValue(JSON.stringify(storageFileData));
+      const writeSpy = vi.spyOn(fs, 'writeFileSync').mockImplementation(() => {});
+      const execSpy = vi.spyOn(childProcess, 'execSync').mockReturnValue('');
+      vi.spyOn(tmpDirModule, 'withTmpDir').mockImplementation((_, fn) => fn('/tmp/build'));
+      vi.spyOn(tsTagsModule, 'getApplicableTsTags').mockReturnValue(['v1.1.0']);
+      vi.spyOn(tsDeclarationsModule, 'buildTsDeclarations').mockReturnValue({
         dtsContent: 'declarations', tsVersion: '1.1.0',
       });
-      const publishSpy = jest.spyOn(publishModule, 'publish').mockImplementation(() => {});
+      const publishSpy = vi.spyOn(publishModule, 'publish').mockImplementation(() => {});
 
       run(true);
 
@@ -238,17 +244,17 @@ describe('main.ts', () => {
   });
 
   describe('run() - no versions to process', () => {
-    let getApplicableTsTagsSpy: jest.SpyInstance;
-    let execSyncSpy: jest.SpyInstance;
-    let withTmpDirSpy: jest.SpyInstance;
-    let consoleLogSpy: jest.SpyInstance;
+    let getApplicableTsTagsSpy: MockInstance;
+    let execSyncSpy: MockInstance;
+    let withTmpDirSpy: MockInstance;
+    let consoleLogSpy: MockInstance;
     let result: any;
 
     beforeAll(() => {
-      execSyncSpy = jest.spyOn(childProcess, 'execSync').mockReturnValue('');
-      getApplicableTsTagsSpy = jest.spyOn(tsTagsModule, 'getApplicableTsTags').mockReturnValue([]);
-      withTmpDirSpy = jest.spyOn(tmpDirModule, 'withTmpDir').mockImplementation();
-      consoleLogSpy = jest.spyOn(console, 'log').mockImplementation();
+      execSyncSpy = vi.spyOn(childProcess, 'execSync').mockReturnValue('');
+      getApplicableTsTagsSpy = vi.spyOn(tsTagsModule, 'getApplicableTsTags').mockReturnValue([]);
+      withTmpDirSpy = vi.spyOn(tmpDirModule, 'withTmpDir').mockImplementation(vi.fn());
+      consoleLogSpy = vi.spyOn(console, 'log').mockImplementation(vi.fn());
 
       // noinspection JSVoidFunctionReturnValueUsed
       result = run(true);
@@ -256,7 +262,7 @@ describe('main.ts', () => {
     });
 
     afterAll(() => {
-      jest.restoreAllMocks();
+      vi.restoreAllMocks();
     });
 
     test('Logs info message', () => {

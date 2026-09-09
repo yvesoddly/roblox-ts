@@ -1,24 +1,30 @@
-import childProcessModule from 'child_process';
+import { vi, type MockInstance } from "vite-plus/test";
+import * as childProcessModule from 'child_process';
 import * as tsTagsModule from '../../../src/ts-tags';
 import * as tmpDirModule from '../../../src/utils/tmp-dir';
 import { getAllTsTags, getApplicableTsTags } from '../../../src/ts-tags';
 import { createContext } from '../../../src/context';
 
+// mock the named builtin export used by execCmd, not the separate Node default export
+vi.mock("child_process", async (importOriginal) => ({
+  ...await importOriginal<typeof import("child_process")>(),
+  execSync: () => Buffer.alloc(0),
+}));
 
 /* ****************************************************************************************************************** */
 // region: Tests
 /* ****************************************************************************************************************** */
 
 describe('ts-tags.ts', () => {
-  let execSyncSpy: jest.SpyInstance;
-  let withTmpDirSpy: jest.SpyInstance;
+  let execSyncSpy: MockInstance;
+  let withTmpDirSpy: MockInstance;
   beforeAll(() => {
-    execSyncSpy = jest.spyOn(childProcessModule, 'execSync').mockImplementation();
-    withTmpDirSpy = jest.spyOn(tmpDirModule, 'withTmpDir').mockImplementation((subDir, fn) => fn('/test/dir'));
+    execSyncSpy = vi.spyOn(childProcessModule, 'execSync').mockImplementation(vi.fn());
+    withTmpDirSpy = vi.spyOn(tmpDirModule, 'withTmpDir').mockImplementation((subDir, fn) => fn('/test/dir'));
   });
 
   afterAll(() => {
-    jest.restoreAllMocks();
+    vi.restoreAllMocks();
   });
 
   beforeEach(() => {
@@ -52,10 +58,10 @@ describe('ts-tags.ts', () => {
   });
 
   describe('getApplicableTsTags()', () => {
-    let getAllTsTagsSpy: jest.SpyInstance;
+    let getAllTsTagsSpy: MockInstance;
     let tags: string[];
     beforeAll(() => {
-      getAllTsTagsSpy = jest.spyOn(tsTagsModule, 'getAllTsTags').mockImplementation();
+      getAllTsTagsSpy = vi.spyOn(tsTagsModule, 'getAllTsTags').mockImplementation(vi.fn());
       getAllTsTagsSpy.mockImplementation(() => [
         'v1.0.0',
         'v2.3.1',

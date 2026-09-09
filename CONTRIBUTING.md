@@ -63,7 +63,7 @@ formatting with Oxfmt, or `pnpm run fmt` to apply formatting. Both use the root 
 The config retains type-aware linting and the import-sort and suppression-comment plugins.
 Node and pnpm are managed separately; no global Vite Plus installation is needed.
 
-The compiler build still uses TypeScript 5.9 and `tspc`; the tests still use Jest, Rojo, and Lune.
+The compiler build uses TypeScript 5.9 and `tspc`; the tests use Vitest through Vite Plus, Rojo, and Lune.
 The explicit paths in the TypeScript configs also support Oxlint's TypeScript Go engine.
 Install the recommended Oxc VS Code extension and copy `.vscode/settings.example.json` to
 `.vscode/settings.json` for matching editor behavior.
@@ -74,8 +74,8 @@ Install the recommended Oxc VS Code extension and copy `.vscode/settings.example
 
 The tests run in two environments:
 
-- `tests/compiler/` contains Node/Jest tests for compiler behavior and exact Luau output.
-  Expected output is stored in Jest's `__snapshots__/` directories.
+- `tests/compiler/` contains Node/Vitest tests for compiler behavior and exact Luau output.
+  Expected output is stored in Vitest's `__snapshots__/` directories.
 - `tests/src/` is a tiny **roblox-ts** game containing runtime tests, diagnostic cases,
   and supporting fixtures. It has a separate TypeScript configuration from the Node tests.
 
@@ -85,7 +85,7 @@ such as unnecessary temporary variables. Avoid testing transformer internals in 
 
 The testing process is as follows:
 
-1. Run Jest to check compiler behavior, verify snapshots, and compile the Roblox test project into `tests/out`
+1. Run Vitest to check compiler behavior, verify snapshots, and compile the Roblox test project into `tests/out`
 2. Use `rojo build` to create `tests/test.rbxl`
 3. Use `lune` to execute the runtime tests
 
@@ -101,8 +101,10 @@ pnpm test
 Run `pnpm run test-packages` for the path translator, Rojo resolver, and declaration-generator suites.
 These are also included in `pnpm test`. The declaration generator's live and release commands remain opt-in.
 
-After building the compiler, you can also run just the Jest tests with `pnpm run test-compile`.
-For an intentional emit change, update snapshots with `pnpm run test-compile --updateSnapshot`
+After building the compiler, you can also run just the Vitest tests with `pnpm run test-compile`.
+This first typechecks the compiler and AST tests with TypeScript, since Vitest only transpiles them.
+Run `pnpm run test-typecheck` to check their types separately; the generator's test command checks its own types.
+For an intentional emit change, update snapshots with `pnpm run test-compile --update`
 and review the resulting diff before committing.
 
 Normal test runs use the versions and Git commits recorded in `pnpm-lock.yaml`. To intentionally refresh
@@ -115,7 +117,7 @@ with `pnpm --filter @roblox-ts/cli pack` to distribute the `rbxtsc` command. CLI
 `@roblox-ts/cli`, which depends on the compiler.
 
 The compiler references the local `@roblox-ts/luau-ast` package. Root builds run in dependency order,
-and `pnpm run build-watch` watches the CLI, compiler, and AST packages through TypeScript project references. Jest also loads
+and `pnpm run build-watch` watches the CLI, compiler, and AST packages through TypeScript project references. Vitest also loads
 the AST and renderer source directly, so compiler tests cover changes in either package.
 
 Always pack with pnpm before publishing: it replaces `workspace:*` dependencies with package versions.

@@ -1,8 +1,14 @@
-import childProcess from 'child_process';
+import { vi, type MockInstance } from "vite-plus/test";
+import * as childProcess from 'child_process';
 import fs from 'fs';
 import * as tsDeclarationsModule from '../../../src/ts-declarations';
 import { buildTsDeclarations, fixupTsDeclarations } from '../../../src/ts-declarations';
 
+// mock the named builtin export used by execCmd, not the separate Node default export
+vi.mock("child_process", async (importOriginal) => ({
+  ...await importOriginal<typeof import("child_process")>(),
+  execSync: () => Buffer.alloc(0),
+}));
 
 /* ****************************************************************************************************************** */
 // region: Config
@@ -21,13 +27,13 @@ const expectedOutputDeclarations = 'declare module "typescript" { const b: ts.A;
 describe('ts-declarations.ts', () => {
   describe('buildTsDeclarations()', () => {
     let result: { dtsContent: string, tsVersion: string };
-    let fixupTsDeclarationsSpy: jest.SpyInstance;
-    let execSyncSpy: jest.SpyInstance;
-    let readFileSyncSpy: jest.SpyInstance;
+    let fixupTsDeclarationsSpy: MockInstance;
+    let execSyncSpy: MockInstance;
+    let readFileSyncSpy: MockInstance;
     beforeAll(() => {
-      readFileSyncSpy = jest.spyOn(fs, 'readFileSync');
-      execSyncSpy = jest.spyOn(childProcess, 'execSync').mockReturnValue('');
-      fixupTsDeclarationsSpy = jest.spyOn(tsDeclarationsModule, 'fixupTsDeclarations').mockReturnValue('output');
+      readFileSyncSpy = vi.spyOn(fs, 'readFileSync');
+      execSyncSpy = vi.spyOn(childProcess, 'execSync').mockReturnValue('');
+      fixupTsDeclarationsSpy = vi.spyOn(tsDeclarationsModule, 'fixupTsDeclarations').mockReturnValue('output');
 
       readFileSyncSpy.mockImplementation((p) => {
         if ((p as string).endsWith('package.json')) return JSON.stringify({ version: '1.2.3' });
@@ -38,7 +44,7 @@ describe('ts-declarations.ts', () => {
     });
 
     afterAll(() => {
-      jest.restoreAllMocks();
+      vi.restoreAllMocks();
     });
 
     test(`Checks out the specified version of TypeScript`, () => {
