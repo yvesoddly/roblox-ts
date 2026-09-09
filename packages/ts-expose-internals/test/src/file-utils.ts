@@ -18,15 +18,21 @@ export function copyRecursive(filePath: string, destPath: string) {
   }
 }
 
-/** Create a link or junction to a file or directory. */
-export function createLink(srcPath: string, destPath: string) {
-  if (fs.existsSync(destPath)) fs.unlinkSync(destPath);
+// resolve each dependency before linking so pnpm's relative links also work across Windows drives
+export function linkNodeModules(srcDir: string, destDir: string) {
+  fs.mkdirSync(destDir, { recursive: true });
+  for (const name of fs.readdirSync(srcDir)) {
+    if (name.startsWith('.')) {
+      continue;
+    }
 
-  const stats = fs.statSync(srcPath);
-  if (stats.isDirectory()) {
-    fs.symlinkSync(srcPath, destPath, 'junction');
-  } else {
-    fs.linkSync(srcPath, destPath);
+    const source = path.join(srcDir, name);
+    const destination = path.join(destDir, name);
+    if (name.startsWith('@')) {
+      linkNodeModules(source, destination);
+    } else {
+      fs.symlinkSync(fs.realpathSync(source), destination, 'junction');
+    }
   }
 }
 

@@ -6,7 +6,7 @@ import fs from 'fs';
 import path from 'path';
 import semver from 'semver/preload';
 import { fixupVersionTag } from '../../../src/ts-tags';
-import { copyRecursive, createLink } from '../../src/file-utils';
+import { copyRecursive, linkNodeModules } from '../../src/file-utils';
 import { assetsPath, getTmpRootPath, integrationTestCopyFiles, repoRootPath } from '../../src/config';
 
 
@@ -86,7 +86,7 @@ describe(`End-to-end Run`, () => {
       copyRecursive(srcPath, path.join(tmpDir, srcFileName))
     });
 
-    createLink(path.join(repoRootPath, 'node_modules'), path.join(tmpDir, 'node_modules'));
+    linkNodeModules(path.join(repoRootPath, 'node_modules'), path.join(tmpDir, 'node_modules'));
 
     execFileSync(process.execPath, [
       '-r', require.resolve('ts-node/register'),

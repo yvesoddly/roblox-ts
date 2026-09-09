@@ -5,7 +5,7 @@ import { spawn, spawnSync, SpawnSyncReturns } from 'child_process';
 import { Storage } from '../../../src/storage';
 import path from 'path';
 import fs from 'fs';
-import { copyRecursive, createLink } from '../../src/file-utils';
+import { copyRecursive, linkNodeModules } from '../../src/file-utils';
 import { getTmpRootPath, integrationTestCopyFiles, repoRootPath } from '../../src/config';
 
 
@@ -82,7 +82,7 @@ describe('Live Test', () => {
           copyRecursive(srcPath, path.join(tmpDir, srcFileName))
         });
 
-        createLink(path.join(repoRootPath, 'node_modules'), path.join(tmpDir, 'node_modules'));
+        linkNodeModules(path.join(repoRootPath, 'node_modules'), path.join(tmpDir, 'node_modules'));
 
         /* Create Storage */
         const storagePath = path.join(tmpDir, 'tsei-storage.json');
