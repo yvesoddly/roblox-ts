@@ -1,3 +1,4 @@
+/* eslint-disable typescript/no-require-imports -- exercise the published CommonJS entry point */
 const assert = require("node:assert/strict");
 const path = require("node:path");
 const { test } = require("node:test");
@@ -9,7 +10,7 @@ const outDir = path.resolve("project", "out");
 const source = name => path.join(rootDir, name);
 const output = name => path.join(outDir, name);
 
-test("constructor preserves public configuration and defaults", () => {
+void test("constructor preserves public configuration and defaults", () => {
 	const translator = new PathTranslator(rootDir, outDir, undefined, false);
 	assert.equal(translator.rootDir, rootDir);
 	assert.equal(translator.outDir, outDir);
@@ -35,7 +36,7 @@ for (const useLuauExtension of [false, true]) {
 		["asset.json", "asset.json"],
 		["folder", "folder"],
 	]) {
-		test(`getOutputPath (${ext}): ${input}`, () => {
+		void test(`getOutputPath (${ext}): ${input}`, () => {
 			assert.equal(translator.getOutputPath(source(input)), output(expected));
 		});
 	}
@@ -47,7 +48,7 @@ for (const useLuauExtension of [false, true]) {
 		["component.tsx", `component.${ext}`],
 		["asset.json", "asset.json"],
 	]) {
-		test(`getImportPath (${ext}): ${input}`, () => {
+		void test(`getImportPath (${ext}): ${input}`, () => {
 			assert.equal(translator.getImportPath(source(input)), output(expected));
 			assert.equal(translator.getImportPath(source(input), true), source(expected));
 		});
@@ -55,18 +56,21 @@ for (const useLuauExtension of [false, true]) {
 
 	for (const [input, expected] of [
 		[`main.${ext}`, ["main.ts", "main.tsx", `main.${ext}`]],
-		[`nested/init.server.${ext}`, [
-			"nested/init.server.ts",
-			"nested/init.server.tsx",
-			"nested/index.server.ts",
-			"nested/index.server.tsx",
+		[
 			`nested/init.server.${ext}`,
-		]],
+			[
+				"nested/init.server.ts",
+				"nested/init.server.tsx",
+				"nested/index.server.ts",
+				"nested/index.server.tsx",
+				`nested/init.server.${ext}`,
+			],
+		],
 		[`index.${ext}`, [`index.${ext}`]],
 		["asset.json", ["asset.json"]],
 		[useLuauExtension ? "main.lua" : "main.luau", [useLuauExtension ? "main.lua" : "main.luau"]],
 	]) {
-		test(`getInputPaths (${ext}): ${input}`, () => {
+		void test(`getInputPaths (${ext}): ${input}`, () => {
 			assert.deepEqual(translator.getInputPaths(output(input)), expected.map(source));
 		});
 	}
@@ -76,7 +80,7 @@ for (const declaration of [false, true]) {
 	const translator = new PathTranslator(rootDir, outDir, undefined, declaration);
 
 	for (const input of ["nested/module.d.ts", "nested/module.d.tsx"]) {
-		test(`getInputPaths (declaration=${declaration}): ${input}`, () => {
+		void test(`getInputPaths (declaration=${declaration}): ${input}`, () => {
 			const expected = declaration ? ["nested/module.ts", "nested/module.tsx", input] : [input];
 			assert.deepEqual(translator.getInputPaths(output(input)), expected.map(source));
 		});
@@ -91,7 +95,7 @@ for (const [input, declaration, transformed] of [
 	["main.d.tsx", "main.d.tsx", "main.transformed.d.tsx"],
 	["asset.json", "asset.json", "asset.transformed.json"],
 ]) {
-	test(`declaration and transformed output: ${input}`, () => {
+	void test(`declaration and transformed output: ${input}`, () => {
 		const translator = new PathTranslator(rootDir, outDir, undefined, true);
 		assert.equal(translator.getOutputDeclarationPath(source(input)), output(declaration));
 		assert.equal(translator.getOutputTransformedPath(source(input)), output(transformed));

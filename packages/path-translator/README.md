@@ -25,11 +25,9 @@ compiler integration remains a separate workspace check.
 
 ## Workspace integration follow-up
 
-- Regenerate the root `pnpm-lock.yaml` to register this package's dependencies before using frozen installs.
 - Change `packages/roblox-ts/package.json` to consume `@roblox-ts/path-translator` via `workspace:*` and regenerate
   the lockfile to test the compiler against this local source.
 - Include this package's tests in the root test command or CI; the root Jest configuration does not discover them.
 - Add a reference in the root `tsconfig.json` if root TypeScript project builds should include this package.
-- Allow the preserved relative imports in the root lint configuration for `packages/path-translator/src/**/*.ts`.
 
 The existing `packages/*` workspace glob and recursive build command already discover this package.
