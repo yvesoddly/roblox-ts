@@ -1,6 +1,6 @@
 {
 	"[typescript]": {
-		"editor.defaultFormatter": "esbenp.prettier-vscode"
+		"editor.defaultFormatter": "oxc.oxc-vscode"
 	},
 	"editor.formatOnSave": true,
 	"files.eol": "\n",
@@ -11,5 +11,11 @@
 		"editor.formatOnSave": false,
 		"editor.wordWrap": "bounded",
 		"editor.wordWrapColumn": 120
+	},
+	"oxc.disableNestedConfig": true,
+	"oxc.fmt.disableNestedConfig": true,
+	"editor.formatOnSaveMode": "file",
+	"editor.codeActionsOnSave": {
+		"source.fixAll.oxc": "explicit"
 	}
 }

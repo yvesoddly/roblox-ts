@@ -13,9 +13,8 @@
 		"composite": true,
 		"sourceMap": true,
 		"outDir": "out",
-		"baseUrl": "src",
 		"paths": {
-			"*": ["*"]
+			"*": ["./src/*"]
 		},
 		"plugins": [
 			{

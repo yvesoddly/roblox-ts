@@ -1,11 +1,20 @@
 packages:
-  - packages/*
-  - tests
-  - devlink
+    - packages/*
+    - tests
+    - devlink
 
 allowBuilds:
-  '@parcel/watcher': false
-  msgpackr-extract: false
-  unrs-resolver: false
+    "@parcel/watcher": false
+    msgpackr-extract: false
+    unrs-resolver: false
 minimumReleaseAgeExclude:
-  - '@roblox-ts/rojo-resolver@1.2.0'
+    - "@roblox-ts/rojo-resolver@1.2.0"
+
+overrides:
+    vite: npm:@voidzero-dev/vite-plus-core@0.3.1
+    vitest: 4.1.11
+
+# vite-plus-core uses the Vite Plus version rather than the upstream Vite version
+peerDependencyRules:
+    allowedVersions:
+        vite: 0.3.1

@@ -9,7 +9,7 @@ First, we'll need to setup the development build of **roblox-ts**.
 This guide assumes you have the following installed:
 
 - Git
-- NodeJS
+- NodeJS 24.11.0 or newer
 - pnpm 11.25.0 (the version pinned in `package.json`)
 
 We'll also assume you understand some basic terminal navigation commands (`cd`, `ls`/`dir`, etc.).
@@ -52,6 +52,18 @@ pnpm run build
 ```
 
 It is not necessary to run the "devlink" script again.
+
+## Linting and Formatting
+
+Vite Plus is a local workspace dependency. Run `pnpm run check` to lint with Oxlint and check
+formatting with Oxfmt, or `pnpm run fmt` to apply formatting. Both use the root `vite.config.ts`.
+The config retains type-aware linting and the import-sort and suppression-comment plugins.
+Node and pnpm are managed separately; no global Vite Plus installation is needed.
+
+The compiler build still uses TypeScript 5.9 and `tspc`; the tests still use Jest, Rojo, and Lune.
+The explicit paths in the TypeScript configs also support Oxlint's TypeScript Go engine.
+Install the recommended Oxc VS Code extension and copy `.vscode/settings.example.json` to
+`.vscode/settings.json` for matching editor behavior.
 
 ## Unit Testing
 

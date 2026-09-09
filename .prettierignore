@@ -1,4 +1,0 @@
-*.yml
-**/out
-**/node_modules
-/packages/*/CHANGELOG.md

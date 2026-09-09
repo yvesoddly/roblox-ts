@@ -1,8 +1,8 @@
 {
 	"compilerOptions": {
 		"allowSyntheticDefaultImports": true,
-		"module": "commonjs",
-		"moduleResolution": "Node",
+		"module": "preserve",
+		"moduleResolution": "Bundler",
 		"noLib": true,
 		"noEmit": true,
 		"strict": true,

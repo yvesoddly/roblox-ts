@@ -15,3 +15,5 @@ out
 /tests/include
 
 /sourcemap.json
+
+/.pnpm-store/

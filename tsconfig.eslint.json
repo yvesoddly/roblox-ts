@@ -1,7 +1,0 @@
-{
-	"extends": "./packages/roblox-ts/tsconfig-base.json",
-	"include": ["eslint.config.ts"],
-	"compilerOptions": {
-		"rootDir": "."
-	}
-}

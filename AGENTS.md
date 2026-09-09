@@ -68,7 +68,7 @@ Run commands from the repository root. pnpm installs the compiler, AST/renderer,
 | `pnpm run test-rojo`                                                    | Build `tests/test.rbxl` from the compiled test project.                                                                                               |
 | `pnpm run test-run`                                                     | Execute that place's TestEZ tests through Lune.                                                                                                       |
 | `pnpm test`                                                             | Build → all Jest tests → Rojo → Lune. Use for compiler/runtime behavior changes.                                                                      |
-| `pnpm run eslint`                                                       | Run lint with zero warnings allowed.                                                                                                                  |
+| `pnpm run check`                                                        | Run Oxlint with zero warnings allowed and check Oxfmt formatting.                                                                                     |
 | `git diff --check`                                                      | Check patch whitespace before finishing.                                                                                                              |
 
 Build before validating compiler changes. A focused snapshot run does **not** refresh the complete runtime output;
@@ -150,7 +150,7 @@ For an engine-specific issue, verify the actual API and use an appropriate Roblo
 
 ## Code and comment style
 
-- Follow `.prettierrc`, `.editorconfig`, and `eslint.config.ts`: tabs, double quotes, semicolons, trailing commas,
+- Follow `vite.config.ts` and `.editorconfig`: tabs, double quotes, semicolons, trailing commas,
   and `Array<T>` / `ReadonlyArray<T>`. Source imports use project aliases such as `TSTransformer/...` and `Shared/...`;
   relative imports are allowed in `tests/compiler/`. Let the import sorter arrange imports.
 - Always use braces for `if`, `else`, and loop bodies, including single-line early returns and `continue` or `break`
