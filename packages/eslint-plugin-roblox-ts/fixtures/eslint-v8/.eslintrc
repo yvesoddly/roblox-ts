@@ -1,0 +1,17 @@
+// ESLint v8 Legacy Config
+// Compatible with @typescript-eslint/parser >=6.0.0
+{
+  "extends": [
+    "eslint:recommended",
+    "plugin:roblox-ts/recommended-legacy"
+  ],
+  "plugins": [
+    "@typescript-eslint"
+  ],
+  "rules": {
+    // TypeScript ESLint rules
+    "@typescript-eslint/no-unused-vars": "error",
+    "@typescript-eslint/no-explicit-any": "off"
+  },
+  "ignorePatterns": ["dist/", "node_modules/"]
+}

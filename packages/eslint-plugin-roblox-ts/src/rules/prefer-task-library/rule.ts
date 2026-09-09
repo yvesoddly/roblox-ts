@@ -1,0 +1,52 @@
+import { AST_NODE_TYPES, type TSESLint, type TSESTree } from "@typescript-eslint/utils";
+
+import assert from "node:assert";
+
+import { createRobloxRule, type RobloxRuleListener } from "../../util";
+
+export const RULE_NAME = "prefer-task-library";
+
+const PREFER_TASK = "prefer-task-library";
+
+const messages = {
+	[PREFER_TASK]: "Use task.{{fn}}() instead of {{fn}}() for better performance.",
+};
+
+const FN_NAMES = new Set(["delay", "spawn", "wait"]);
+
+function createOnce(context: Readonly<TSESLint.RuleContext<string, []>>): RobloxRuleListener {
+	return {
+		CallExpression(node: TSESTree.CallExpression) {
+			if (node.callee.type !== AST_NODE_TYPES.Identifier || !FN_NAMES.has(node.callee.name)) {
+				return;
+			}
+
+			context.report({
+				data: { fn: node.callee.name },
+				fix: (fixer) => {
+					assert(node.callee.type === AST_NODE_TYPES.Identifier);
+					return fixer.replaceText(node.callee, `task.${node.callee.name}`);
+				},
+				messageId: PREFER_TASK,
+				node: node.callee,
+			});
+		},
+	};
+}
+
+export const preferTaskLibrary = createRobloxRule({
+	name: RULE_NAME,
+	createOnce,
+	defaultOptions: [],
+	meta: {
+		docs: {
+			description: "Enforce use of task library alternatives",
+			recommended: true,
+			requiresTypeChecking: false,
+		},
+		fixable: "code",
+		messages,
+		schema: [],
+		type: "problem",
+	},
+});
