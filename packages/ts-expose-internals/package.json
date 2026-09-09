@@ -1,0 +1,50 @@
+{
+	"name": "@roblox-ts/ts-expose-internals",
+	"private": true,
+	"description": "Augment the TypeScript compiler module's types to expose hidden internal types",
+	"version": "5.9.3",
+	"license": "MIT",
+	"types": "index.d.ts",
+	"scripts": {
+		"test": "jest --config jest.config.ts --runInBand",
+		"test:with_live": "cross-env LIVE_TEST=true jest --config jest.config.ts --runInBand",
+		"compile": "tsc",
+		"run": "ts-node -T -P tsconfig.json ./src/main.ts"
+	},
+	"author": {
+		"name": "Ron Spickenagel",
+		"url": "https://twitter.com/ron"
+	},
+	"repository": {
+		"type": "git",
+		"url": "git+https://github.com/roblox-ts/roblox-ts.git",
+		"directory": "packages/ts-expose-internals"
+	},
+	"files": [
+		"index.d.ts",
+		"README.md",
+		"typescript.d.ts"
+	],
+	"keywords": [
+		"typescript",
+		"internal types",
+		"internals",
+		"byots",
+		"types"
+	],
+	"engines": {
+		"node": ">=24"
+	},
+	"devDependencies": {
+		"@types/jest": "^29.5.2",
+		"@types/node": "^14.0.25",
+		"@types/semver": "^7.5.0",
+		"jest": "^29.5.0",
+		"semver": "^7.5.2",
+		"ts-jest": "^29.1.0",
+		"ts-node": "^8.10.2",
+		"typescript": "=5.9.3",
+		"cross-env": "^7.0.3",
+		"rimraf": "^5.0.1"
+	}
+}

@@ -4,7 +4,11 @@ const config: Config = {
 	preset: "ts-jest",
 	testEnvironment: "node",
 	testMatch: ["<rootDir>/tests/compiler/**/*.test.ts", "<rootDir>/packages/luau-ast/tests/**/*.test.ts"],
-	modulePathIgnorePatterns: ["<rootDir>/packages/[^/]+/out/"],
+	modulePathIgnorePatterns: [
+		"<rootDir>/packages/[^/]+/out/",
+		// the publishing template intentionally shares the workspace package name
+		"<rootDir>/packages/ts-expose-internals/package-files/",
+	],
 	moduleNameMapper: {
 		"^@roblox-ts/luau-ast$": "<rootDir>/packages/luau-ast/src/LuauAST",
 		"^(LuauAST|LuauRenderer)/(.*)$": "<rootDir>/packages/luau-ast/src/$1/$2",

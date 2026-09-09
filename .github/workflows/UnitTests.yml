@@ -24,6 +24,11 @@ jobs:
       - name: Setup workspace
         uses: ./.github/actions/setup
 
+      - name: Validate ts-expose-internals
+        run: |
+          pnpm --dir packages/ts-expose-internals run compile
+          pnpm --dir packages/ts-expose-internals test
+
       - name: Run Tests
         run: pnpm test
 

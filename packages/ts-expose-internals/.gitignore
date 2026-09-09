@@ -1,0 +1,10 @@
+/tmp
+./package-files/README.md
+
+# IDE
+/.idea
+/.vscode
+
+# Junk
+node_modules
+.cache
