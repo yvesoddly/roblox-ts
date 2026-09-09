@@ -129,6 +129,10 @@ function isPathDescendantOf(filePath: string, dirPath: string) {
 	return relativePath !== ".." && !relativePath.startsWith(`..${path.sep}`) && !path.isAbsolute(relativePath);
 }
 
+function isFile(filePath: string) {
+	return fs.pathExistsSync(filePath) && fs.statSync(filePath).isFile();
+}
+
 class Lazy<T> {
 	private isInitialized = false;
 	private value: T | undefined;
@@ -169,7 +173,7 @@ export class RojoResolver {
 		const warnings = new Array<string>();
 
 		const defaultPath = path.join(projectPath, ROJO_DEFAULT_NAME);
-		if (fs.pathExistsSync(defaultPath) && fs.statSync(defaultPath).isFile()) {
+		if (isFile(defaultPath)) {
 			return { path: defaultPath, warnings };
 		}
 
@@ -177,7 +181,7 @@ export class RojoResolver {
 		for (const fileName of fs.readdirSync(projectPath)) {
 			if (fileName !== ROJO_DEFAULT_NAME && (fileName === ROJO_OLD_NAME || ROJO_FILE_REGEX.test(fileName))) {
 				const candidatePath = path.join(projectPath, fileName);
-				if (fs.statSync(candidatePath).isFile()) {
+				if (isFile(candidatePath)) {
 					candidates.push(candidatePath);
 				}
 			}
@@ -274,7 +278,7 @@ export class RojoResolver {
 			this.filePathToRbxPathMap.set(itemPath, [...this.rbxPath]);
 		} else {
 			const isDirectory = fs.pathExistsSync(realPath) && fs.statSync(realPath).isDirectory();
-			if (isDirectory && fs.readdirSync(realPath).includes(ROJO_DEFAULT_NAME)) {
+			if (isDirectory && isFile(path.join(itemPath, ROJO_DEFAULT_NAME))) {
 				this.parseConfig(path.join(itemPath, ROJO_DEFAULT_NAME), true);
 			} else {
 				this.partitions.unshift({
@@ -307,7 +311,7 @@ export class RojoResolver {
 	private searchDirectoryChildren(directory: string, realPath: string, item?: string) {
 		const children = fs.readdirSync(realPath);
 
-		if (children.includes(ROJO_DEFAULT_NAME)) {
+		if (isFile(path.join(directory, ROJO_DEFAULT_NAME))) {
 			this.parseConfig(path.join(directory, ROJO_DEFAULT_NAME));
 			return;
 		}

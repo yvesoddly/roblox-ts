@@ -208,3 +208,15 @@ void test("directory cycles terminate without losing separate symlink mounts", t
 		]);
 	}
 });
+
+for (const directory of ["out", "out/nested"]) {
+	void test(`mounted-tree scans traverse config-named directories under ${directory}`, t => {
+		const { root, write } = fixture(t);
+		const filePath = write(`${directory}/default.project.json/module.luau`, "");
+		const resolver = RojoResolver.fromTree(root, { shared: { $path: "out" } });
+
+		const expected = directory === "out" ? ["shared"] : ["shared", "nested"];
+		assert.deepEqual(resolver.getRbxPathFromFilePath(filePath), [...expected, "default.project.json", "module"]);
+		assert.deepEqual(resolver.getWarnings(), []);
+	});
+}
