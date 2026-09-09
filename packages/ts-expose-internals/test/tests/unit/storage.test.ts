@@ -52,7 +52,7 @@ describe('storage.ts', () => {
       for (const [, options] of execSyncSpy.mock.calls) {
         expect(options).toEqual(expect.objectContaining({ cwd: repoRootDir }));
       }
-      expect(execSyncSpy).toHaveBeenCalledWith('git commit -m "chore(storage): Updated storage"', expect.any(Object));
+      expect(execSyncSpy).toHaveBeenCalledWith('git commit --only -m "chore(storage): Updated storage" -- tsei-storage.json', expect.any(Object));
 
       expect(commitId).toEqual('newCommitId');
     });

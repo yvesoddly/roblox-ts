@@ -19,8 +19,6 @@ let currentVersion = '';
 
 const versions = process.env.TS_VERSIONS.split(',').map(v => v.trim());
 const rootDir = process.cwd();
-const tsDir = path.join(rootDir, 'build');
-const builtLocalDir = path.join(tsDir, 'built', 'local');
 const logFilePath = path.join(rootDir, 'log.txt');
 
 // endregion
@@ -84,7 +82,7 @@ childProcess.execSync = (command, opt) => {
       const fixedTag = fixupVersionTag(command.split(' ')[5]);
       const version = fixedTag.replace(/^v/, '');
       currentVersion = version;
-      fs.writeFileSync(path.join(tsDir, 'package.json'), JSON.stringify({ version }));
+      fs.writeFileSync(path.join(opt.cwd, 'package.json'), JSON.stringify({ version }));
     }
     else if (command.startsWith('git rev-parse HEAD')) {
       res = Buffer.from((++buildNumber).toString());
@@ -106,6 +104,7 @@ childProcess.execSync = (command, opt) => {
   }
 
   else if (command.startsWith('npx hereby dts')) {
+    const builtLocalDir = path.join(opt.cwd, 'built', 'local');
     isValidCmd = true;
     if (!fs.existsSync(builtLocalDir)) fs.mkdirSync(builtLocalDir, { recursive: true });
     fs.copyFileSync(

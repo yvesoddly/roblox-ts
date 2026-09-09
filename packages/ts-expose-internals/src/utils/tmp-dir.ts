@@ -22,11 +22,10 @@ export function getTmpDir(subDir: string): string {
 }
 
 export function withTmpDir<T>(subDir: string, fn: (tmpDir: string) => T): T {
-  const tmpDirPath = getTmpDir(subDir);
-
-  /* Prepare dir */
-  if (fs.existsSync(tmpDirPath)) fs.rmSync(tmpDirPath, { recursive: true, force: true });
-  fs.mkdirSync(tmpDirPath, { recursive: true });
+  const tmpDirRoot = getTmpDir(subDir);
+  fs.mkdirSync(tmpDirRoot, { recursive: true });
+  // each invocation owns its checkout or staging directory, including concurrent processes
+  const tmpDirPath = fs.mkdtempSync(path.join(tmpDirRoot, 'run-'));
 
   /* Run function + cleanup */
   try {

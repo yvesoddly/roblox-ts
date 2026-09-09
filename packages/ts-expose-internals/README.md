@@ -16,7 +16,7 @@ Expose TypeScript internal types by simply adding a development dependency.
    ```jsonc
    {
      "devDependencies": {
-       "typescript": "^5.9.3",
+       "typescript": "=5.9.3",
        // Note: The package is '@roblox-ts/ts-expose-internals', but we are aliasing within the @types scope to make TS adopt it globally
        "@types/ts-expose-internals": "npm:@roblox-ts/ts-expose-internals@5.9.3"
      }

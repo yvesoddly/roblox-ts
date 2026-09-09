@@ -67,7 +67,7 @@ export function updateStorage(storage: Storage, repoRootDir: string, skipCommit?
 
     /* Create a git commit with the updated file */
     execCmd('git add -- tsei-storage.json', { ...execSyncOptions });
-    execCmd('git commit -m "chore(storage): Updated storage"', { ...execSyncOptions });
+    execCmd('git commit --only -m "chore(storage): Updated storage" -- tsei-storage.json', { ...execSyncOptions });
 
     /* Verify new commit */
     const newCommitId = getLatestCommitId(execSyncOptions);

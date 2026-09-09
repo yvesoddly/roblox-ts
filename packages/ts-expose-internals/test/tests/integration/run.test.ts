@@ -163,7 +163,7 @@ describe(`End-to-end Run`, () => {
     });
 
     test(`Creates commit`, () => {
-      expect(logContent).toContain('git commit -m "chore(storage): Updated storage"');
+      expect(logContent).toContain('git commit --only -m "chore(storage): Updated storage" -- tsei-storage.json');
     });
 
     test(`Publish packages`, () => {

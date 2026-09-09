@@ -33,6 +33,21 @@ describe('utils/tmp-dir.ts', () => {
       expect(fs.existsSync(tmpDir!)).toBeFalsy();
     });
 
+    test('Overlapping invocations with the same name preserve each other', () => {
+      withTmpDir('test', outer => {
+        const marker = path.join(outer, 'active');
+        fs.writeFileSync(marker, 'outer');
+        const innerDir = withTmpDir('test', inner => {
+          expect(inner).not.toBe(outer);
+          expect(fs.readFileSync(marker, 'utf8')).toBe('outer');
+          return inner;
+        });
+
+        expect(fs.existsSync(innerDir)).toBe(false);
+        expect(fs.readFileSync(marker, 'utf8')).toBe('outer');
+      });
+    });
+
     test('Returns the result of the function argument', () => {
       const result = withTmpDir('test', () => 'success');
       expect(result).toEqual('success');

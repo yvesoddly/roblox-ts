@@ -138,7 +138,7 @@ describe('main.ts', () => {
 
     test(`Commits and pushes changes`, () => {
       expect(execSyncSpy).toHaveBeenNthCalledWith(2, expect.stringMatching(/^git add .+?tsei-storage.json$/g), expect.any(Object));
-      expect(execSyncSpy).toHaveBeenNthCalledWith(3, 'git commit -m "chore(storage): Updated storage"', expect.any(Object));
+      expect(execSyncSpy).toHaveBeenNthCalledWith(3, 'git commit --only -m "chore(storage): Updated storage" -- tsei-storage.json', expect.any(Object));
       expect(execSyncSpy).toHaveBeenNthCalledWith(5, 'git push', expect.any(Object));
     });
 
