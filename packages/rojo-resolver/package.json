@@ -1,0 +1,39 @@
+{
+	"name": "@roblox-ts/rojo-resolver",
+	"version": "1.2.0",
+	"description": "RojoResolver for roblox-ts",
+	"main": "out/RojoResolver.js",
+	"repository": {
+		"type": "git",
+		"url": "git+https://github.com/roblox-ts/roblox-ts.git",
+		"directory": "packages/rojo-resolver"
+	},
+	"scripts": {
+		"prepack": "npm run build",
+		"build": "tsc -b",
+		"build-watch": "tsc -b -w",
+		"test": "npm run build && node --test tests/*.test.cjs"
+	},
+	"author": "",
+	"license": "MIT",
+	"dependencies": {
+		"ajv": "^8.17.1",
+		"fs-extra": "^11.2.0"
+	},
+	"devDependencies": {
+		"@types/fs-extra": "^11.0.4",
+		"@types/node": "^24.0.4",
+		"typescript": "=5.9.3"
+	},
+	"publishConfig": {
+		"access": "public"
+	},
+	"files": [
+		"out",
+		"CHANGELOG.md",
+		"rojo-schema.json",
+		"!**/*.js.map",
+		"!**/*.tsbuildinfo"
+	],
+	"types": "out/RojoResolver.d.ts"
+}
