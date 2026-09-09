@@ -1,4 +1,4 @@
-import { execSync } from 'child_process';
+import { ExecSyncOptions } from 'child_process';
 import fs from 'fs';
 import path from 'path';
 import { execCmd } from './utils/exec';
@@ -43,7 +43,7 @@ export namespace Storage {
 // region: Helpers
 /* ****************************************************************************************************************** */
 
-function getLatestCommitId(execSyncOptions: any): string {
+function getLatestCommitId(execSyncOptions: ExecSyncOptions): string {
   return execCmd('git rev-parse HEAD', { ...execSyncOptions }).toString().trim();
 }
 
@@ -66,11 +66,11 @@ export function updateStorage(storage: Storage, repoRootDir: string, skipCommit?
     const prevCommitId = getLatestCommitId(execSyncOptions);
 
     /* Create a git commit with the updated file */
-    execCmd(`git add ${filePath}`, { ...execSyncOptions });
+    execCmd('git add -- tsei-storage.json', { ...execSyncOptions });
     execCmd('git commit -m "chore(storage): Updated storage"', { ...execSyncOptions });
 
     /* Verify new commit */
-    const newCommitId = getLatestCommitId(repoRootDir);
+    const newCommitId = getLatestCommitId(execSyncOptions);
     if (prevCommitId === newCommitId) throw new Error('Failed to create commit for updateStorage!');
 
     return newCommitId;

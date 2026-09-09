@@ -2,7 +2,6 @@ import fs from 'fs';
 import { TseiContext } from './context';
 import { withTmpDir } from './utils/tmp-dir';
 import path from 'path';
-import { execSync } from 'child_process';
 import semver from 'semver/preload';
 import { execCmd } from './utils/exec';
 
@@ -65,7 +64,12 @@ export function publish(context: TseiContext) {
         .filter(b => b.complete && b.tsVersion)
         .sort((a, b) => semver.rcompare(a.tsVersion, b.tsVersion))[0];
 
-      if (!highestCompletedTag || semver.gt(buildDetail.tsVersion, highestCompletedTag.tsVersion)) npmTag = 'latest';
+      if (!highestCompletedTag || semver.gt(buildDetail.tsVersion, highestCompletedTag.tsVersion)) {
+        npmTag = 'latest';
+      } else {
+        // npm defaults to latest when no tag is provided, so backfills need an explicit tag
+        npmTag = 'backfill';
+      }
     }
 
     console.log(`[${versionTag}] Publishing (tag: ${npmTag})...`);

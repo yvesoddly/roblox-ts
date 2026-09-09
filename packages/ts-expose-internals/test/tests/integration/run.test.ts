@@ -164,7 +164,7 @@ describe(`End-to-end Run`, () => {
       for (const tag of processableTags) {
         const fixedTag = fixupVersionTag(tag);
         let prerelease = semver.prerelease(fixedTag);
-        let expectedTag: string = "latest";
+        let expectedTag: string = tag === "v1.1.0" ? "backfill" : "latest";
         if (prerelease) expectedTag = prerelease.join(".").replace(/\d+$/, '')
 
         const startPos = logContent.indexOf(`git clone --depth 1 --branch ${tag}`);

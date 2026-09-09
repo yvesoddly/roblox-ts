@@ -74,11 +74,11 @@ export function run(isDryRun: boolean = false) {
     }
 
     /* Complete */
-    if (updatedBuilds.length) {
+    if (updatedBuilds.length && !isDryRun) {
       console.log(`Updating storage with ${updatedBuilds.length} new builds...`);
-      storage.save(isDryRun);
+      storage.save();
 
-      if (!isDryRun) execCmd(`git push`, { env: { ...process.env }, cwd: baseContext.repoRootDir });
+      execCmd(`git push`, { env: { ...process.env }, cwd: baseContext.repoRootDir });
     }
 
     if (encounteredErrors) throw new Error(`Finished with errors — see log`);

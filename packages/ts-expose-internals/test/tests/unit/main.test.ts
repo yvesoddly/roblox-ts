@@ -202,6 +202,31 @@ describe('main.ts', () => {
     });
   });
 
+  describe('run() - dry run', () => {
+    afterEach(() => {
+      jest.restoreAllMocks();
+    });
+
+    test('Does not persist completed builds or run Git commands', () => {
+      jest.spyOn(fs, 'existsSync').mockReturnValue(true);
+      jest.spyOn(fs, 'readFileSync').mockReturnValue(JSON.stringify(storageFileData));
+      const writeSpy = jest.spyOn(fs, 'writeFileSync').mockImplementation(() => {});
+      const execSpy = jest.spyOn(childProcess, 'execSync').mockReturnValue('');
+      jest.spyOn(tmpDirModule, 'withTmpDir').mockImplementation((_, fn) => fn('/tmp/build'));
+      jest.spyOn(tsTagsModule, 'getApplicableTsTags').mockReturnValue(['v1.1.0']);
+      jest.spyOn(tsDeclarationsModule, 'buildTsDeclarations').mockReturnValue({
+        dtsContent: 'declarations', tsVersion: '1.1.0',
+      });
+      const publishSpy = jest.spyOn(publishModule, 'publish').mockImplementation(() => {});
+
+      run(true);
+
+      expect(publishSpy).toHaveBeenCalledWith(expect.objectContaining({ dryRun: true }));
+      expect(writeSpy).not.toHaveBeenCalled();
+      expect(execSpy).not.toHaveBeenCalled();
+    });
+  });
+
   describe('run() - no versions to process', () => {
     let getApplicableTsTagsSpy: jest.SpyInstance;
     let execSyncSpy: jest.SpyInstance;

@@ -25,6 +25,8 @@ export default defineConfig({
 			builtin: true,
 		},
 		ignorePatterns: [
+			// preserve the imported generator and exact TypeScript declarations; its own compile/tests run in CI
+			"packages/ts-expose-internals/",
 			".local/",
 			".pnpm-store/",
 			"**/node_modules/",
@@ -229,6 +231,10 @@ export default defineConfig({
 		sortImports: false,
 		sortPackageJson: false,
 		ignorePatterns: [
+			// standalone planning artifacts keep their own layout
+			".plans/",
+			// preserve the imported generator and exact TypeScript declarations; its own compile/tests run in CI
+			"packages/ts-expose-internals/",
 			".local/",
 			".pnpm-store/",
 			"**/node_modules/",

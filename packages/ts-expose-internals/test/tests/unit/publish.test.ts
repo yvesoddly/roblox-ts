@@ -92,6 +92,30 @@ describe(`publish.ts`, () => {
       expect(writtenPkgJson).toMatchObject({ version: buildDetail.tsVersion });
       expect(writtenPkgJson).not.toHaveProperty('private');
     });
+    test.each([
+      ['1.1.0', '1.2.0', 'backfill'],
+      ['1.2.0', '1.2.0', 'backfill'],
+      ['1.3.0', '1.2.0', 'latest'],
+      ['1.3.0-beta.1', '1.2.0', 'beta.'],
+    ])('Publishes %s after %s using %s', (version, previousVersion, tag) => {
+      execSyncSpy.mockClear();
+      publish({
+        ...context,
+        dryRun,
+        currentBuild: {
+          dtsContent,
+          buildDetail: { ...buildDetail, tsVersion: version, tag: `v${version}` },
+        },
+        storage: {
+          ...context.storage,
+          buildDetails: [{ ...buildDetail, tsVersion: previousVersion, complete: true }],
+        },
+      });
+      expect(execSyncSpy).toHaveBeenCalledWith(
+        `npm publish --ignore-scripts --tag "${tag}"${dryRun ? ' --dry-run' : ''}`,
+        expect.objectContaining({ cwd: destDir }),
+      );
+    });
   });
 });
 

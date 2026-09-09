@@ -35,7 +35,7 @@ describe('storage.ts', () => {
       buildDetails: [],
       save: jest.fn()
     };
-    const repoRootDir = '/test/repo/root/dir';
+    const repoRootDir = '/test/repo with spaces/root/dir';
     const filePath = path.join(repoRootDir, 'tsei-storage.json');
 
     test('Updates the storage file and creates a new git commit', () => {
@@ -48,7 +48,10 @@ describe('storage.ts', () => {
       const commitId = updateStorage(storage, repoRootDir);
 
       expect(writeFileSyncSpy).toHaveBeenCalledWith(filePath, JSON.stringify(storage, null, 2), 'utf8');
-      expect(execSyncSpy).toHaveBeenCalledWith(`git add ${filePath}`, expect.any(Object));
+      expect(execSyncSpy).toHaveBeenCalledWith('git add -- tsei-storage.json', expect.objectContaining({ cwd: repoRootDir }));
+      for (const [, options] of execSyncSpy.mock.calls) {
+        expect(options).toEqual(expect.objectContaining({ cwd: repoRootDir }));
+      }
       expect(execSyncSpy).toHaveBeenCalledWith('git commit -m "chore(storage): Updated storage"', expect.any(Object));
 
       expect(commitId).toEqual('newCommitId');

@@ -74,8 +74,10 @@ incompatible with TypeScript 5.9 iterator types. The consumer augmentation test 
 
 ## Preserving the workspace alias
 
-This import changes only this package directory. The workspace already includes `packages/*`, but root dependencies,
-compiler dependencies, and `pnpm-lock.yaml` have not been integrated or refreshed here.
+The workspace includes `packages/*`, and the shared lockfile records this package's development dependencies.
+CI compiles the generator and runs its tests on Linux, Windows, and macOS. Workspace lint and formatting exclude
+this upstream import so its generator, fixtures, and exact declarations remain easy to compare.
+Consumer aliases still resolve to the published package; switching them to the workspace is a separate integration step.
 Both the root `package.json` and `packages/roblox-ts/package.json` currently use:
 
 ```json
@@ -95,10 +97,10 @@ Keep this package named `@roblox-ts/ts-expose-internals`; pnpm's workspace alias
 A dependency only under the scoped package's real name does not provide that automatic inclusion.
 Keep every consumer's TypeScript version at `=5.9.3` until the declarations are deliberately regenerated and validated.
 
-Then run `pnpm install` to record the new importer and alias links in the shared lockfile, followed by the package tests,
+Then run `pnpm install` to record the alias links in the shared lockfile, followed by the package tests,
 compiler build, and compiler tests. Verify both aliases resolve locally and that published consumer metadata still
 resolves to `npm:@roblox-ts/ts-expose-internals@5.9.3`. The declaration package must be available in the registry before
-publishing a consumer that depends on a new version. No root configuration or lockfile edits are included in this import.
+publishing a consumer that depends on a new version. The current PR preserves both existing npm aliases.
 
 ## Package validation and generator maintenance
 
@@ -109,7 +111,7 @@ pnpm --dir packages/ts-expose-internals run compile
 pnpm --dir packages/ts-expose-internals test
 ```
 
-For isolated validation before updating the workspace lockfile:
+For isolated package validation:
 
 ```sh
 npm install --prefix packages/ts-expose-internals --ignore-scripts --package-lock=false
@@ -119,7 +121,7 @@ npm --prefix packages/ts-expose-internals test
 
 The default suite includes upstream unit tests, mocked publishing integration, and a consumer test that installs the
 `@types` alias in a temporary project and checks public and internal APIs with TypeScript 5.9.3 and `skipLibCheck: false`.
-If Watchman is unavailable in a sandbox, append `-- --watchman=false` to the test command.
+If Watchman is unavailable in a sandbox, append `--watchman=false` to the pnpm test command (or `-- --watchman=false` with npm).
 The live upstream test is opt-in via `test:with_live` and downloads/builds TypeScript.
 
 `src/ts-declarations.ts` contains `buildTsDeclarations` and `fixupTsDeclarations`: the generator clones a TypeScript tag,
@@ -130,4 +132,6 @@ not the local consumer entry point.
 
 The imported `run` script is upstream release automation: it scans tags using `tsei-storage.json`, publishes packages,
 commits release state, and pushes. It is not a local build command. `run -- --dry-run` suppresses publishing, commits, and pushes
-but still downloads/builds matching releases and updates local release state. Default tests mock those operations.
+but still downloads/builds matching releases. Dry runs leave release state unchanged.
+Stable backfills publish under the `backfill` dist-tag so they cannot move `latest` backwards.
+The generator requires Node 24 or newer, matching workspace CI. Default tests mock those operations.
