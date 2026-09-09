@@ -90,8 +90,8 @@ describe('Live Test', () => {
 
         /* Run */
         return new Promise<void>((resolve, reject) => {
-          const child = spawn('node', [
-            '-r', 'ts-node/register',
+          const child = spawn(process.execPath, [
+            '-r', require.resolve('ts-node/register'),
             '-r', './integration-hook.js',
             'src/main.ts',
             '--dry-run'
@@ -100,6 +100,7 @@ describe('Live Test', () => {
             env: {
               ...process.env,
               TMP_ROOT_PATH: tmpDir,
+              NODE_PATH: path.join(repoRootPath, 'node_modules'),
             }
           });
 

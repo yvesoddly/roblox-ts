@@ -71,6 +71,11 @@ export function run(isDryRun: boolean = false) {
       } finally {
         updatedBuilds.push(buildDetail);
       }
+
+      // checkpoint each attempt before starting another build so interruptions do not lose published versions
+      if (!isDryRun) {
+        storage.save(true);
+      }
     }
 
     /* Complete */

@@ -1,7 +1,7 @@
 /**
  * NOTE: To debug this, uncomment the Debug entries in Config
  */
-import { execSync } from 'child_process';
+import { execFileSync } from 'child_process';
 import fs from 'fs';
 import path from 'path';
 import semver from 'semver/preload';
@@ -88,12 +88,18 @@ describe(`End-to-end Run`, () => {
 
     createLink(path.join(repoRootPath, 'node_modules'), path.join(tmpDir, 'node_modules'));
 
-    execSync(`node -r ts-node/register -r ./integration-hook.js src/main.ts ${dryRun ? '--dry-run' : ''}`, {
+    execFileSync(process.execPath, [
+      '-r', require.resolve('ts-node/register'),
+      '-r', './integration-hook.js',
+      'src/main.ts',
+      ...(dryRun ? ['--dry-run'] : []),
+    ], {
       cwd: tmpDir,
       stdio: 'inherit',
       env: {
         ...process.env,
         TS_VERSIONS: tags.join(','),
+        NODE_PATH: path.join(repoRootPath, 'node_modules'),
         TMP_ROOT_PATH: tmpDir,
       }
     });

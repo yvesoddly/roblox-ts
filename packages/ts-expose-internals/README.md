@@ -133,5 +133,6 @@ not the local consumer entry point.
 The imported `run` script is upstream release automation: it scans tags using `tsei-storage.json`, publishes packages,
 commits release state, and pushes. It is not a local build command. `run -- --dry-run` suppresses publishing, commits, and pushes
 but still downloads/builds matching releases. Dry runs leave release state unchanged.
+Normal runs checkpoint each completed attempt before starting the next build and commit the accumulated state at the end.
 Stable backfills publish under the `backfill` dist-tag so they cannot move `latest` backwards.
 The generator requires Node 24 or newer, matching workspace CI. Default tests mock those operations.

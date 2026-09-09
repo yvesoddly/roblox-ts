@@ -77,7 +77,7 @@ describe('main.ts', () => {
       expect(fsReadFileSyncSpy).toBeCalled();
       expect(fsWriteFileSyncSpy).toBeCalled();
 
-      const writeArgs = fsWriteFileSyncSpy.mock.calls[0][1];
+      const writeArgs = fsWriteFileSyncSpy.mock.calls.slice(-1)[0][1];
       const storage = JSON.parse(writeArgs);
 
       expect(storage.settings).toEqual(storageFileData.settings);
@@ -117,8 +117,18 @@ describe('main.ts', () => {
       });
     });
 
+    test('Checkpoints each attempt before starting the next build', () => {
+      expect(fsWriteFileSyncSpy).toHaveBeenCalledTimes(4);
+      const firstCheckpoint = JSON.parse(fsWriteFileSyncSpy.mock.calls[0][1]);
+      expect(firstCheckpoint.buildDetails[0].complete).toBe(true);
+      expect(fsWriteFileSyncSpy.mock.invocationCallOrder[0])
+        .toBeLessThan(buildTsDeclarationsSpy.mock.invocationCallOrder[1]);
+      const secondCheckpoint = JSON.parse(fsWriteFileSyncSpy.mock.calls[1][1]);
+      expect(secondCheckpoint.buildDetails[1].complete).toBe(false);
+    });
+
     test(`Skips build beyond maxAttempts`, () => {
-      const writeArgs = fsWriteFileSyncSpy.mock.calls[0][1];
+      const writeArgs = fsWriteFileSyncSpy.mock.calls.slice(-1)[0][1];
       const storage = JSON.parse(writeArgs);
 
       const buildDetail = storage.buildDetails.find((bd: any) => bd.tsVersion === '2.1.0');
@@ -191,7 +201,7 @@ describe('main.ts', () => {
       expect(consoleErrorSpy).toHaveBeenCalled();
       expect(consoleErrorSpy.mock.calls[0][0]).toMatch('Publish failed');
 
-      const writeArgs = fsWriteFileSyncSpy.mock.calls[0][1];
+      const writeArgs = fsWriteFileSyncSpy.mock.calls.slice(-1)[0][1];
       const storage = JSON.parse(writeArgs);
 
       // Find the 'v2.0.0' version build details
