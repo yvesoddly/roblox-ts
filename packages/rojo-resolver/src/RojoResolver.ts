@@ -302,7 +302,15 @@ export class RojoResolver {
 		} else {
 			const isDirectory = fs.pathExistsSync(realPath) && fs.statSync(realPath).isDirectory();
 			if (isDirectory && isFile(path.join(itemPath, ROJO_DEFAULT_NAME))) {
-				this.parseConfig(path.join(itemPath, ROJO_DEFAULT_NAME), true);
+				if (this.activeDirectories.has(realPath)) {
+					throw new Error(`RojoResolver: Recursive project path "${itemPath}"`);
+				}
+				this.activeDirectories.add(realPath);
+				try {
+					this.parseConfig(path.join(itemPath, ROJO_DEFAULT_NAME), true);
+				} finally {
+					this.activeDirectories.delete(realPath);
+				}
 			} else {
 				this.partitions.unshift({
 					fsPath: itemPath,
@@ -379,7 +387,7 @@ export class RojoResolver {
 				const stripped = stripRojoExts(filePath);
 				const relativePath = path.relative(partition.fsPath, stripped);
 				const relativeParts = relativePath === "" ? [] : relativePath.split(path.sep);
-				if (ROJO_SCRIPT_EXTS.has(ext) && relativeParts.at(-1) === INIT_NAME) {
+				if (ROJO_SCRIPT_EXTS.has(ext) && relativeParts[relativeParts.length - 1] === INIT_NAME) {
 					relativeParts.pop();
 				}
 				return partition.rbxPath.concat(relativeParts);

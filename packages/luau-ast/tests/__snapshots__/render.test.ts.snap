@@ -1,6 +1,36 @@
 // Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
 
-exports[`renders mixed tables as executable Luau tables 1`] = `
+exports[`preserves concatenation grouping for metamethods 1`] = `
+"local result = (a .. b) .. c
+"
+`;
+
+exports[`renders contextual keyword fields as executable Luau 1`] = `
+"return {
+	continue = 1,
+	const = 1,
+	export = 1,
+	type = 1,
+}
+"
+`;
+
+exports[`renders escaped strings as executable Luau 1`] = `
+"return { "\\n", "\\\\n", "trailing\\\\" }
+"
+`;
+
+exports[`renders interpolated backticks as executable Luau 1`] = `
+"return \`\\\`\\{\\}\`
+"
+`;
+
+exports[`renders left-nested exponentiation as executable Luau 1`] = `
+"return (2 ^ 3) ^ 2
+"
+`;
+
+exports[`renders mixed tables as executable Luau 1`] = `
 "return {
 	5,
 	count = 9,
@@ -8,10 +38,68 @@ exports[`renders mixed tables as executable Luau tables 1`] = `
 "
 `;
 
-exports[`renders sets as executable Luau tables 1`] = `
+exports[`renders right-nested exponentiation as executable Luau 1`] = `
+"return 2 ^ 3 ^ 2
+"
+`;
+
+exports[`renders sets as executable Luau 1`] = `
 "return {
 	["first"] = true,
 	[2] = true,
 }
+"
+`;
+
+exports[`renders single-operand compound lists 1`] = `
+"result += 3
+"
+`;
+
+exports[`reserves local function bindings in their enclosing scope (block) 1`] = `
+"do
+	local function _helper()
+		return 7
+	end
+	local _helper_1 = 99
+	result = _helper()
+end
+"
+`;
+
+exports[`reserves local function bindings in their enclosing scope (top-level) 1`] = `
+"local function _helper()
+	return 7
+end
+local _helper_1 = 99
+result = _helper()
+"
+`;
+
+exports[`reserves loop bindings for temporary names (generic) 1`] = `
+"for _key, _value in { 7 } do
+	local _value_1 = 99
+	result = _value
+end
+"
+`;
+
+exports[`reserves loop bindings for temporary names (numeric) 1`] = `
+"for _value = 7, 7 do
+	local _value_1 = 99
+	result = _value
+end
+"
+`;
+
+exports[`visits temporary identifiers in generic iterator expressions 1`] = `
+"local _iterator = 99
+for key, value in (function()
+	local _iterator_1 = { 7 }
+	assert(_iterator == 99)
+	return _iterator_1
+end)() do
+	result = value
+end
 "
 `;

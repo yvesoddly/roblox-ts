@@ -242,3 +242,15 @@ for (const linkName of ["dangling", "nondirectory", "self"]) {
 		assert.deepEqual(resolver.getWarnings(), []);
 	});
 }
+
+for (const tree of [{ $path: "." }, { recursive: { $path: "." } }]) {
+	void test(`rejects recursive default project mounts: ${JSON.stringify(tree)}`, t => {
+		const { root, write } = fixture(t);
+		const config = write("default.project.json", { name: "game", tree });
+
+		assert.throws(() => RojoResolver.fromPath(config), {
+			name: "Error",
+			message: `RojoResolver: Recursive project path "${root}"`,
+		});
+	});
+}

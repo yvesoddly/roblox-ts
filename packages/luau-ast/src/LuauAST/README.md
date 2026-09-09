@@ -4,15 +4,17 @@
 
 **index.ts** - re-exports all exported values in each file
 
-**types/enums.ts** - enums for luau.SyntaxKind, luau.BinaryOperator, luau.UnaryOperator
+**impl/enums.ts** - luau.SyntaxKind enum
+
+**types/operators.ts** - binary, unary, and assignment operator types
 
 **types/nodes.ts** - contains interfaces that describe each node
 
-**impl/mapping.ts** - contains interfaces to describe the mapping of each node to IndexableExpression, Expression, Statement, and Field
+**types/mapping.ts** - contains interfaces to describe the mapping of each node to IndexableExpression, Expression, Statement, and Field
 
 **impl/create.ts** - helper functions for creating nodes
 
-**impl/traversal.ts** - helper functions for traversing nodes
+**../LuauRenderer/util/visit.ts** - helper functions for traversing nodes
 
 **impl/typeGuards.ts** - helper functions for determining what a particular node is
 

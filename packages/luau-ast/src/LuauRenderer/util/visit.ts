@@ -102,6 +102,7 @@ const KIND_TO_VISITOR = identity<{ [K in luau.SyntaxKind]: VisitStrategy<K> }>({
 	},
 	[luau.SyntaxKind.ForStatement]: (node, visitor) => {
 		visitList(node.ids, visitor);
+		visitNode(node.expression, visitor);
 		visitList(node.statements, visitor);
 	},
 	[luau.SyntaxKind.FunctionDeclaration]: (node, visitor) => {

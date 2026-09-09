@@ -8,6 +8,8 @@ const LUAU_METAMETHODS = new Set([
 	"__sub",
 	"__mul",
 	"__div",
+	"__idiv",
+	"__iter",
 	"__mod",
 	"__pow",
 	"__tostring",

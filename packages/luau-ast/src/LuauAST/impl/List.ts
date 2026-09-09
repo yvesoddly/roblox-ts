@@ -50,8 +50,7 @@ export namespace list {
 	// type guard
 
 	export function isList(value: unknown): value is luau.List<luau.Node> {
-		// eslint-disable-next-line @typescript-eslint/no-explicit-any -- inspect the private marker before narrowing to a list
-		return typeof value === "object" && (value as any)[LIST_MARKER] === true;
+		return typeof value === "object" && value !== null && LIST_MARKER in value && value[LIST_MARKER] === true;
 	}
 
 	// list utility functions
@@ -79,6 +78,7 @@ export namespace list {
 
 	export function pushList<T extends luau.Node>(list: luau.List<T>, other: luau.List<T>) {
 		assert(!list.readonly);
+		assert(list !== other, "Cannot splice a list into itself");
 		assert(!other.readonly);
 		other.readonly = true;
 
@@ -124,6 +124,7 @@ export namespace list {
 
 	export function unshiftList<T extends luau.Node>(list: luau.List<T>, other: luau.List<T>) {
 		assert(!list.readonly);
+		assert(list !== other, "Cannot splice a list into itself");
 		assert(!other.readonly);
 		other.readonly = true;
 

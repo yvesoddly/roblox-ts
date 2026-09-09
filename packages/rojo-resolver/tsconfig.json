@@ -3,7 +3,7 @@
 		"declaration": true,
 		"module": "commonjs",
 		"target": "ES2019",
-		"lib": ["ES2022"],
+		"lib": ["ES2019"],
 		"strict": true,
 		"noFallthroughCasesInSwitch": true,
 		"strictNullChecks": true,

@@ -15,27 +15,26 @@ export function create<T extends keyof luau.NodeByKind>(
 
 	for (const [key, value] of Object.entries(fields)) {
 		if (luau.isNode(value)) {
-			if (value.parent) {
-				const clone: luau.Node = { ...value };
-				clone.parent = node;
-				node[key as never] = clone as never;
-			} else {
-				value.parent = node;
-			}
+			node[key as never] = attachChild(value, node) as never;
 		} else if (luau.list.isList(value)) {
-			luau.list.forEachListNode(value, listNode => {
-				if (listNode.value.parent) {
-					const clone: luau.Node = { ...listNode.value };
-					clone.parent = node;
-					listNode.value = clone;
-				} else {
-					listNode.value.parent = node;
-				}
-			});
+			// list links belong to this parent even when the caller reuses an attached list
+			node[key as never] = luau.list.make(
+				...luau.list.mapToArray(value, child => attachChild(child, node)),
+			) as never;
 		}
 	}
 
 	return node;
+}
+
+function attachChild(child: luau.Node, parent: luau.Node): luau.Node {
+	if (child.parent) {
+		// rebuilding through create also reparents descendants while preserving temporary IDs
+		const { parent: _parent, kind, ...fields } = child;
+		child = create(kind, fields);
+	}
+	child.parent = parent;
+	return child;
 }
 
 let lastTempId = 0;
@@ -90,7 +89,7 @@ export function number(value: number): luau.Expression {
 
 /**
  * Creates a new `string` literal node.
- * @param value The value of the string
+ * @param value escaped Luau string content
  * @param quote Explicit delimiter; value must already be escaped for this delimiter.
  */
 export function string(value: string, quote?: luau.StringLiteral["quote"]) {

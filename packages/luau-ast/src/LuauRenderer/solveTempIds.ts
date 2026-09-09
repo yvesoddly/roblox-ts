@@ -83,8 +83,15 @@ export function solveTempIds(state: RenderState, ast: luau.List<luau.Node> | lua
 
 	visit(ast, {
 		before: node => {
-			if (isFullyScopedNode(node)) pushScopeStack();
-			if (isScopeStart(node)) pushScopeStack();
+			if (isScopeStart(node)) {
+				pushScopeStack();
+			}
+			if (luau.isFunctionDeclaration(node) && node.localize && luau.isIdentifier(node.name)) {
+				registerId(node.name.name);
+			}
+			if (isFullyScopedNode(node)) {
+				pushScopeStack();
+			}
 
 			if (luau.isTemporaryIdentifier(node)) {
 				nodesToScopes.set(node, peekScopeStack());
@@ -99,6 +106,14 @@ export function solveTempIds(state: RenderState, ast: luau.List<luau.Node> | lua
 				} else if (luau.isIdentifier(node.left)) {
 					registerId(node.left.name);
 				}
+			} else if (luau.isForStatement(node)) {
+				luau.list.forEach(node.ids, id => {
+					if (luau.isIdentifier(id)) {
+						registerId(id.name);
+					}
+				});
+			} else if (luau.isNumericForStatement(node) && luau.isIdentifier(node.id)) {
+				registerId(node.id.name);
 			} else if (luau.isFunctionLike(node)) {
 				luau.list.forEach(node.parameters, node => {
 					if (luau.isIdentifier(node)) {
@@ -108,8 +123,12 @@ export function solveTempIds(state: RenderState, ast: luau.List<luau.Node> | lua
 			}
 		},
 		after: node => {
-			if (isFullyScopedNode(node)) popScopeStack();
-			if (isScopeEnd(node)) popScopeStack();
+			if (isFullyScopedNode(node)) {
+				popScopeStack();
+			}
+			if (isScopeEnd(node)) {
+				popScopeStack();
+			}
 		},
 	});
 

@@ -59,7 +59,10 @@ export function needsParentheses(node: luau.ExpressionWithPrecedence) {
 		if (nodePrecedence < parentPrecedence) {
 			return true;
 		} else if (nodePrecedence === parentPrecedence) {
-			return luau.isBinaryExpression(node.parent) && node === node.parent.right;
+			if (luau.isBinaryExpression(node.parent)) {
+				const rightAssociative = node.parent.operator === "^" || node.parent.operator === "..";
+				return node === (rightAssociative ? node.parent.left : node.parent.right);
+			}
 		}
 	}
 	return false;
