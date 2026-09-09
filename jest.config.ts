@@ -3,14 +3,18 @@ import type { Config } from "jest";
 const config: Config = {
 	preset: "ts-jest",
 	testEnvironment: "node",
-	testMatch: ["<rootDir>/tests/compiler/**/*.test.ts"],
-	modulePathIgnorePatterns: ["<rootDir>/packages/roblox-ts/out/"],
+	testMatch: ["<rootDir>/tests/compiler/**/*.test.ts", "<rootDir>/packages/luau-ast/tests/**/*.test.ts"],
+	modulePathIgnorePatterns: ["<rootDir>/packages/[^/]+/out/"],
 	moduleNameMapper: {
+		"^@roblox-ts/luau-ast$": "<rootDir>/packages/luau-ast/src/LuauAST",
+		"^(LuauAST|LuauRenderer)/(.*)$": "<rootDir>/packages/luau-ast/src/$1/$2",
+		"^(LuauAST|LuauRenderer)$": "<rootDir>/packages/luau-ast/src/$1",
 		"^(Project|Shared|CLI|TSTransformer)/(.*)$": "<rootDir>/packages/roblox-ts/src/$1/$2",
 		"^(Project|Shared|CLI|TSTransformer)$": "<rootDir>/packages/roblox-ts/src/$1",
 	},
 	collectCoverageFrom: [
 		"packages/roblox-ts/src/**/*.ts",
+		"packages/luau-ast/src/**/*.ts",
 		"!packages/roblox-ts/src/CLI/**",
 		"!packages/roblox-ts/src/Shared/classes/LogService.ts",
 		"!packages/roblox-ts/src/TSTransformer/util/getFlags.ts",

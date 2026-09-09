@@ -18,6 +18,8 @@ export default defineConfig(
 				project: [
 					"./tsconfig.json",
 					"./tsconfig.eslint.json",
+					"./packages/luau-ast/tsconfig.json",
+					"./packages/luau-ast/tests/tsconfig.json",
 					"./packages/*/src/*/tsconfig.json",
 					"./tests/compiler/tsconfig.json",
 				],
@@ -61,6 +63,13 @@ export default defineConfig(
 			"@typescript-eslint/no-require-imports": "error",
 			"no-constant-condition": ["error", { checkLoops: false }],
 			"no-restricted-imports": ["error", { patterns: [".*"] }],
+		},
+	},
+	{
+		files: ["packages/luau-ast/src/LuauAST/types/nodes.ts"],
+		rules: {
+			// public node interfaces specialize their syntax kind without adding fields
+			"@typescript-eslint/no-empty-object-type": ["error", { allowInterfaces: "with-single-extends" }],
 		},
 	},
 	{

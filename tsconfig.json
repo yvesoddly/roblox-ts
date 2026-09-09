@@ -1,4 +1,4 @@
 {
 	"files": [],
-	"references": [{ "path": "./packages/roblox-ts" }]
+	"references": [{ "path": "./packages/luau-ast" }, { "path": "./packages/roblox-ts" }]
 }

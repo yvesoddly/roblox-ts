@@ -1,0 +1,17 @@
+// Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
+
+exports[`renders mixed tables as executable Luau tables 1`] = `
+"return {
+	5,
+	count = 9,
+}
+"
+`;
+
+exports[`renders sets as executable Luau tables 1`] = `
+"return {
+	["first"] = true,
+	[2] = true,
+}
+"
+`;

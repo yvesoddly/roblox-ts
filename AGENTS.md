@@ -39,9 +39,9 @@ The main pipeline is TypeScript source → TypeScript AST/type checker → Luau 
 | `tests/src/`                                                           | A separate roblox-ts project containing TestEZ runtime tests, diagnostic fixtures, and supporting modules.                                                                                                                         |
 | `.github/workflows/`                                                   | Build, lint, runtime tests, playground compatibility, template-project integration, and publishing.                                                                                                                                |
 
-Luau AST construction and rendering live in the separate `@roblox-ts/luau-ast` package. Filesystem translation and
+Luau AST construction and rendering live in `packages/luau-ast`, published separately as `@roblox-ts/luau-ast`. Filesystem translation and
 Rojo resolution likewise come from `@roblox-ts/path-translator` and `@roblox-ts/rojo-resolver`. Fix issues at the
-appropriate layer; verify a dependency release is available before relying on its new API.
+appropriate layer; publish a changed dependency before releasing a compiler that relies on its new API.
 
 `CONTRIBUTING.md` explains development setup. Prefer current implementation and configuration when older subsystem
 READMEs disagree. Read compiler versions and scripts from `packages/roblox-ts/package.json` and root commands from `package.json`, tool pins from `rokit.toml`, and CI behavior from
@@ -53,7 +53,7 @@ transformed TypeScript nodes cannot be assumed to retain valid symbol or type in
 
 ## Setup and validation
 
-Run commands from the repository root. pnpm installs the compiler, runtime tests, and devlink workspaces together.
+Run commands from the repository root. pnpm installs the compiler, AST/renderer, runtime tests, and devlink workspaces together.
 
 | Command                                                                 | Purpose                                                                                                                                       |
 | ----------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------- |
@@ -86,6 +86,9 @@ the test workspace's dependency symlinks rather than pointing into a different p
 enabled in the runtime test config, and keep its workspace name unscoped: scoped names select library behavior.
 
 ## Regression tests
+
+AST-only behavior belongs in `packages/luau-ast/tests/`, using the public package API. Pair renderer snapshots
+with Lune execution so exact output and valid runtime behavior are both checked.
 
 - Prefer programs users can write. Add runtime cases to `tests/src/tests/*.spec.ts` and supporting files to
   `tests/src/helpers/` or the relevant existing fixture folder. Follow neighboring TestEZ tests. Cover evaluation

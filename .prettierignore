@@ -1,4 +1,4 @@
 *.yml
 **/out
 **/node_modules
-/packages/roblox-ts/CHANGELOG.md
+/packages/*/CHANGELOG.md

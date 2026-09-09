@@ -4,7 +4,14 @@
 		"composite": false,
 		"noEmit": true,
 		"rootDir": "../..",
-		"types": ["node", "jest", "ts-expose-internals"]
+		"types": ["node", "jest", "ts-expose-internals"],
+		"paths": {
+			"*": ["*"],
+			"LuauAST": ["../../luau-ast/src/LuauAST"],
+			"LuauAST/*": ["../../luau-ast/src/LuauAST/*"],
+			"LuauRenderer": ["../../luau-ast/src/LuauRenderer"],
+			"LuauRenderer/*": ["../../luau-ast/src/LuauRenderer/*"]
+		}
 	},
 	"include": ["**/*.ts"]
 }

@@ -20,9 +20,11 @@ jobs:
         with:
           directory: roblox-ts
 
-      - name: Pack compiler
+      - name: Pack workspace packages
         working-directory: roblox-ts
-        run: pnpm --filter roblox-ts pack --out ../../roblox-ts.tgz
+        run: |
+          pnpm --filter @roblox-ts/luau-ast pack --out ../../luau-ast.tgz
+          pnpm --filter roblox-ts pack --out ../../roblox-ts.tgz
 
       - name: Checkout roblox-ts.com repo
         uses: actions/checkout@v4
@@ -38,7 +40,7 @@ jobs:
       - name: Update roblox-ts
         run: |
           cd roblox-ts.com/rbxts-worker
-          npm install ../../roblox-ts/roblox-ts.tgz
+          npm install ../../roblox-ts/luau-ast.tgz ../../roblox-ts/roblox-ts.tgz
 
       - name: Build Worker
         run: |

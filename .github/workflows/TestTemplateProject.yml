@@ -23,9 +23,11 @@ jobs:
         with:
           directory: roblox-ts
 
-      - name: Pack compiler
+      - name: Pack workspace packages
         working-directory: roblox-ts
-        run: pnpm --filter roblox-ts pack --out ../../roblox-ts.tgz
+        run: |
+          pnpm --filter @roblox-ts/luau-ast pack --out ../../luau-ast.tgz
+          pnpm --filter roblox-ts pack --out ../../roblox-ts.tgz
 
       - name: Create template project
         run: npm init roblox-ts@latest ${{ matrix.type }} -- -y --dir project --skipBuild
@@ -33,7 +35,7 @@ jobs:
       - name: Install local roblox-ts
         run: |
           cd project
-          npm install ../roblox-ts/roblox-ts.tgz
+          npm install ../roblox-ts/luau-ast.tgz ../roblox-ts/roblox-ts.tgz
 
       - name: Build
         run: |
