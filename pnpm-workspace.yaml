@@ -1,6 +1,5 @@
 allowBuilds:
-  '@parcel/watcher': set this to true or false
-  msgpackr-extract: set this to true or false
-  unrs-resolver: set this to true or false
+  '@parcel/watcher': false
+  unrs-resolver: false
 minimumReleaseAgeExclude:
   - '@roblox-ts/rojo-resolver@1.2.0'
