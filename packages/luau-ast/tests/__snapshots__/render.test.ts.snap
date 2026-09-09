@@ -1,5 +1,16 @@
 // Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
 
+exports[`numbers repeated temporary hints without rescanning earlier names 1`] = `
+"local _value = 1
+local _value_1 = 2
+local _value_2 = 3
+do
+	local _value_3 = 4
+	result = _value + _value_2 + _value_3
+end
+"
+`;
+
 exports[`preserves concatenation grouping for metamethods 1`] = `
 "local result = (a .. b) .. c
 "

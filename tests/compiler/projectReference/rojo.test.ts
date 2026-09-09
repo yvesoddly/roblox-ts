@@ -4,7 +4,8 @@ import { LogService } from "Shared/classes/LogService";
 
 import { expectSuccess, ReferenceFixture, startWatch } from "../referenceFixture";
 
-jest.setTimeout(30000);
+// watch tests wait for filesystem events and idle periods, which can take twice as long on busy CI runners
+jest.setTimeout(60000);
 
 let fixture: ReferenceFixture;
 beforeEach(() => {

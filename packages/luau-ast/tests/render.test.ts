@@ -136,6 +136,31 @@ it.each(["block", "top-level"])("reserves local function bindings in their enclo
 	);
 });
 
+it("numbers repeated temporary hints without rescanning earlier names", () => {
+	const declare = (temporary: luau.TemporaryIdentifier, value: number) =>
+		luau.create(luau.SyntaxKind.VariableDeclaration, { left: temporary, right: luau.number(value) });
+	const inner = luau.tempId("value");
+	const outer = [1, 2, 3].map(() => luau.tempId("value"));
+
+	expectProgram(
+		luau.list.make<luau.Statement>(
+			...outer.map((temporary, index) => declare(temporary, index + 1)),
+			luau.create(luau.SyntaxKind.DoStatement, {
+				statements: luau.list.make<luau.Statement>(
+					declare(inner, 4),
+					luau.create(luau.SyntaxKind.Assignment, {
+						left: luau.id("result"),
+						operator: "=",
+						right: luau.binary(luau.binary(outer[0]!, "+", outer[2]!), "+", inner),
+					}),
+				),
+			}),
+		),
+		"local result",
+		"result == 8",
+	);
+});
+
 it.each(["generic", "numeric"])("reserves loop bindings for temporary names (%s)", kind => {
 	const temporary = luau.tempId("value");
 	const statements = luau.list.make<luau.Statement>(

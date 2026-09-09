@@ -138,13 +138,16 @@ export function solveTempIds(state: RenderState, ast: luau.List<luau.Node> | lua
 			assert(scope);
 
 			const seperator = tempId.name === "" ? "" : "_";
+			const base = `_${tempId.name}`;
 
-			let input = `_${tempId.name}`;
-			let i = scope.lastTry.get(input) ?? 1;
+			// ids are never released, so every suffix below the last try is still taken
+			// and the next temporary with the same hint can resume probing from there
+			let input = base;
+			let i = scope.lastTry.get(base) ?? 1;
 			while (scopeHasId(scope, input)) {
-				input = `_${tempId.name}${seperator}${i++}`;
+				input = `${base}${seperator}${i++}`;
 			}
-			scope.lastTry.set(input, i);
+			scope.lastTry.set(base, i);
 			scope.ids.add(input);
 
 			state.seenTempNodes.set(tempId.id, input);
