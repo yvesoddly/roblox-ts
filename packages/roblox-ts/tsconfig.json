@@ -1,14 +1,19 @@
 {
-	"files": [],
+	"extends": "./tsconfig-base.json",
+	"files": ["src/index.ts", "src/browser.ts"],
 	"compilerOptions": {
-		"composite": true,
-		"baseUrl": "src",
-		"outDir": "out"
+		"rootDir": "src",
+		"tsBuildInfoFile": "out/tsconfig.tsbuildinfo"
 	},
 	"references": [
-		{ "path": "./src/Shared" },
-		{ "path": "./src/CLI" },
-		{ "path": "./src/Project" },
-		{ "path": "./src/TSTransformer" }
+		{
+			"path": "./src/Shared"
+		},
+		{
+			"path": "./src/Project"
+		},
+		{
+			"path": "./src/TSTransformer"
+		}
 	]
 }

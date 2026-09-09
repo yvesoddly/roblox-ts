@@ -4,7 +4,7 @@
 	"packageManager": "pnpm@11.25.0",
 	"scripts": {
 		"build": "pnpm -r build",
-		"build-watch": "pnpm --filter roblox-ts build-watch",
+		"build-watch": "pnpm --filter @roblox-ts/cli build-watch",
 		"eslint": "eslint --max-warnings 0",
 		"devlink": "pnpm run build && pnpm --dir devlink add --global .",
 		"update-test-types": "pnpm --filter roblox-ts-workspace --filter roblox-ts-runtime-tests update @rbxts/types --latest --save-exact",
@@ -18,6 +18,7 @@
 	"devDependencies": {
 		"@eslint-community/eslint-plugin-eslint-comments": "^4.5.0",
 		"@rbxts/types": "1.0.950",
+		"@roblox-ts/cli": "workspace:*",
 		"@roblox-ts/luau-ast": "workspace:*",
 		"@types/eslint-config-prettier": "^6.11.3",
 		"@types/eslint__eslintrc": "^2.1.2",

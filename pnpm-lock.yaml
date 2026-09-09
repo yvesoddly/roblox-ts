@@ -14,6 +14,9 @@ importers:
       '@rbxts/types':
         specifier: 1.0.950
         version: 1.0.950
+      '@roblox-ts/cli':
+        specifier: workspace:*
+        version: link:packages/cli
       '@roblox-ts/luau-ast':
         specifier: workspace:*
         version: link:packages/luau-ast
@@ -86,9 +89,40 @@ importers:
 
   devlink:
     dependencies:
+      '@roblox-ts/cli':
+        specifier: workspace:*
+        version: link:../packages/cli
+
+  packages/cli:
+    dependencies:
+      fs-extra:
+        specifier: ^11.3.0
+        version: 11.4.0
       roblox-ts:
         specifier: workspace:*
-        version: link:../packages/roblox-ts
+        version: link:../roblox-ts
+      typescript:
+        specifier: '=5.9.3'
+        version: 5.9.3
+      yargs:
+        specifier: ^18.0.0
+        version: 18.1.0
+    devDependencies:
+      '@types/fs-extra':
+        specifier: ^11.0.4
+        version: 11.0.4
+      '@types/node':
+        specifier: ^24.0.4
+        version: 24.13.3
+      '@types/yargs':
+        specifier: ^17.0.33
+        version: 17.0.35
+      ts-patch:
+        specifier: ^3.3.0
+        version: 3.3.0
+      typescript-transform-paths:
+        specifier: ^3.5.5
+        version: 3.5.6(typescript@5.9.3)
 
   packages/compiler-types: {}
 
@@ -136,9 +170,6 @@ importers:
       typescript:
         specifier: '=5.9.3'
         version: 5.9.3
-      yargs:
-        specifier: ^18.0.0
-        version: 18.1.0
     devDependencies:
       '@types/fs-extra':
         specifier: ^11.0.4
@@ -152,9 +183,6 @@ importers:
       '@types/ts-expose-internals':
         specifier: npm:@roblox-ts/ts-expose-internals@=5.9.3
         version: '@roblox-ts/ts-expose-internals@5.9.3'
-      '@types/yargs':
-        specifier: ^17.0.33
-        version: 17.0.35
       ts-patch:
         specifier: ^3.3.0
         version: 3.3.0

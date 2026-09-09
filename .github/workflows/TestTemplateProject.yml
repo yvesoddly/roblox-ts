@@ -29,6 +29,7 @@ jobs:
           pnpm --filter @rbxts/compiler-types pack --out ../../compiler-types.tgz
           pnpm --filter @roblox-ts/luau-ast pack --out ../../luau-ast.tgz
           pnpm --filter roblox-ts pack --out ../../roblox-ts.tgz
+          pnpm --filter @roblox-ts/cli pack --out ../../cli.tgz
 
       - name: Create template project
         run: npm init roblox-ts@latest ${{ matrix.type }} -- -y --dir project --skipBuild
@@ -36,7 +37,7 @@ jobs:
       - name: Install local roblox-ts
         run: |
           cd project
-          npm install ../roblox-ts/compiler-types.tgz ../roblox-ts/luau-ast.tgz ../roblox-ts/roblox-ts.tgz
+          npm install ../roblox-ts/compiler-types.tgz ../roblox-ts/luau-ast.tgz ../roblox-ts/roblox-ts.tgz ../roblox-ts/cli.tgz
 
       - name: Build
         run: |

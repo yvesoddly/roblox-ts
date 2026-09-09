@@ -15,6 +15,7 @@ This guide assumes you have the following installed:
 We'll also assume you understand some basic terminal navigation commands (`cd`, `ls`/`dir`, etc.).
 
 The repository is a pnpm workspace. `packages/roblox-ts` contains the published compiler,
+`packages/cli` contains the `@roblox-ts/cli` command line package,
 `packages/luau-ast` contains the AST and renderer, `packages/compiler-types` contains their companion
 compiler declarations, and `tests` contains the private Roblox runtime test project,
 and `devlink` provides the development CLI.
@@ -91,12 +92,14 @@ the external Roblox types, run `pnpm run update-test-types` and review the manif
 Compiler declarations come from the private local `packages/compiler-types` package; edit them directly.
 
 To build a distributable compiler tarball, run `pnpm --filter roblox-ts pack`. The package keeps its
-`rbxtsc` CLI, Node entry point, browser entry point, and bundled runtime files.
+Node entry point, browser entry point, and bundled runtime files. Pack `@roblox-ts/cli` separately
+with `pnpm --filter @roblox-ts/cli pack` to distribute the `rbxtsc` command. CLI users install
+`@roblox-ts/cli`, which depends on the compiler.
 
 The compiler references the local `@roblox-ts/luau-ast` package. Root builds run in dependency order,
-and `pnpm run build-watch` watches both packages through TypeScript project references. Jest also loads
+and `pnpm run build-watch` watches the CLI, compiler, and AST packages through TypeScript project references. Jest also loads
 the AST and renderer source directly, so compiler tests cover changes in either package.
 
 Always pack with pnpm before publishing: it replaces `workspace:*` dependencies with package versions.
-The Publish workflow does this automatically and supports either package. See
+The Publish workflow does this automatically and supports each package. See
 [the luau-ast package notes](packages/luau-ast/README.md) for its release setup.

@@ -1,0 +1,18 @@
+{
+	"extends": "../roblox-ts/tsconfig-base.json",
+	"compilerOptions": {
+		"rootDir": "src",
+		"outDir": "out",
+		"baseUrl": "src",
+		"paths": {
+			"CLI/*": ["*"]
+		},
+		"tsBuildInfoFile": "out/tsconfig.tsbuildinfo"
+	},
+	"include": ["src/**/*.ts"],
+	"references": [
+		{
+			"path": "../roblox-ts"
+		}
+	]
+}

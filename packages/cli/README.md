@@ -1,8 +1,13 @@
 # roblox-ts CLI
 
-This handles the command line interface (CLI) entry point for roblox-ts.
+`@roblox-ts/cli` provides the `rbxtsc` command and depends on the `roblox-ts` compiler package.
+Install it with `npm install --save-dev @roblox-ts/cli`, then run `npx rbxtsc`.
 
-The CLI should create Project instances as needed based on input from the user.
+Build locally with `pnpm --filter @roblox-ts/cli build` and pack with
+`pnpm --filter @roblox-ts/cli pack`. Publish the compiler dependency before releasing a CLI
+version that needs it. The compiler retains its Node and browser entry points and runtime files.
+
+The CLI should create ProjectBuild instances as needed based on input from the user.
 
 Only behavior unique to CLI environments should go here. Any behavior that is common to both the CLI and the playground environments belongs in Project.
 
@@ -16,9 +21,5 @@ Only behavior unique to CLI environments should go here. Any behavior that is co
 -   `--watch, -w` - Enable watch mode, recompiles files as they change. Creates a Watcher object. _(defaults to false)_
 -   `--includePath, -i` - Path to where the runtime library files should be stored. _(defaults to "include")_
 -   `--rojo` - Path to the Rojo configuration file. By default this will attempt to find a \*.project.json in your project folder.
-
-**modules/** - stores various classes related to running CLI processes
-
-**modules/Initializer.ts** - used to create projects from templates using the `init` command.
 
 **cli.ts** - used to kickstart yargs

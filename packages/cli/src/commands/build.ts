@@ -1,13 +1,12 @@
 import { CLIError } from "CLI/errors/CLIError";
 import fs from "fs-extra";
 import path from "path";
-import { ProjectBuild } from "Project/classes/ProjectBuild";
-import { setupProjectWatchProgram } from "Project/functions/setupProjectWatchProgram";
-import { LogService } from "Shared/classes/LogService";
-import { ProjectType } from "Shared/constants";
-import { LoggableError } from "Shared/errors/LoggableError";
-import { ProjectOptions } from "Shared/types";
-import { hasErrors } from "Shared/util/hasErrors";
+import { ProjectBuild, ProjectOptions } from "roblox-ts";
+import { setupProjectWatchProgram } from "roblox-ts/out/Project/functions/setupProjectWatchProgram";
+import { LogService } from "roblox-ts/out/Shared/classes/LogService";
+import { ProjectType } from "roblox-ts/out/Shared/constants";
+import { LoggableError } from "roblox-ts/out/Shared/errors/LoggableError";
+import { hasErrors } from "roblox-ts/out/Shared/util/hasErrors";
 import ts from "typescript";
 import type yargs from "yargs";
 
@@ -27,7 +26,7 @@ interface BuildFlags {
 }
 
 /**
- * Defines the behavior for the `rbxtsc build` command.
+ * defines the behavior for the `rbxtsc build` command
  */
 export = ts.identity<yargs.CommandModule<object, BuildFlags & Partial<ProjectOptions>>>({
 	command: ["$0", "build"],

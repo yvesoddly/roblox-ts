@@ -20,6 +20,8 @@ export default defineConfig(
 					"./tsconfig.eslint.json",
 					"./packages/compiler-types/tsconfig.json",
 					"./packages/luau-ast/tsconfig.json",
+					"./packages/cli/tsconfig.json",
+					"./packages/roblox-ts/tsconfig.json",
 					"./packages/luau-ast/tests/tsconfig.json",
 					"./packages/*/src/*/tsconfig.json",
 					"./tests/compiler/tsconfig.json",

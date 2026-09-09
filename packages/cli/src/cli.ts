@@ -1,8 +1,8 @@
 #!/usr/bin/env node
 
 import { CLIError } from "CLI/errors/CLIError";
-import { LogService } from "Shared/classes/LogService";
-import { COMPILER_VERSION, PACKAGE_ROOT } from "Shared/constants";
+import { COMPILER_VERSION } from "roblox-ts";
+import { LogService } from "roblox-ts/out/Shared/classes/LogService";
 import { hideBin } from "yargs/helpers";
 import yargs from "yargs/yargs";
 
@@ -21,7 +21,7 @@ cli
 	.describe("version", "show version information")
 
 	// commands
-	.commandDir(`${PACKAGE_ROOT}/out/CLI/commands`)
+	.commandDir(`${__dirname}/commands`)
 
 	// options
 	.recommendCommands()

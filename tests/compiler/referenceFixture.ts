@@ -5,7 +5,6 @@ import os from "os";
 import path from "path";
 import { ProjectBuild } from "Project";
 import { setupProjectWatchProgram } from "Project/functions/setupProjectWatchProgram";
-import { PACKAGE_ROOT } from "Shared/constants";
 import { ProjectOptions } from "Shared/types";
 import { formatDiagnostics } from "Shared/util/formatDiagnostics";
 import ts from "typescript";
@@ -153,7 +152,7 @@ export async function startWatch(fixture: ReferenceFixture, usePolling = false, 
 		child = spawn(
 			process.execPath,
 			[
-				path.join(PACKAGE_ROOT, "out/CLI/cli.js"),
+				require.resolve("@roblox-ts/cli/out/cli.js"),
 				"-p",
 				fixture.file("game"),
 				"--rojo",
