@@ -18,8 +18,8 @@
 	"license": "MIT",
 	"dependencies": {
 		"@roblox-ts/luau-ast": "workspace:*",
-		"@roblox-ts/path-translator": "=1.1.0",
-		"@roblox-ts/rojo-resolver": "=1.2.0",
+		"@roblox-ts/path-translator": "workspace:*",
+		"@roblox-ts/rojo-resolver": "workspace:*",
 		"chokidar": "^4.0.3",
 		"effect": "4.0.0-rc.112",
 		"fs-extra": "^11.3.0",
@@ -31,7 +31,7 @@
 		"@types/fs-extra": "^11.0.4",
 		"@types/node": "^24.0.4",
 		"@types/resolve": "^1.20.6",
-		"@types/ts-expose-internals": "npm:@roblox-ts/ts-expose-internals@=5.9.3",
+		"@types/ts-expose-internals": "workspace:@roblox-ts/ts-expose-internals@5.9.3",
 		"ts-patch": "^3.3.0",
 		"typescript-transform-paths": "^3.5.5"
 	},

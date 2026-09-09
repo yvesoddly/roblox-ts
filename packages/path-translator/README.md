@@ -8,12 +8,12 @@ The package remains `@roblox-ts/path-translator@1.1.0`, with its CommonJS entry 
 
 ## Local development
 
-From the repository root, install only this package's dependencies without changing the workspace lockfile:
+From the repository root:
 
 ```sh
-npm --prefix packages/path-translator install --workspaces=false --package-lock=false
-npm --prefix packages/path-translator run build
-npm --prefix packages/path-translator test
+pnpm install --frozen-lockfile
+pnpm --filter @roblox-ts/path-translator run build
+pnpm --filter @roblox-ts/path-translator test
 ```
 
 The build uses TypeScript 5.9.3 directly. Upstream's path-transform plugin is unnecessary because all source imports
@@ -23,11 +23,10 @@ The upstream tag contains no standalone test files. Its `UnitTests.yml` workflow
 roblox-ts checkout and runs that compiler's full test suite. The local tests cover the public path-mapping API;
 compiler integration remains a separate workspace check.
 
-## Workspace integration follow-up
+## Workspace integration
 
-- Change `packages/roblox-ts/package.json` to consume `@roblox-ts/path-translator` via `workspace:*` and regenerate
-  the lockfile to test the compiler against this local source.
-- Include this package's tests in the root test command or CI; the root Jest configuration does not discover them.
-- Add a reference in the root `tsconfig.json` if root TypeScript project builds should include this package.
+The compiler consumes this package through `workspace:*`. Root builds and the CLI watch build include its
+TypeScript project. `pnpm run test-packages` runs its public API tests; `pnpm test` also validates the compiler
+against the local package. Template and playground CI install the packed local dependency.
 
-The existing `packages/*` workspace glob and recursive build command already discover this package.
+Publish a changed version before releasing a compiler that depends on its new behavior or API.

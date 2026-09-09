@@ -4,5 +4,10 @@
 		"outDir": "../../out/TSTransformer",
 		"rootDir": "."
 	},
-	"references": [{ "path": "../Shared" }, { "path": "../../../luau-ast" }]
+	"references": [
+		{ "path": "../Shared" },
+		{ "path": "../../../luau-ast" },
+		{ "path": "../../../path-translator" },
+		{ "path": "../../../rojo-resolver" }
+	]
 }

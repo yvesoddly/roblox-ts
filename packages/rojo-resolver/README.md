@@ -12,17 +12,13 @@ Build tooling uses the workspace's TypeScript 5.9.3 with plain `tsc`; this sourc
 imports requiring path transformation. ES2022 library declarations cover the existing
 `Array.at` call while emitted JavaScript retains the upstream ES2019 target.
 
-Run from the repository root with Node.js 22 or newer:
+From the repository root:
 
 ```sh
-npm install --prefix packages/rojo-resolver --workspaces=false --package-lock=false --ignore-scripts
-npm --prefix packages/rojo-resolver run build
-npm --prefix packages/rojo-resolver test
+pnpm install --frozen-lockfile
+pnpm --filter @roblox-ts/rojo-resolver run build
+pnpm --filter @roblox-ts/rojo-resolver test
 ```
-
-The isolated install avoids changing the workspace lockfile. Once workspace dependencies
-are installed, `pnpm --filter @roblox-ts/rojo-resolver build` and
-`pnpm --filter @roblox-ts/rojo-resolver test` run the same scripts.
 
 Upstream 1.2.0 contains no standalone tests or fixtures. Its
 [UnitTests workflow](https://github.com/roblox-ts/rojo-resolver/blob/f781b43e3d21cc2c075aa88022dfb542da42e908/.github/workflows/UnitTests.yml)
@@ -31,14 +27,10 @@ Those existing compiler tests remain in the workspace. The package-local Node te
 exercise the built package entry point, schema loading, path resolution, script types,
 network boundaries, and relative paths.
 
-Workspace integration still requires changes outside this directory:
+## Workspace integration
 
-- Change `packages/roblox-ts/package.json` to depend on this package via `workspace:*`
-  and regenerate `pnpm-lock.yaml` to link the compiler to it. The package importer
-  is already included for frozen workspace installs.
-- Add this package to root TypeScript project references and to the compiler's project
-  references where needed for direct project builds. Recursive pnpm builds already
-  discover it through `packages/*`.
-- Include this package's test command in the root test/CI flow. The root Jest configuration
-  does not discover these Node tests. Run the existing compiler integration suite against
-  the workspace-linked resolver.
+The compiler consumes this package through `workspace:*`. Root builds and the CLI watch build include its
+TypeScript project. `pnpm run test-packages` runs its public API tests; `pnpm test` also validates the compiler
+against the local package. Template and playground CI install the packed local dependency.
+
+Publish a changed version before releasing a compiler that depends on its new behavior or API.

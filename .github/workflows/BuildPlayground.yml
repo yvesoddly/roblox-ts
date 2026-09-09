@@ -25,6 +25,8 @@ jobs:
         run: |
           pnpm --filter @rbxts/compiler-types pack --out "$PWD/compiler-types.tgz"
           pnpm --filter @roblox-ts/luau-ast pack --out "$PWD/luau-ast.tgz"
+          pnpm --filter @roblox-ts/path-translator pack --out "$PWD/path-translator.tgz"
+          pnpm --filter @roblox-ts/rojo-resolver pack --out "$PWD/rojo-resolver.tgz"
           pnpm --filter roblox-ts pack --out "$PWD/roblox-ts.tgz"
 
       - name: Checkout roblox-ts.com repo
@@ -41,7 +43,7 @@ jobs:
       - name: Update roblox-ts
         run: |
           cd roblox-ts.com/rbxts-worker
-          npm install ../../roblox-ts/compiler-types.tgz ../../roblox-ts/luau-ast.tgz ../../roblox-ts/roblox-ts.tgz
+          npm install ../../roblox-ts/compiler-types.tgz ../../roblox-ts/luau-ast.tgz ../../roblox-ts/path-translator.tgz ../../roblox-ts/rojo-resolver.tgz ../../roblox-ts/roblox-ts.tgz
 
       - name: Build Worker
         run: |

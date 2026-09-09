@@ -11,6 +11,8 @@ on:
         options:
           - roblox-ts
           - luau-ast
+          - path-translator
+          - rojo-resolver
           - cli
       version:
         description: Version to publish. Leave empty to publish a @next build.

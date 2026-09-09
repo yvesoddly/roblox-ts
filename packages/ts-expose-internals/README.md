@@ -74,18 +74,8 @@ incompatible with TypeScript 5.9 iterator types. The consumer augmentation test 
 
 ## Preserving the workspace alias
 
-The workspace includes `packages/*`, and the shared lockfile records this package's development dependencies.
-CI compiles the generator and runs its tests on Linux, Windows, and macOS. Workspace lint and formatting exclude
-this upstream import so its generator, fixtures, and exact declarations remain easy to compare.
-Consumer aliases still resolve to the published package; switching them to the workspace is a separate integration step.
-Both the root `package.json` and `packages/roblox-ts/package.json` currently use:
-
-```json
-"@types/ts-expose-internals": "npm:@roblox-ts/ts-expose-internals@=5.9.3"
-```
-
-During a separate workspace integration, use [pnpm's workspace alias syntax](https://pnpm.io/workspaces#referencing-workspace-packages-through-aliases)
-to change the value in both locations while keeping the dependency key:
+Both the root and compiler manifests keep the `@types/ts-expose-internals` dependency key and use
+pnpm's workspace alias to load these local declarations:
 
 ```json
 "@types/ts-expose-internals": "workspace:@roblox-ts/ts-expose-internals@5.9.3"
@@ -97,10 +87,9 @@ Keep this package named `@roblox-ts/ts-expose-internals`; pnpm's workspace alias
 A dependency only under the scoped package's real name does not provide that automatic inclusion.
 Keep every consumer's TypeScript version at `=5.9.3` until the declarations are deliberately regenerated and validated.
 
-Then run `pnpm install` to record the alias links in the shared lockfile, followed by the package tests,
-compiler build, and compiler tests. Verify both aliases resolve locally and that published consumer metadata still
-resolves to `npm:@roblox-ts/ts-expose-internals@5.9.3`. The declaration package must be available in the registry before
-publishing a consumer that depends on a new version. The current PR preserves both existing npm aliases.
+The shared lockfile records both local alias links. `pnpm pack` rewrites the alias in consumer metadata to
+`npm:@roblox-ts/ts-expose-internals@5.9.3`. The declaration package remains private in this workspace;
+its upstream generator publishing flow is separate from the generic package publishing workflow.
 
 ## Package validation and generator maintenance
 
@@ -111,13 +100,9 @@ pnpm --dir packages/ts-expose-internals run compile
 pnpm --dir packages/ts-expose-internals test
 ```
 
-For isolated package validation:
-
-```sh
-npm install --prefix packages/ts-expose-internals --ignore-scripts --package-lock=false
-npm --prefix packages/ts-expose-internals run compile
-npm --prefix packages/ts-expose-internals test
-```
+Root `pnpm run build` checks the generator through its `build` script. `pnpm run test-packages` and `pnpm test`
+include its default suite. Neither runs the release automation or the opt-in live tests.
+Workspace lint and formatting continue to exclude the imported generator, fixtures, and exact declarations.
 
 The default suite includes upstream unit tests, mocked publishing integration, and a consumer test that installs the
 `@types` alias in a temporary project and checks public and internal APIs with TypeScript 5.9.3 and `skipLibCheck: false`.

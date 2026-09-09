@@ -209,7 +209,7 @@ it.each([false, true])(
 	},
 );
 
-it.each([null, { name: "invalid", tree: { $path: null } }])(
+it.each([null, { name: "invalid", tree: { $path: null } }, { name: "invalid", tree: { $path: {} } }])(
 	"preserves output when a Rojo project has no usable tree: %j",
 	config => {
 		expectSuccess(fixture.createBuild().build());
@@ -218,18 +218,13 @@ it.each([null, { name: "invalid", tree: { $path: null } }])(
 		const warn = jest.spyOn(LogService, "warn").mockImplementation(() => {});
 		try {
 			expect(fixture.createBuild().build().emitSkipped).toBe(true);
+			expect(warn).toHaveBeenCalledWith(expect.stringContaining("Invalid configuration"));
 			expect(fixture.read("out/game/init.luau")).toBe(before);
 		} finally {
 			warn.mockRestore();
 		}
 	},
 );
-
-it("reports an invalid optional Rojo path", () => {
-	fixture.json("default.project.json", { name: "invalid", tree: { $path: {} } });
-
-	expect(() => fixture.createBuild()).toThrow("Unable to read Rojo project");
-});
 
 it("reports a recursive Rojo project without replacing output", () => {
 	expectSuccess(fixture.createBuild().build());

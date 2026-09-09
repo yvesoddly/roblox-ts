@@ -9,10 +9,10 @@
 		"directory": "packages/rojo-resolver"
 	},
 	"scripts": {
-		"prepack": "npm run build",
+		"prepack": "pnpm run build",
 		"build": "tsc -b",
 		"build-watch": "tsc -b -w",
-		"test": "npm run build && node --test tests/*.test.cjs"
+		"test": "pnpm run build && node --test tests/*.test.cjs"
 	},
 	"author": "",
 	"license": "MIT",

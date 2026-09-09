@@ -4,5 +4,10 @@
 		"outDir": "../../out/Project",
 		"rootDir": "."
 	},
-	"references": [{ "path": "../Shared" }, { "path": "../TSTransformer" }]
+	"references": [
+		{ "path": "../Shared" },
+		{ "path": "../TSTransformer" },
+		{ "path": "../../../path-translator" },
+		{ "path": "../../../rojo-resolver" }
+	]
 }

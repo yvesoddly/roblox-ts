@@ -19,6 +19,9 @@ The repository is a pnpm workspace. `packages/roblox-ts` contains the published 
 `packages/luau-ast` contains the AST and renderer, `packages/compiler-types` contains their companion
 compiler declarations, and `tests` contains the private Roblox runtime test project,
 and `devlink` provides the development CLI.
+`packages/path-translator` and `packages/rojo-resolver` supply the local path-resolution dependencies.
+`packages/ts-expose-internals` contains the TypeScript internal declarations and their generator; the compiler
+loads those declarations through the local `@types/ts-expose-internals` workspace alias.
 Run the commands below from the repository root; one install sets up all packages.
 
 1. Begin by creating a fork of roblox-ts.
@@ -94,6 +97,9 @@ rokit install
 # Compile tests, build .rbxl, run with lune
 pnpm test
 ```
+
+Run `pnpm run test-packages` for the path translator, Rojo resolver, and declaration-generator suites.
+These are also included in `pnpm test`. The declaration generator's live and release commands remain opt-in.
 
 After building the compiler, you can also run just the Jest tests with `pnpm run test-compile`.
 For an intentional emit change, update snapshots with `pnpm run test-compile --updateSnapshot`

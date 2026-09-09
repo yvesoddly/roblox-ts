@@ -1,4 +1,10 @@
 {
 	"files": [],
-	"references": [{ "path": "./packages/luau-ast" }, { "path": "./packages/roblox-ts" }, { "path": "./packages/cli" }]
+	"references": [
+		{ "path": "./packages/path-translator" },
+		{ "path": "./packages/rojo-resolver" },
+		{ "path": "./packages/luau-ast" },
+		{ "path": "./packages/roblox-ts" },
+		{ "path": "./packages/cli" }
+	]
 }

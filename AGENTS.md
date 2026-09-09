@@ -10,6 +10,7 @@ changes to literal spelling matter even when execution is equivalent.
   repeatedly asking for confirmation. Ask when missing information materially changes the outcome or authorization.
 - Keep work local unless publication is requested. “Keep everything local” includes no pushes, PRs, GitHub comments,
   reviews, merges, or releases. Continue within authorization already given in the current task.
+- Keep planning artifacts in `.plans/` local and untracked; do not commit them.
 - Check the branch, worktree, and existing diff before editing. Preserve unrelated work. Use an isolated worktree
   when comparing branches, and preserve a checkpoint before a risky refactor or rebase.
 - Read the relevant callers, helpers, and tests before changing a transform. Trace a reproducer from TypeScript
@@ -40,7 +41,8 @@ The main pipeline is TypeScript source → TypeScript AST/type checker → Luau 
 | `.github/workflows/`                                                   | Build, lint, runtime tests, playground compatibility, template-project integration, and publishing.                                                                                                                                |
 
 Luau AST construction and rendering live in `packages/luau-ast`, published separately as `@roblox-ts/luau-ast`. Filesystem translation and
-Rojo resolution likewise come from `@roblox-ts/path-translator` and `@roblox-ts/rojo-resolver`. Fix issues at the
+Rojo resolution live in `packages/path-translator` and `packages/rojo-resolver`, consumed through workspace dependencies.
+The `@types/ts-expose-internals` alias points to `packages/ts-expose-internals`, which also contains its generator and tests. Fix issues at the
 appropriate layer; publish a changed dependency before releasing a compiler that relies on its new API.
 
 `CONTRIBUTING.md` explains development setup. Prefer current implementation and configuration when older subsystem
@@ -67,7 +69,8 @@ Run commands from the repository root. pnpm installs the compiler, AST/renderer,
 | `pnpm run test-compile tests/compiler/strings.test.ts --updateSnapshot` | Update that suite's snapshots for an intentional emit change. Review the generated diff.                                                              |
 | `pnpm run test-rojo`                                                    | Build `tests/test.rbxl` from the compiled test project.                                                                                               |
 | `pnpm run test-run`                                                     | Execute that place's TestEZ tests through Lune.                                                                                                       |
-| `pnpm test`                                                             | Build → all Jest tests → Rojo → Lune. Use for compiler/runtime behavior changes.                                                                      |
+| `pnpm run test-packages`                                                | Run the imported path and declaration-generator package tests.                                                                                        |
+| `pnpm test`                                                             | Build → package tests → compiler Jest tests → Rojo → Lune. Use for compiler/runtime behavior changes.                                                 |
 | `pnpm run check`                                                        | Run Oxlint with zero warnings allowed and check Oxfmt formatting.                                                                                     |
 | `git diff --check`                                                      | Check patch whitespace before finishing.                                                                                                              |
 

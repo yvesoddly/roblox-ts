@@ -7,7 +7,7 @@
 		"build-watch": "pnpm --filter @roblox-ts/cli build-watch",
 		"devlink": "pnpm run build && pnpm --dir devlink add --global .",
 		"update-test-types": "pnpm --filter roblox-ts-workspace --filter roblox-ts-runtime-tests update @rbxts/types --latest --save-exact",
-		"test": "pnpm run build && pnpm run test-compile && pnpm run test-rojo && pnpm run test-run",
+		"test": "pnpm run build && pnpm run test-packages && pnpm run test-compile && pnpm run test-rojo && pnpm run test-run",
 		"test-compile": "jest --coverage --maxWorkers=100%",
 		"test-rojo": "rojo build tests -o ./tests/test.rbxl",
 		"test-run": "lune run ./tests/runTestsWithLune.luau ./tests/test.rbxl",
@@ -16,7 +16,8 @@
 		"lint": "vp lint",
 		"fmt": "vp fmt",
 		"fmt:check": "vp fmt --check",
-		"check": "pnpm run lint && pnpm run fmt:check"
+		"check": "pnpm run lint && pnpm run fmt:check",
+		"test-packages": "pnpm --filter @roblox-ts/path-translator --filter @roblox-ts/rojo-resolver --filter @roblox-ts/ts-expose-internals run test"
 	},
 	"devDependencies": {
 		"@eslint-community/eslint-plugin-eslint-comments": "^4.5.0",
@@ -27,7 +28,7 @@
 		"@types/jest": "^30.0.0",
 		"@types/node": "^24.0.4",
 		"@types/prompts": "^2.4.9",
-		"@types/ts-expose-internals": "npm:@roblox-ts/ts-expose-internals@=5.9.3",
+		"@types/ts-expose-internals": "workspace:@roblox-ts/ts-expose-internals@5.9.3",
 		"chokidar": "^4.0.3",
 		"eslint-plugin-simple-import-sort": "^12.1.1",
 		"fs-extra": "^11.3.0",

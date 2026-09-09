@@ -14,7 +14,8 @@
 		"tsBuildInfoFile": "out/tsconfig.tsbuildinfo",
 		"sourceMap": true,
 		"rootDir": "src",
-		"outDir": "out"
+		"outDir": "out",
+		"composite": true
 	},
 	"include": ["src"]
 }

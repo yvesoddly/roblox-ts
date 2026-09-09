@@ -133,8 +133,10 @@ function statIfResolvable(filePath: string) {
 	try {
 		return fs.statSync(filePath);
 	} catch (error) {
+		// filesystem errors can originate in a different JavaScript realm
 		if (
-			error instanceof Error &&
+			typeof error === "object" &&
+			error !== null &&
 			"code" in error &&
 			(error.code === "ENOENT" || error.code === "ENOTDIR" || error.code === "ELOOP")
 		) {
