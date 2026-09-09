@@ -129,8 +129,23 @@ function isPathDescendantOf(filePath: string, dirPath: string) {
 	return relativePath !== ".." && !relativePath.startsWith(`..${path.sep}`) && !path.isAbsolute(relativePath);
 }
 
+function statIfResolvable(filePath: string) {
+	try {
+		return fs.statSync(filePath);
+	} catch (error) {
+		if (
+			error instanceof Error &&
+			"code" in error &&
+			(error.code === "ENOENT" || error.code === "ENOTDIR" || error.code === "ELOOP")
+		) {
+			return undefined;
+		}
+		throw error;
+	}
+}
+
 function isFile(filePath: string) {
-	return fs.pathExistsSync(filePath) && fs.statSync(filePath).isFile();
+	return statIfResolvable(filePath)?.isFile() === true;
 }
 
 class Lazy<T> {
@@ -161,7 +176,9 @@ function isValidRojoConfig(value: unknown): value is RojoFile {
 
 function convertToLuau(filePath: string) {
 	const ext = path.extname(filePath);
-	if (ext === LUA_EXT) return filePath.slice(0, -ext.length) + LUAU_EXT;
+	if (ext === LUA_EXT) {
+		return filePath.slice(0, -ext.length) + LUAU_EXT;
+	}
 	return filePath;
 }
 
@@ -253,7 +270,9 @@ export class RojoResolver {
 	}
 
 	private parseTree(basePath: string, name: string, tree: RojoTree, doNotPush = false) {
-		if (!doNotPush) this.rbxPath.push(name);
+		if (!doNotPush) {
+			this.rbxPath.push(name);
+		}
 
 		if (tree.$path !== undefined) {
 			this.parsePath(path.resolve(basePath, typeof tree.$path === "string" ? tree.$path : tree.$path.optional));
@@ -267,7 +286,9 @@ export class RojoResolver {
 			this.parseTree(basePath, childName, tree[childName]);
 		}
 
-		if (!doNotPush) this.rbxPath.pop();
+		if (!doNotPush) {
+			this.rbxPath.pop();
+		}
 	}
 
 	private parsePath(itemPath: string) {
@@ -316,13 +337,14 @@ export class RojoResolver {
 			return;
 		}
 
-		if (item) this.rbxPath.push(item);
+		if (item) {
+			this.rbxPath.push(item);
+		}
 
 		// *.project.json
 		for (const child of children) {
 			const childPath = path.join(directory, child);
-			const childRealPath = fs.realpathSync(childPath);
-			if (fs.statSync(childRealPath).isFile() && child !== ROJO_DEFAULT_NAME && ROJO_FILE_REGEX.test(child)) {
+			if (isFile(childPath) && child !== ROJO_DEFAULT_NAME && ROJO_FILE_REGEX.test(child)) {
 				this.parseConfig(childPath);
 			}
 		}
@@ -330,13 +352,14 @@ export class RojoResolver {
 		// folders
 		for (const child of children) {
 			const childPath = path.join(directory, child);
-			const childRealPath = fs.realpathSync(childPath);
-			if (fs.statSync(childRealPath).isDirectory()) {
+			if (statIfResolvable(childPath)?.isDirectory()) {
 				this.searchDirectory(childPath, child);
 			}
 		}
 
-		if (item) this.rbxPath.pop();
+		if (item) {
+			this.rbxPath.pop();
+		}
 	}
 
 	public getRbxPathFromFilePath(filePath: string): RbxPath | undefined {

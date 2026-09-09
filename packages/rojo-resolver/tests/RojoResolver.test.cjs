@@ -220,3 +220,25 @@ for (const directory of ["out", "out/nested"]) {
 		assert.deepEqual(resolver.getWarnings(), []);
 	});
 }
+
+for (const linkName of ["dangling", "nondirectory", "self"]) {
+	void test(`mounted-tree scans skip ${linkName} symlinks`, t => {
+		const { root, write } = fixture(t);
+		write("out/nested/extra.project.json", { name: "extra", tree: { source: { $path: "src" } } });
+		const linkPath = path.join(root, "out", linkName);
+		let target = linkName === "self" ? linkPath : path.join(root, "missing");
+		if (linkName === "nondirectory") {
+			target = path.join(write("file.luau", ""), "child");
+		}
+		fs.symlinkSync(target, linkPath, "junction");
+
+		const resolver = RojoResolver.synthetic(path.join(root, "out"));
+		assert.deepEqual(resolver.getRbxPathFromFilePath(path.join(root, "out/nested/src/module.luau")), [
+			"nested",
+			"extra",
+			"source",
+			"module",
+		]);
+		assert.deepEqual(resolver.getWarnings(), []);
+	});
+}
