@@ -19,7 +19,7 @@ function replaceJsonInFile<T>(filePath: string, replacer: (json: T) => T) {
 function getPreRelease(version: string) {
   const parsedVersion = semver.parse(version)!;
   const prereleaseFull = parsedVersion.prerelease.join('.');
-  const prereleaseWithoutNumber = prereleaseFull.replace(/\d+$/, '');
+  const prereleaseWithoutNumber = prereleaseFull.replace(/\.?\d+$/, '');
 
   return { prereleaseFull, prereleaseWithoutNumber };
 }
@@ -61,7 +61,7 @@ export function publish(context: TseiContext) {
     if (!prereleaseWithoutNumber) {
       const highestCompletedTag = storage
         .buildDetails
-        .filter(b => b.complete && b.tsVersion)
+        .filter(b => b.complete && b.tsVersion && !semver.prerelease(b.tsVersion))
         .sort((a, b) => semver.rcompare(a.tsVersion, b.tsVersion))[0];
 
       if (!highestCompletedTag || semver.gt(buildDetail.tsVersion, highestCompletedTag.tsVersion)) {

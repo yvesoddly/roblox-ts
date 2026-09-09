@@ -96,7 +96,11 @@ describe(`publish.ts`, () => {
       ['1.1.0', '1.2.0', 'backfill'],
       ['1.2.0', '1.2.0', 'backfill'],
       ['1.3.0', '1.2.0', 'latest'],
-      ['1.3.0-beta.1', '1.2.0', 'beta.'],
+      ['1.3.0', '1.4.0-beta.1', 'latest'],
+      ['1.3.0-beta.1', '1.2.0', 'beta'],
+      ['1.3.0-dev.20260909', '1.2.0', 'dev'],
+      ['1.3.0-rc.1', '1.2.0', 'rc'],
+      ['1.3.0-beta', '1.2.0', 'beta'],
     ])('Publishes %s after %s using %s', (version, previousVersion, tag) => {
       execSyncSpy.mockClear();
       publish({
