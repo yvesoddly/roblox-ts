@@ -11,6 +11,9 @@ importers:
       '@eslint-community/eslint-plugin-eslint-comments':
         specifier: ^4.5.0
         version: 4.8.0(eslint@9.39.5(jiti@2.7.0)(supports-color@8.1.1))
+      '@rbxts/types':
+        specifier: 1.0.950
+        version: 1.0.950
       '@roblox-ts/luau-ast':
         specifier: workspace:*
         version: link:packages/luau-ast
@@ -87,6 +90,8 @@ importers:
         specifier: workspace:*
         version: link:../packages/roblox-ts
 
+  packages/compiler-types: {}
+
   packages/luau-ast:
     devDependencies:
       '@types/node':
@@ -160,8 +165,8 @@ importers:
   tests:
     dependencies:
       '@rbxts/compiler-types':
-        specifier: github:roblox-ts/compiler-types#314b208523e7d16231cb22ddf26dc0af234bab85
-        version: https://codeload.github.com/roblox-ts/compiler-types/tar.gz/314b208523e7d16231cb22ddf26dc0af234bab85
+        specifier: workspace:*
+        version: link:../packages/compiler-types
       '@rbxts/roact':
         specifier: github:roblox-ts/roact#5122d865bc6f772a6299ba120258f96de94ac125
         version: https://codeload.github.com/roblox-ts/roact/tar.gz/5122d865bc6f772a6299ba120258f96de94ac125
@@ -658,10 +663,6 @@ packages:
   '@pkgr/core@0.3.6':
     resolution: {integrity: sha512-SEeaJLb3qBNF/OaXnaR1NmmBbFYk1zC0ZH/52fATcRPLFg/p791YrcyFFy44Bo9sLaGuSuLp5Q6axbb/O+v/RA==}
     engines: {node: ^14.18.0 || >=16.0.0}
-
-  '@rbxts/compiler-types@https://codeload.github.com/roblox-ts/compiler-types/tar.gz/314b208523e7d16231cb22ddf26dc0af234bab85':
-    resolution: {gitHosted: true, integrity: sha512-kCP5JKRKoRVQy5DWJKFMArCkpjjP3Jeci+nncrblymKSGO85Bybv/ZnOyHKfHZgqr3kE+zHadQweUFsTc1fGPg==, tarball: https://codeload.github.com/roblox-ts/compiler-types/tar.gz/314b208523e7d16231cb22ddf26dc0af234bab85}
-    version: 3.0.0-types.0
 
   '@rbxts/roact@https://codeload.github.com/roblox-ts/roact/tar.gz/5122d865bc6f772a6299ba120258f96de94ac125':
     resolution: {gitHosted: true, integrity: sha512-RLxJTajf1IOW2uyejgbSernelF83gnqgQyBMasY5DOY2Iv5rnPN0sSchq3aX8+dCp5HmY+Zh7fb3R7sMJLFYWg==, tarball: https://codeload.github.com/roblox-ts/roact/tar.gz/5122d865bc6f772a6299ba120258f96de94ac125}
@@ -2815,8 +2816,6 @@ snapshots:
     optional: true
 
   '@pkgr/core@0.3.6': {}
-
-  '@rbxts/compiler-types@https://codeload.github.com/roblox-ts/compiler-types/tar.gz/314b208523e7d16231cb22ddf26dc0af234bab85': {}
 
   '@rbxts/roact@https://codeload.github.com/roblox-ts/roact/tar.gz/5122d865bc6f772a6299ba120258f96de94ac125': {}
 

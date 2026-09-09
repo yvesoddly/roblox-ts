@@ -1,0 +1,14 @@
+{
+	"compilerOptions": {
+		"allowSyntheticDefaultImports": true,
+		"module": "commonjs",
+		"moduleResolution": "Node",
+		"noLib": true,
+		"noEmit": true,
+		"strict": true,
+		"target": "ESNext",
+		"types": [],
+		"forceConsistentCasingInFileNames": true
+	},
+	"include": ["types/*.d.ts"]
+}

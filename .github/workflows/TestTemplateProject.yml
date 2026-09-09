@@ -26,6 +26,7 @@ jobs:
       - name: Pack workspace packages
         working-directory: roblox-ts
         run: |
+          pnpm --filter @rbxts/compiler-types pack --out ../../compiler-types.tgz
           pnpm --filter @roblox-ts/luau-ast pack --out ../../luau-ast.tgz
           pnpm --filter roblox-ts pack --out ../../roblox-ts.tgz
 
@@ -35,7 +36,7 @@ jobs:
       - name: Install local roblox-ts
         run: |
           cd project
-          npm install ../roblox-ts/luau-ast.tgz ../roblox-ts/roblox-ts.tgz
+          npm install ../roblox-ts/compiler-types.tgz ../roblox-ts/luau-ast.tgz ../roblox-ts/roblox-ts.tgz
 
       - name: Build
         run: |

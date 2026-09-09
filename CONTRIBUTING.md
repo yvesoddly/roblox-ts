@@ -15,7 +15,8 @@ This guide assumes you have the following installed:
 We'll also assume you understand some basic terminal navigation commands (`cd`, `ls`/`dir`, etc.).
 
 The repository is a pnpm workspace. `packages/roblox-ts` contains the published compiler,
-`packages/luau-ast` contains the AST and renderer, `tests` contains the private Roblox runtime test project,
+`packages/luau-ast` contains the AST and renderer, `packages/compiler-types` contains their companion
+compiler declarations, and `tests` contains the private Roblox runtime test project,
 and `devlink` provides the development CLI.
 Run the commands below from the repository root; one install sets up all packages.
 
@@ -86,7 +87,8 @@ For an intentional emit change, update snapshots with `pnpm run test-compile --u
 and review the resulting diff before committing.
 
 Normal test runs use the versions and Git commits recorded in `pnpm-lock.yaml`. To intentionally refresh
-the compiler and Roblox test types, run `pnpm run update-test-types` and review the manifest and lockfile changes.
+the external Roblox types, run `pnpm run update-test-types` and review the manifest and lockfile changes.
+Compiler declarations come from the private local `packages/compiler-types` package; edit them directly.
 
 To build a distributable compiler tarball, run `pnpm --filter roblox-ts pack`. The package keeps its
 `rbxtsc` CLI, Node entry point, browser entry point, and bundled runtime files.

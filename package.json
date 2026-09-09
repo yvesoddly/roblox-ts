@@ -7,7 +7,7 @@
 		"build-watch": "pnpm --filter roblox-ts build-watch",
 		"eslint": "eslint --max-warnings 0",
 		"devlink": "pnpm run build && pnpm --dir devlink add --global .",
-		"update-test-types": "pnpm --filter roblox-ts-runtime-tests add github:roblox-ts/compiler-types @rbxts/types@latest",
+		"update-test-types": "pnpm --filter roblox-ts-workspace --filter roblox-ts-runtime-tests update @rbxts/types --latest --save-exact",
 		"test": "pnpm run build && pnpm run test-compile && pnpm run test-rojo && pnpm run test-run",
 		"test-compile": "jest --coverage --maxWorkers=100%",
 		"test-rojo": "rojo build tests -o ./tests/test.rbxl",
@@ -17,6 +17,7 @@
 	},
 	"devDependencies": {
 		"@eslint-community/eslint-plugin-eslint-comments": "^4.5.0",
+		"@rbxts/types": "1.0.950",
 		"@roblox-ts/luau-ast": "workspace:*",
 		"@types/eslint-config-prettier": "^6.11.3",
 		"@types/eslint__eslintrc": "^2.1.2",

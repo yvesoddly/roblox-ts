@@ -2,7 +2,7 @@
 	"name": "roblox-ts-runtime-tests",
 	"private": true,
 	"dependencies": {
-		"@rbxts/compiler-types": "github:roblox-ts/compiler-types#314b208523e7d16231cb22ddf26dc0af234bab85",
+		"@rbxts/compiler-types": "workspace:*",
 		"@rbxts/roact": "github:roblox-ts/roact#5122d865bc6f772a6299ba120258f96de94ac125",
 		"@rbxts/services": "1.5.3",
 		"@rbxts/testez": "0.4.2-ts.0",

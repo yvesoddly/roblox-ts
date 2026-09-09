@@ -53,23 +53,23 @@ transformed TypeScript nodes cannot be assumed to retain valid symbol or type in
 
 ## Setup and validation
 
-Run commands from the repository root. pnpm installs the compiler, AST/renderer, runtime tests, and devlink workspaces together.
+Run commands from the repository root. pnpm installs the compiler, AST/renderer, compiler declarations, runtime tests, and devlink workspaces together.
 
-| Command                                                                 | Purpose                                                                                                                                       |
-| ----------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------- |
-| `pnpm install --frozen-lockfile`                                        | Install all workspace dependencies from the shared lockfile on a fresh checkout.                                                              |
-| `pnpm run update-test-types`                                            | Intentionally refresh the test project's compiler types and Roblox types. This can change test package metadata; review that diff separately. |
-| `rokit install`                                                         | Install the pinned Rojo/Lune tools described in the contributor guide and `rokit.toml`.                                                       |
-| `pnpm run build`                                                        | Build the compiler's TypeScript project references with `tspc -b`, including the configured path transforms.                                  |
-| `pnpm run build-watch`                                                  | Rebuild compiler sources while editing.                                                                                                       |
-| `pnpm run test-compile`                                                 | Run Jest with coverage, check snapshots and diagnostics, and compile the runtime test project.                                                |
-| `pnpm run test-compile tests/compiler/strings.test.ts`                  | Example of running one compiler test file.                                                                                                    |
-| `pnpm run test-compile tests/compiler/strings.test.ts --updateSnapshot` | Update that suite's snapshots for an intentional emit change. Review the generated diff.                                                      |
-| `pnpm run test-rojo`                                                    | Build `tests/test.rbxl` from the compiled test project.                                                                                       |
-| `pnpm run test-run`                                                     | Execute that place's TestEZ tests through Lune.                                                                                               |
-| `pnpm test`                                                             | Build → all Jest tests → Rojo → Lune. Use for compiler/runtime behavior changes.                                                              |
-| `pnpm run eslint`                                                       | Run lint with zero warnings allowed.                                                                                                          |
-| `git diff --check`                                                      | Check patch whitespace before finishing.                                                                                                      |
+| Command                                                                 | Purpose                                                                                                                                               |
+| ----------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `pnpm install --frozen-lockfile`                                        | Install all workspace dependencies from the shared lockfile on a fresh checkout.                                                                      |
+| `pnpm run update-test-types`                                            | Intentionally refresh external Roblox types for the tests and declaration checks. This can change test package metadata; review that diff separately. |
+| `rokit install`                                                         | Install the pinned Rojo/Lune tools described in the contributor guide and `rokit.toml`.                                                               |
+| `pnpm run build`                                                        | Build the compiler's TypeScript project references with `tspc -b`, including the configured path transforms.                                          |
+| `pnpm run build-watch`                                                  | Rebuild compiler sources while editing.                                                                                                               |
+| `pnpm run test-compile`                                                 | Run Jest with coverage, check snapshots and diagnostics, and compile the runtime test project.                                                        |
+| `pnpm run test-compile tests/compiler/strings.test.ts`                  | Example of running one compiler test file.                                                                                                            |
+| `pnpm run test-compile tests/compiler/strings.test.ts --updateSnapshot` | Update that suite's snapshots for an intentional emit change. Review the generated diff.                                                              |
+| `pnpm run test-rojo`                                                    | Build `tests/test.rbxl` from the compiled test project.                                                                                               |
+| `pnpm run test-run`                                                     | Execute that place's TestEZ tests through Lune.                                                                                                       |
+| `pnpm test`                                                             | Build → all Jest tests → Rojo → Lune. Use for compiler/runtime behavior changes.                                                                      |
+| `pnpm run eslint`                                                       | Run lint with zero warnings allowed.                                                                                                                  |
+| `git diff --check`                                                      | Check patch whitespace before finishing.                                                                                                              |
 
 Build before validating compiler changes. A focused snapshot run does **not** refresh the complete runtime output;
 run `tests/compiler/compile.test.ts` or the full Jest suite before running Rojo and Lune separately. Inspect generated
@@ -80,8 +80,8 @@ behavior changes, run focused regressions while iterating, then `pnpm test` and 
 when a change, failure, or unresolved concern warrants it. Never report an unrun check as passing.
 
 If dependency setup fails, inspect the actual pnpm error and installed test types before diagnosing a compiler bug.
-Normal CI uses the frozen lockfile. Test dependencies include pinned Git commits; refresh them explicitly through
-`pnpm run update-test-types`. Roblox type recognition uses declaration paths, so fixture copies must dereference
+Normal CI uses the frozen lockfile. Compiler declarations come from the private `packages/compiler-types` workspace; `pnpm run update-test-types`
+refreshes only the external Roblox types. Roblox type recognition uses declaration paths, so fixture copies must dereference
 the test workspace's dependency symlinks rather than pointing into a different project. Keep `preserveSymlinks`
 enabled in the runtime test config, and keep its workspace name unscoped: scoped names select library behavior.
 

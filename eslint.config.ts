@@ -18,6 +18,7 @@ export default defineConfig(
 				project: [
 					"./tsconfig.json",
 					"./tsconfig.eslint.json",
+					"./packages/compiler-types/tsconfig.json",
 					"./packages/luau-ast/tsconfig.json",
 					"./packages/luau-ast/tests/tsconfig.json",
 					"./packages/*/src/*/tsconfig.json",
@@ -63,6 +64,23 @@ export default defineConfig(
 			"@typescript-eslint/no-require-imports": "error",
 			"no-constant-condition": ["error", { checkLoops: false }],
 			"no-restricted-imports": ["error", { patterns: [".*"] }],
+		},
+	},
+	{
+		files: ["packages/compiler-types/types/*.d.ts"],
+		rules: {
+			// ambient standard-library declarations use explicit references and broad callable types
+			"@typescript-eslint/triple-slash-reference": "off",
+			"@typescript-eslint/no-empty-object-type": "off",
+			"@typescript-eslint/no-explicit-any": "off",
+			"@typescript-eslint/no-unused-vars": "off",
+		},
+	},
+	{
+		files: ["packages/compiler-types/types/core.d.ts"],
+		rules: {
+			// TypeScript requires these globals even though using them directly is deprecated
+			"@typescript-eslint/no-deprecated": "off",
 		},
 	},
 	{
