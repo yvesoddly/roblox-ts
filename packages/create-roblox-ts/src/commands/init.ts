@@ -290,8 +290,9 @@ async function init(argv: yargs.Arguments<InitOptions>, initMode: InitMode) {
 		}
 
 		if (eslint) {
+			// generated .eslintrc files require ESLint's legacy config default
 			devDependencies.push(
-				"eslint",
+				"eslint@8.57.1",
 				"@typescript-eslint/eslint-plugin",
 				"@typescript-eslint/parser",
 				"eslint-plugin-roblox-ts",

@@ -54,14 +54,16 @@ For generated consumers of the local workspace, use the separate root command
 `corepack pnpm run test-toolchain` after a root build. It defaults to the `game`
 template; `RBXTS_TEMPLATE_TYPE` selects `game`, `place`, `model`, `plugin`, or
 `package`. This network-dependent check is separate from `pnpm test` and from the
-registry-based `test:integration` suite above. The generator's normal dependency
-selection and `--compilerVersion` mapping remain unchanged.
+registry-based `test:integration` suite above. Registry generation installs
+`roblox-ts`, which includes the `rbxtsc` binary. The local workspace consumer test
+explicitly installs the separate `@roblox-ts/cli` tarball; that package is not
+available from the registry. The `--compilerVersion` mapping remains unchanged.
 
 The package template declares `main: "out/init.luau"` for current compilers and
 retains `out/init.lua` for `--compilerVersion` pins below 3.0.0. The registry
 integration test requires both the declared runtime and type entry points to exist.
 
-Dependency modernization, including the generated legacy ESLint configuration,
-is separate from this behavior-preserving import. The local generator dependency
-install reported six high-severity npm audit findings; no dependency upgrades or
-automatic audit fixes were applied.
+Generated projects use ESLint 8.57.1 so their `.eslintrc` works without a flat-config
+migration or environment override. Broader dependency modernization is separate
+from this import. The local generator dependency install reported six high-severity
+npm audit findings; no automatic audit fixes were applied.

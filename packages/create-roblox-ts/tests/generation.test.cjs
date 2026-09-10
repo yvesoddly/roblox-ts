@@ -77,7 +77,7 @@ for (const template of ["game", "place", "model", "plugin", "package"]) {
 		assert.deepEqual(project.commands(), [
 			"npm init -y",
 			"git init",
-			"npm install --silent -D roblox-ts @rbxts/compiler-types @rbxts/types typescript prettier eslint @typescript-eslint/eslint-plugin @typescript-eslint/parser eslint-plugin-roblox-ts eslint-config-prettier eslint-plugin-prettier",
+			"npm install --silent -D roblox-ts @rbxts/compiler-types @rbxts/types typescript prettier eslint@8.57.1 @typescript-eslint/eslint-plugin @typescript-eslint/parser eslint-plugin-roblox-ts eslint-config-prettier eslint-plugin-prettier",
 			"npm run build",
 		]);
 		assert.equal(project.read(".eslintrc").rules["prettier/prettier"], "warn");
