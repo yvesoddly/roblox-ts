@@ -1,10 +1,9 @@
 import { execFileSync } from "child_process";
 import fs from "fs-extra";
 import path from "path";
-import { PACKAGE_ROOT } from "Shared/constants";
 import { assert } from "Shared/util/assert";
 
-import { expectSuccess, ReferenceFixture } from "../referenceFixture";
+import { expectLoggableError, expectSuccess, ReferenceFixture } from "../referenceFixture";
 
 let fixture: ReferenceFixture;
 beforeEach(() => {
@@ -16,7 +15,7 @@ it("rejects collisions between TypeScript and rbxtsc cache paths", () => {
 	fixture.project("shared", [], { tsBuildInfoFile: "../cache/shared.tsbuildinfo" });
 	fixture.project("game", ["shared"], { tsBuildInfoFile: "../cache/shared.rbxtsc.tsbuildinfo" });
 
-	expect(() => fixture.createBuild()).toThrow("Multiple projects write");
+	expectLoggableError(() => fixture.createBuild(), "Multiple projects write");
 });
 
 it.each(["../cache/game.tsbuildinfo", "../out/game/build.tsbuildinfo"])(
@@ -29,13 +28,9 @@ it.each(["../cache/game.tsbuildinfo", "../out/game/build.tsbuildinfo"])(
 		assert(buildInfo);
 		const before = fs.readFileSync(buildInfo, "utf8");
 
-		execFileSync(
-			process.execPath,
-			[path.join(PACKAGE_ROOT, "node_modules/typescript/lib/tsc.js"), "--build", fixture.file("game")],
-			{
-				cwd: fixture.directory,
-			},
-		);
+		execFileSync(process.execPath, [require.resolve("typescript/lib/tsc.js"), "--build", fixture.file("game")], {
+			cwd: fixture.directory,
+		});
 
 		expect(fs.readFileSync(buildInfo, "utf8")).toBe(before);
 		const tsBuildInfo = path.resolve(fixture.file("game"), tsBuildInfoFile);

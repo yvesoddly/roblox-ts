@@ -19,20 +19,16 @@ jobs:
           path: roblox-ts
 
       - name: Setup roblox-ts repo
-        run: |
-          cd roblox-ts
-          npm install
-          npm run build
+        uses: ./roblox-ts/.github/actions/setup
+        with:
+          directory: roblox-ts
 
-      - name: Create template project
-        run: npm init roblox-ts@latest ${{ matrix.type }} -- -y --dir project --skipBuild
+      - name: Build workspace packages
+        working-directory: roblox-ts
+        run: corepack pnpm run build
 
-      - name: Install local roblox-ts
-        run: |
-          cd project
-          npm install --install-links ../roblox-ts
-
-      - name: Build
-        run: |
-          cd project
-          npm run build
+      - name: Test local generated-project toolchain
+        working-directory: roblox-ts
+        env:
+          RBXTS_TEMPLATE_TYPE: ${{ matrix.type }}
+        run: corepack pnpm run test-toolchain

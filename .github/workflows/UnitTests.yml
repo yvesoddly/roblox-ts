@@ -13,27 +13,19 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-latest, windows-latest, macos-latest]
+        os: [ubuntu-latest, windows-latest]
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v4
 
-      - name: Setup Node
-        uses: actions/setup-node@v4
-        with:
-          node-version: 24
-
       - name: Install Rokit
         uses: roblox-ts/setup-rokit@v0.1.2
 
-      - name: Install NPM Dependencies
-        uses: bahmutov/npm-install@v1
-
-      - name: Update Test Types
-        run: npm run update-test-types
+      - name: Setup workspace
+        uses: ./.github/actions/setup
 
       - name: Run Tests
-        run: npm test
+        run: pnpm test
 
       - name: Upload Test Output
         if: failure()

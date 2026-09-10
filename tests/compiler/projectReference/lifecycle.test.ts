@@ -19,7 +19,7 @@ afterEach(() => fixture.close());
 it("releases replaced programs while retaining the current builder", () => {
 	fixture.project("game");
 
-	// a subprocess enables collection without changing the Jest process or its compiler instances
+	// a subprocess enables collection without changing the Vitest process or its compiler instances
 	const output = execFileSync(
 		process.execPath,
 		[
@@ -74,7 +74,7 @@ it.each([false, true])("preserves nested bundled runtime files while cleaning ge
 	fixture.write("runtime/helpers/nested.luau", "return 42");
 	fixture.write("runtime/helpers/legacy.lua", "return 24");
 	fixture.write("runtime/helpers/data.json", '{"value": 42}');
-	const installation = jest.replaceProperty(constants, "INCLUDE_PATH", runtime);
+	const installation = vi.spyOn(constants, "INCLUDE_PATH", "get").mockReturnValue(runtime);
 
 	try {
 		const build = fixture.createBuild({ includePath: fixture.file("out/game"), luau });
@@ -90,7 +90,7 @@ it.each([false, true])("preserves nested bundled runtime files while cleaning ge
 		expect(fs.existsSync(fixture.file(`out/game/orphan.${extension}`))).toBe(false);
 		expect(fs.existsSync(fixture.file(`out/game/RuntimeLib.${extension}`))).toBe(true);
 	} finally {
-		installation.restore();
+		installation.mockRestore();
 	}
 });
 
@@ -193,7 +193,7 @@ it("preserves a supplied host's resolution invalidation hook across rebuilds", (
 	);
 	const { data, config } = fixture.createBuild().graph.root;
 	const host = ts.createIncrementalCompilerHost(config.options);
-	const invalidate = jest.fn(() => true);
+	const invalidate = vi.fn(() => true);
 	host.hasInvalidatedResolutions = invalidate;
 	const getSourceFile = host.getSourceFile;
 	const create = createProgramFactory(data, config.options);

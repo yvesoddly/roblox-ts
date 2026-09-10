@@ -7,7 +7,8 @@ import { formatDiagnostics } from "Shared/util/formatDiagnostics";
 
 import { expectSuccess, ReferenceFixture, startWatch } from "../referenceFixture";
 
-jest.setTimeout(30000);
+// watch tests wait for filesystem events and idle periods, which can take twice as long on busy CI runners
+vi.setConfig({ testTimeout: 60000, hookTimeout: 60000 });
 
 function diagnosticCodes(action: () => unknown) {
 	try {

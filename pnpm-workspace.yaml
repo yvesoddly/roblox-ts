@@ -1,5 +1,43 @@
+packages:
+    - packages/cli
+    - packages/compiler-types
+    - packages/create-roblox-ts
+    - packages/create-roblox-ts/devlink
+    - packages/eslint-plugin-roblox-ts
+    - packages/eslint-plugin-roblox-ts/fixtures/eslint-v8
+    - packages/eslint-plugin-roblox-ts/fixtures/eslint-v9
+    - packages/eslint-plugin-roblox-ts/fixtures/eslint-v10
+    - packages/luau-ast
+    - packages/path-translator
+    - packages/roblox-ts
+    - packages/roblox-ts-extensions
+    - packages/rojo-resolver
+    - packages/ts-expose-internals
+    - packages/vscode-roblox-ts
+    - tests
+    - devlink
+
+# keep package-specific test runners and ESLint peers separate from the compiler's tools
+resolvePeersFromWorkspaceRoot: false
+
+# refresh injected fixture copies after the plugin and its local AST dependency build
+syncInjectedDepsAfterScripts:
+    - build
+
 allowBuilds:
-  '@parcel/watcher': false
-  unrs-resolver: false
-minimumReleaseAgeExclude:
-  - '@roblox-ts/rojo-resolver@1.2.0'
+    "@parcel/watcher": false
+    "@vscode/vsce-sign": false
+    esbuild: true
+    keytar: false
+    msgpackr-extract: false
+    simple-git-hooks: false
+    unrs-resolver: false
+
+overrides:
+    "vitest@4.1.11>vite": npm:@voidzero-dev/vite-plus-core@0.3.1
+    "vitest@4.0.18>vite": 7.2.2
+
+# vite-plus-core uses the Vite Plus version rather than the upstream Vite version
+peerDependencyRules:
+    allowedVersions:
+        vite: 0.3.1

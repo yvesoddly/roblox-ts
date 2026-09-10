@@ -10,6 +10,7 @@ changes to literal spelling matter even when execution is equivalent.
   repeatedly asking for confirmation. Ask when missing information materially changes the outcome or authorization.
 - Keep work local unless publication is requested. “Keep everything local” includes no pushes, PRs, GitHub comments,
   reviews, merges, or releases. Continue within authorization already given in the current task.
+- Keep planning artifacts in `.plans/` local and untracked; do not commit them.
 - Check the branch, worktree, and existing diff before editing. Preserve unrelated work. Use an isolated worktree
   when comparing branches, and preserve a checkpoint before a risky refactor or rebase.
 - Read the relevant callers, helpers, and tests before changing a transform. Trace a reproducer from TypeScript
@@ -23,80 +24,86 @@ changes to literal spelling matter even when execution is equivalent.
 
 The main pipeline is TypeScript source → TypeScript AST/type checker → Luau AST → rendered Luau.
 
-| Area                                                | Responsibility and useful entry points                                                                                                                                                                                             |
-| --------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `src/CLI/`                                          | Argument parsing and terminal behavior. `cli.ts` loads commands; `commands/build.ts` drives normal and watch builds. Shared compilation behavior belongs in Project.                                                               |
-| `src/Project/`                                      | Configuration, program creation, plugins, Rojo/path resolution, copying, cleanup, and emission. Start with `functions/compileFiles.ts`.                                                                                            |
-| `src/Project/classes/VirtualProject.ts`             | In-memory compilation used by the playground and compiler snapshots, backed by `VirtualFileSystem.ts`. Preserve this path alongside filesystem builds.                                                                             |
-| `src/Project/functions/setupProjectWatchProgram.ts` | Incremental builds and file lifecycle. Also inspect `createProgramFactory.ts` and `getChangedFilePaths.ts` for invalidation and dependent files.                                                                                   |
-| `src/TSTransformer/nodes/`                          | Syntax lowering. `transformSourceFile.ts` handles module wrapping; `expressions/transformExpression.ts` and `statements/transformStatement.ts` dispatch by syntax kind. Binding, class, and JSX transforms have their own folders. |
-| `src/TSTransformer/classes/`                        | `TransformState` owns per-file transformation context; `Prereqs` owns an explicit statement destination; `MultiTransformState` owns caches for one compilation; `MacroManager` binds macros to TypeScript symbols.                 |
-| `src/TSTransformer/macros/`                         | Identifier, constructor, call, and property-call macros. Array, map, set, string, and Roblox arithmetic methods are expanded here.                                                                                                 |
-| `src/TSTransformer/util/`                           | Shared lowering rules: evaluation order, type classification, truthiness, imports, assignments, tuples, and string conversion.                                                                                                     |
-| `src/Shared/`                                       | Options and defaults, diagnostic factories, errors, logging, and common utilities.                                                                                                                                                 |
-| `include/`                                          | Shipped Luau runtime support: `RuntimeLib.lua` and the bundled `Promise.lua`. Helpers requested through `state.TS(...)` must agree with this runtime.                                                                              |
-| `tests/compiler/`                                   | Node/Jest tests for compilation, diagnostics, and exact emitted output.                                                                                                                                                            |
-| `tests/src/`                                        | A separate roblox-ts project containing TestEZ runtime tests, diagnostic fixtures, and supporting modules.                                                                                                                         |
-| `.github/workflows/`                                | Build, lint, runtime tests, playground compatibility, template-project integration, and publishing.                                                                                                                                |
+| Area                                                                   | Responsibility and useful entry points                                                                                                                                                                                             |
+| ---------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `packages/cli/src/`                                                    | Argument parsing and terminal behavior. `cli.ts` loads commands; `commands/build.ts` drives normal and watch builds. Shared compilation behavior belongs in Project.                                                               |
+| `packages/roblox-ts/src/Project/`                                      | Configuration, program creation, plugins, Rojo/path resolution, copying, cleanup, and emission. Start with `functions/compileFiles.ts`.                                                                                            |
+| `packages/roblox-ts/src/Project/classes/VirtualProject.ts`             | In-memory compilation used by the playground and compiler snapshots, backed by `VirtualFileSystem.ts`. Preserve this path alongside filesystem builds.                                                                             |
+| `packages/roblox-ts/src/Project/functions/setupProjectWatchProgram.ts` | Incremental builds and file lifecycle. Also inspect `createProgramFactory.ts` and `getChangedFilePaths.ts` for invalidation and dependent files.                                                                                   |
+| `packages/roblox-ts/src/TSTransformer/nodes/`                          | Syntax lowering. `transformSourceFile.ts` handles module wrapping; `expressions/transformExpression.ts` and `statements/transformStatement.ts` dispatch by syntax kind. Binding, class, and JSX transforms have their own folders. |
+| `packages/roblox-ts/src/TSTransformer/classes/`                        | `TransformState` owns per-file transformation context; `Prereqs` owns an explicit statement destination; `MultiTransformState` owns caches for one compilation; `MacroManager` binds macros to TypeScript symbols.                 |
+| `packages/roblox-ts/src/TSTransformer/macros/`                         | Identifier, constructor, call, and property-call macros. Array, map, set, string, and Roblox arithmetic methods are expanded here.                                                                                                 |
+| `packages/roblox-ts/src/TSTransformer/util/`                           | Shared lowering rules: evaluation order, type classification, truthiness, imports, assignments, tuples, and string conversion.                                                                                                     |
+| `packages/roblox-ts/src/Shared/`                                       | Options and defaults, diagnostic factories, errors, logging, and common utilities.                                                                                                                                                 |
+| `packages/roblox-ts/include/`                                          | Shipped Luau runtime support: `RuntimeLib.luau` and the bundled `Promise.luau`. Helpers requested through `state.TS(...)` must agree with this runtime.                                                                            |
+| `tests/compiler/`                                                      | Node/Vitest tests for compilation, diagnostics, and exact emitted output.                                                                                                                                                          |
+| `tests/src/`                                                           | A separate roblox-ts project containing TestEZ runtime tests, diagnostic fixtures, and supporting modules.                                                                                                                         |
+| `.github/workflows/`                                                   | Build, lint, runtime tests, playground compatibility, template-project integration, and publishing.                                                                                                                                |
 
-Luau AST construction and rendering live in the separate `@roblox-ts/luau-ast` package. Filesystem translation and
-Rojo resolution likewise come from `@roblox-ts/path-translator` and `@roblox-ts/rojo-resolver`. Fix issues at the
-appropriate layer; verify a dependency release is available before relying on its new API.
+Luau AST construction and rendering live in `packages/luau-ast`, published separately as `@roblox-ts/luau-ast`. Filesystem translation and
+Rojo resolution live in `packages/path-translator` and `packages/rojo-resolver`, consumed through workspace dependencies.
+The `@types/ts-expose-internals` alias points to `packages/ts-expose-internals`, which also contains its generator and tests. Fix issues at the
+appropriate layer; publish a changed dependency before releasing a compiler that relies on its new API.
 
 `CONTRIBUTING.md` explains development setup. Prefer current implementation and configuration when older subsystem
-READMEs disagree. Read versions and scripts from `package.json`, tool pins from `foreman.toml`, and CI behavior from
+READMEs disagree. Read compiler versions and scripts from `packages/roblox-ts/package.json` and root commands from `package.json`, tool pins from `rokit.toml`, and CI behavior from
 the workflows rather than assuming a remembered version or command.
 
-When adding a compiler option, check `src/Shared/types.ts`, `DEFAULT_PROJECT_OPTIONS` in `src/Shared/constants.ts`,
+When adding a compiler option, check `packages/roblox-ts/src/Shared/types.ts`, `DEFAULT_PROJECT_OPTIONS` in `packages/roblox-ts/src/Shared/constants.ts`,
 CLI flags, and VirtualProject together. Plugin changes also need the reprint/rebind path in `compileFiles.ts`:
 transformed TypeScript nodes cannot be assumed to retain valid symbol or type information.
 
 ## Setup and validation
 
-Run commands from the repository root. The compiler and `tests/` have separate npm dependencies.
+Run commands from the repository root. pnpm installs the compiler, AST/renderer, compiler declarations, runtime tests, and devlink workspaces together.
 
-| Command                                                                   | Purpose                                                                                                                                             |
-| ------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `npm ci`                                                                  | Install the root dependencies from the lockfile on a fresh checkout.                                                                                |
-| `npm run update-test-types`                                               | Install/refresh the test project's compiler types and Roblox types, as CI does. This can change test package metadata; review that diff separately. |
-| `rokit install`                                                           | Install the pinned Rojo/Lune tools described in the contributor guide and `foreman.toml`.                                                           |
-| `npm run build`                                                           | Build the compiler's TypeScript project references with `tspc -b`, including the configured path transforms.                                        |
-| `npm run build-watch`                                                     | Rebuild compiler sources while editing.                                                                                                             |
-| `npm run test-compile`                                                    | Run Jest with coverage, check snapshots and diagnostics, and compile the runtime test project.                                                      |
-| `npm run test-compile -- tests/compiler/strings.test.ts`                  | Example of running one compiler test file.                                                                                                          |
-| `npm run test-compile -- tests/compiler/strings.test.ts --updateSnapshot` | Update that suite's snapshots for an intentional emit change. Review the generated diff.                                                            |
-| `npm run test-rojo`                                                       | Build `tests/test.rbxl` from the compiled test project.                                                                                             |
-| `npm run test-run`                                                        | Execute that place's TestEZ tests through Lune.                                                                                                     |
-| `npm test`                                                                | Build → all Jest tests → Rojo → Lune. Use for compiler/runtime behavior changes.                                                                    |
-| `npm run eslint`                                                          | Run lint with zero warnings allowed.                                                                                                                |
-| `git diff --check`                                                        | Check patch whitespace before finishing.                                                                                                            |
+| Command                                                         | Purpose                                                                                                                                               |
+| --------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `pnpm install --frozen-lockfile`                                | Install all workspace dependencies from the shared lockfile on a fresh checkout.                                                                      |
+| `pnpm run update-test-types`                                    | Intentionally refresh external Roblox types for the tests and declaration checks. This can change test package metadata; review that diff separately. |
+| `rokit install`                                                 | Install the pinned Rojo/Lune tools described in the contributor guide and `rokit.toml`.                                                               |
+| `pnpm run build`                                                | Build the compiler's TypeScript project references with `tspc -b`, including the configured path transforms.                                          |
+| `pnpm run build-watch`                                          | Rebuild compiler sources while editing.                                                                                                               |
+| `pnpm run test-compile`                                         | Typecheck the Node tests, run Vitest with coverage, check snapshots and diagnostics, and compile the runtime test project.                            |
+| `pnpm run test-compile tests/compiler/strings.test.ts`          | Example of running one compiler test file.                                                                                                            |
+| `pnpm run test-compile tests/compiler/strings.test.ts --update` | Update that suite's snapshots for an intentional emit change. Review the generated diff.                                                              |
+| `pnpm run test-rojo`                                            | Build `tests/test.rbxl` from the compiled test project.                                                                                               |
+| `pnpm run test-run`                                             | Execute that place's TestEZ tests through Lune.                                                                                                       |
+| `pnpm run test-packages`                                        | Run the imported path and declaration-generator package tests.                                                                                        |
+| `pnpm test`                                                     | Build → package tests → compiler Vitest tests → Rojo → Lune. Use for compiler/runtime behavior changes.                                               |
+| `pnpm run check`                                                | Run Oxlint with zero warnings allowed and check Oxfmt formatting.                                                                                     |
+| `git diff --check`                                              | Check patch whitespace before finishing.                                                                                                              |
 
 Build before validating compiler changes. A focused snapshot run does **not** refresh the complete runtime output;
-run `tests/compiler/compile.test.ts` or the full Jest suite before running Rojo and Lune separately. Inspect generated
+run `tests/compiler/compile.test.ts` or the full Vitest suite before running Rojo and Lune separately. Inspect generated
 files under `tests/out/`, but change their TypeScript sources rather than editing the output.
 
 For documentation-only changes, check formatting, paths, and the diff; a compiler test run is unnecessary. For
-behavior changes, run focused regressions while iterating, then `npm test` and lint. Repeat or broaden checks only
+behavior changes, run focused regressions while iterating, then `pnpm test` and lint. Repeat or broaden checks only
 when a change, failure, or unresolved concern warrants it. Never report an unrun check as passing.
 
-If dependency setup fails, inspect the actual npm error and installed test types before diagnosing a compiler bug.
-Test dependencies include Git sources; npm versions that require explicit Git permission may need
-`--allow-git=root` on the relevant install command. Roblox type recognition uses declaration paths, so symlinking
-`tests/node_modules` from another worktree can change behavior; install or copy dependencies into that worktree.
+If dependency setup fails, inspect the actual pnpm error and installed test types before diagnosing a compiler bug.
+Normal CI uses the frozen lockfile. Compiler declarations come from the private `packages/compiler-types` workspace; `pnpm run update-test-types`
+refreshes only the external Roblox types. Roblox type recognition uses declaration paths, so fixture copies must dereference
+the test workspace's dependency symlinks rather than pointing into a different project. Keep `preserveSymlinks`
+enabled in the runtime test config, and keep its workspace name unscoped: scoped names select library behavior.
 
 ## Regression tests
+
+AST-only behavior belongs in `packages/luau-ast/tests/`, using the public package API. Pair renderer snapshots
+with Lune execution so exact output and valid runtime behavior are both checked.
 
 - Prefer programs users can write. Add runtime cases to `tests/src/tests/*.spec.ts` and supporting files to
   `tests/src/helpers/` or the relevant existing fixture folder. Follow neighboring TestEZ tests. Cover evaluation
   order with observable side effects, not just the final value.
 - Add invalid-source cases to `tests/src/diagnostics/<diagnosticName>.ts`, or `.1.ts`, `.2.ts`, etc. The harness resolves
-  the name against `errors` in `src/Shared/diagnostics.ts` and requires the expected diagnostic without unrelated ones.
+  the name against `errors` in `packages/roblox-ts/src/Shared/diagnostics.ts` and requires the expected diagnostic without unrelated ones.
 - For output quality, use `createTestProject()` from `tests/compiler/createTestProject.ts` and snapshot the complete
   `compileSource()` result, removing only the compiler version header as existing suites do. Keep subject-specific
   suites in `tests/compiler/`; reusable TypeScript input fixtures go in `tests/compiler/fixtures/`.
 - Runtime assertions establish behavior; snapshots establish exact spelling, parentheses, and temporary placement.
   Add both when both can regress. A snapshot alone does not prove the output parses or runs.
-- Keep snapshot cases alphabetized by test name to match Jest's snapshot ordering. Let Jest generate `.snap` files;
+- Keep snapshot cases alphabetized by test name to match Vitest's snapshot ordering. Let Vitest generate `.snap` files;
   review every intentional change instead of manually arranging snapshots or accepting updates blindly.
 - Confirm a regression test exercises the original bug, preferably by demonstrating failure before the fix. Avoid
   tests coupled to private analysis structures or fabricated internal states just to increase coverage.
@@ -104,7 +111,7 @@ Test dependencies include Git sources; npm versions that require explicit Git pe
   source-level runtime cases. When pursuing 100%, investigate apparently unreachable branches rather than inventing
   an internal-only test or weakening the threshold. Check existing coverage before adding redundant cases.
 
-Lune runs a Roblox simulation with shims in `tests/runTestsWithLune.lua`; it does not establish full engine behavior.
+Lune runs a Roblox simulation with shims in `tests/runTestsWithLune.luau`; it does not establish full engine behavior.
 For an engine-specific issue, verify the actual API and use an appropriate Roblox integration check.
 
 ## Compiler invariants and common traps
@@ -146,7 +153,7 @@ For an engine-specific issue, verify the actual API and use an appropriate Roblo
 
 ## Code and comment style
 
-- Follow `.prettierrc`, `.editorconfig`, and `eslint.config.ts`: tabs, double quotes, semicolons, trailing commas,
+- Follow `vite.config.ts` and `.editorconfig`: tabs, double quotes, semicolons, trailing commas,
   and `Array<T>` / `ReadonlyArray<T>`. Source imports use project aliases such as `TSTransformer/...` and `Shared/...`;
   relative imports are allowed in `tests/compiler/`. Let the import sorter arrange imports.
 - Always use braces for `if`, `else`, and loop bodies, including single-line early returns and `continue` or `break`

@@ -1,0 +1,21 @@
+{
+	"compilerOptions": {
+		"declaration": true,
+		"module": "commonjs",
+		"target": "ES2019",
+		"lib": ["ES2019"],
+		"types": ["node"],
+		"strict": true,
+		"noFallthroughCasesInSwitch": true,
+		"esModuleInterop": true,
+		"removeComments": true,
+		"forceConsistentCasingInFileNames": true,
+		"incremental": true,
+		"tsBuildInfoFile": "out/tsconfig.tsbuildinfo",
+		"sourceMap": true,
+		"rootDir": "src",
+		"outDir": "out",
+		"composite": true
+	},
+	"include": ["src"]
+}

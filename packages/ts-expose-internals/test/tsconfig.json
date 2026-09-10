@@ -1,0 +1,14 @@
+{
+  "extends": "../tsconfig.base.json",
+  "include": [ "src", "tests" ],
+
+  "compilerOptions": {
+    "noEmit": true,
+    "target": "ESNext",
+    "module": "ESNext",
+    "moduleResolution": "Bundler",
+    "types": ["node", "vite-plus/test/globals"],
+    "skipDefaultLibCheck": true,
+    "skipLibCheck": true
+  }
+}

@@ -1,0 +1,217 @@
+{
+	"name": "vscode-roblox-ts",
+	"publisher": "roblox-ts",
+	"displayName": "roblox-ts",
+	"description": "A language service plugin that enhances the editing experience in roblox-ts.",
+	"version": "1.9.1",
+	"icon": "icon.png",
+	"engines": {
+		"vscode": "^1.52.0"
+	},
+	"categories": [
+		"Other"
+	],
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/roblox-ts/roblox-ts-extensions"
+	},
+	"main": "./out/extension.js",
+	"activationEvents": [
+		"workspaceContains:node_modules/@rbxts/compiler-types"
+	],
+	"contributes": {
+		"typescriptServerPlugins": [
+			{
+				"name": "roblox-ts-extensions",
+				"enableForWorkspaceTypeScriptVersions": true
+			}
+		],
+		"commands": [
+			{
+				"command": "roblox-ts.openOutput",
+				"title": "Open Output Path",
+				"category": "roblox-ts"
+			},
+			{
+				"command": "roblox-ts.start",
+				"title": "Start Compiler",
+				"category": "roblox-ts"
+			},
+			{
+				"command": "roblox-ts.stop",
+				"title": "Stop Compiler",
+				"category": "roblox-ts"
+			}
+		],
+		"menus": {
+			"commandPalette": [
+				{
+					"command": "roblox-ts.openOutput",
+					"when": "roblox-ts:inSrcDir"
+				},
+				{
+					"command": "roblox-ts.start",
+					"when": "!roblox-ts:compilerActive"
+				},
+				{
+					"command": "roblox-ts.stop",
+					"when": "roblox-ts:compilerActive"
+				}
+			]
+		},
+		"configuration": {
+			"title": "roblox-ts",
+			"properties": {
+				"roblox-ts.editor.hideDeprecated": {
+					"type": "boolean",
+					"default": true,
+					"description": "Hide deprecated members from intellisense."
+				},
+				"roblox-ts.boundary.useRojo": {
+					"type": "boolean",
+					"default": true,
+					"description": "Use rojo to determine client/server paths."
+				},
+				"roblox-ts.boundary.mode": {
+					"type": "string",
+					"default": "remove",
+					"enum": [
+						"remove",
+						"prefix"
+					],
+					"enumDescriptions": [
+						"Remove cross-boundary imports from intellisense.",
+						"Prefix cross-boundary imports with their boundary."
+					]
+				},
+				"roblox-ts.boundary.diagnosticsMode": {
+					"type": "string",
+					"default": "warning",
+					"enum": [
+						"off",
+						"warning",
+						"error",
+						"message"
+					],
+					"enumDescriptions": [
+						"Disable diagnostics for non-type cross-boundary imports.",
+						"Show a warning for non-type cross-boundary imports.",
+						"Show an error for non-type cross-boundary imports.",
+						"Show a message for non-type cross-boundary imports."
+					]
+				},
+				"roblox-ts.boundary.paths.clientPaths": {
+					"type": "array",
+					"default": [],
+					"items": {
+						"type": "string"
+					},
+					"description": "The paths to be treated as client-sided directories. Overrides rojo if enabled."
+				},
+				"roblox-ts.boundary.paths.serverPaths": {
+					"type": "array",
+					"default": [],
+					"items": {
+						"type": "string"
+					},
+					"description": "The paths to be treated as server-sided directories. Overrides rojo if enabled."
+				},
+				"roblox-ts.command.status.show": {
+					"type": "boolean",
+					"default": true,
+					"description": "Whether to show the status button."
+				},
+				"roblox-ts.command.npm.useNpmScripts": {
+					"type": "boolean",
+					"default": false,
+					"description": "Whether to use the npm scripts rather than rbxtsc, if they exist."
+				},
+				"roblox-ts.command.npm.watchScript": {
+					"type": "string",
+					"default": "watch",
+					"description": "The name of the npm watch script that roblox-ts should use."
+				},
+				"roblox-ts.command.npm.watchScriptArgs": {
+					"type": "array",
+					"default": [
+						"--"
+					],
+					"items": {
+						"type": "string"
+					},
+					"description": "Additional arguments passed to npm run. Arguments after the `--` will be passed directly to the npm script."
+				},
+				"roblox-ts.command.parameters": {
+					"type": "array",
+					"default": [
+						"-w"
+					],
+					"items": {
+						"type": "string"
+					},
+					"description": "The parameters to be passed into the command triggered from the status bar, except when using npm scripts."
+				},
+				"roblox-ts.command.development": {
+					"type": "boolean",
+					"default": false,
+					"description": "If enabled, this will use rbxtsc-dev instead of rbxtsc."
+				},
+				"roblox-ts.colorPicker.enabled": {
+					"type": "boolean",
+					"default": true,
+					"description": "If enabled, this will enable the color picker. (reload required)"
+				},
+				"roblox-ts.colorPicker.precision": {
+					"type": "number",
+					"default": 2,
+					"description": "The amount of digits to round to while using the color picker."
+				},
+				"roblox-ts.colorPicker.defaultOption": {
+					"type": "string",
+					"default": "fromRGB",
+					"enum": [
+						"fromRGB",
+						"fromHSV",
+						"new"
+					],
+					"enumDescriptions": [
+						"Use Color3.fromRGB() as the default in the color picker",
+						"Use Color3.fromHSV() as the default in the color picker",
+						"Use new Color3() as the default in the color picker"
+					]
+				},
+				"roblox-ts.openOutputToSide": {
+					"type": "boolean",
+					"default": true,
+					"description": "Determines whether the Open Output command will open the editor to the side."
+				}
+			}
+		}
+	},
+	"scripts": {
+		"vscode:prepublish": "npm run compile",
+		"build": "tsc -p ./",
+		"compile": "tsc -p ./",
+		"watch": "tsc -watch -p ./",
+		"pretest": "npm run compile",
+		"lint": "eslint src --ext ts",
+		"test": "node --test tests/*.test.cjs",
+		"package": "npm run build && node scripts/package.cjs"
+	},
+	"devDependencies": {
+		"@types/chroma-js": "^2.1.3",
+		"@types/node": "^24.0.4",
+		"@types/vscode": "1.52.0",
+		"@vscode/vsce": "3.7.1",
+		"@typescript-eslint/eslint-plugin": "^7.8.0",
+		"@typescript-eslint/parser": "^7.8.0",
+		"eslint": "^8.57.0"
+	},
+	"dependencies": {
+		"@roblox-ts/path-translator": "workspace:*",
+		"chroma-js": "^2.1.1",
+		"roblox-ts-extensions": "workspace:*",
+		"tree-kill": "^1.2.2",
+		"typescript": "=5.9.3"
+	}
+}

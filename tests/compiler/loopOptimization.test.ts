@@ -5,8 +5,8 @@ function compileLoop(source: string, optimizedLoops: boolean) {
 	return project.compileSource(source).replace(/^-- Compiled with.*\n/, "");
 }
 
-// Keep cases alphabetized to match Jest's snapshot ordering. Runtime tests check
-// behavior; these snapshots also guard which loops use the numeric-for emitter.
+// keep cases alphabetized to match Vitest's snapshot ordering. Runtime tests check
+// behavior; these snapshots also guard which loops use the numeric-for emitter
 describe("fallback", () => {
 	it.each([
 		["arithmetic bound", "for (let i = 0; i < 1 + 2; i++) { print(i); }"],

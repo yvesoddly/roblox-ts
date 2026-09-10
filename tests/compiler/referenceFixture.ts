@@ -5,10 +5,12 @@ import os from "os";
 import path from "path";
 import { ProjectBuild } from "Project";
 import { setupProjectWatchProgram } from "Project/functions/setupProjectWatchProgram";
-import { PACKAGE_ROOT } from "Shared/constants";
+import { LoggableError } from "Shared/errors/LoggableError";
 import { ProjectOptions } from "Shared/types";
 import { formatDiagnostics } from "Shared/util/formatDiagnostics";
 import ts from "typescript";
+
+import { TEST_ROOT } from "./constants";
 
 export class ReferenceFixture {
 	// Windows short paths from TEMP can crash libuv's native filesystem watcher
@@ -17,7 +19,9 @@ export class ReferenceFixture {
 	private readonly builds = new Array<ProjectBuild>();
 
 	constructor() {
-		fs.copySync(path.join(PACKAGE_ROOT, "tests/node_modules"), this.file("node_modules"));
+		fs.copySync(path.join(TEST_ROOT, "node_modules/@rbxts"), this.file("node_modules/@rbxts"), {
+			dereference: true,
+		});
 
 		this.json("package.json", { name: "reference-fixture", version: "1.0.0" });
 		this.json("base.json", {
@@ -107,6 +111,19 @@ export class ReferenceFixture {
 	}
 }
 
+// loggable errors expose their diagnostic text through toString rather than Error.message
+export function expectLoggableError(action: () => unknown, message: string | RegExp) {
+	try {
+		action();
+	} catch (error) {
+		expect(error).toBeInstanceOf(LoggableError);
+		expect(String(error)).toMatch(message);
+		return;
+	}
+
+	throw new Error("Expected a loggable error");
+}
+
 export function expectSuccess(result: ts.EmitResult) {
 	if (result.emitSkipped || result.diagnostics.length > 0) {
 		throw new Error(formatDiagnostics(result.diagnostics));
@@ -127,9 +144,9 @@ export async function startWatch(fixture: ReferenceFixture, usePolling = false, 
 	let child: ReturnType<typeof spawn> | undefined;
 	let close: () => Promise<void>;
 	if (mode === "project") {
-		// running the real watcher in Jest includes config reloads and filesystem events in coverage
+		// running the real watcher in Vitest includes config reloads and filesystem events in coverage
 		const build = fixture.createBuild();
-		const write = jest.spyOn(ts.sys, "write").mockImplementation(read);
+		const write = vi.spyOn(ts.sys, "write").mockImplementation(read);
 		let watcher: ReturnType<typeof setupProjectWatchProgram>;
 		try {
 			watcher = setupProjectWatchProgram(build, usePolling);
@@ -149,7 +166,7 @@ export async function startWatch(fixture: ReferenceFixture, usePolling = false, 
 		child = spawn(
 			process.execPath,
 			[
-				path.join(PACKAGE_ROOT, "out/CLI/cli.js"),
+				require.resolve("@roblox-ts/cli/out/cli.js"),
 				"-p",
 				fixture.file("game"),
 				"--rojo",

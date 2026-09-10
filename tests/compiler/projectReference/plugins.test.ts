@@ -6,7 +6,7 @@ import { getChangedSourceFiles } from "Project/functions/getChangedSourceFiles";
 
 import { expectSuccess, ReferenceFixture } from "../referenceFixture";
 
-jest.setTimeout(30000);
+vi.setConfig({ testTimeout: 30000, hookTimeout: 30000 });
 
 let fixture: ReferenceFixture;
 beforeEach(() => {

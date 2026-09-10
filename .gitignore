@@ -7,6 +7,7 @@ out
 .DS_Store
 .history
 /.local/
+/.plans/
 .vscode/launch.json
 .vscode/settings.json
 
@@ -15,3 +16,5 @@ out
 /tests/include
 
 /sourcemap.json
+
+/.pnpm-store/

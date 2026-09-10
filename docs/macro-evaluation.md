@@ -82,7 +82,7 @@ ordering tests and exact-emit coverage.
 ## Verification
 
 `tests/compiler/macroEvaluation.test.ts` checks exact output, with named source cases in
-`tests/compiler/fixtures/macroEvaluation.ts` and Jest snapshots in `__snapshots__/`.
+`tests/compiler/fixtures/macroEvaluation.ts` and Vitest snapshots in `__snapshots__/`.
 `tests/src/tests/evaluationOrder.spec.ts` and `macroEvaluation.spec.ts` cover
 runtime ordering, errors, metamethods, mutation, arity, and allocation identity.
 Prefer these source-level tests to fabricated ASTs or mocked transformer state.

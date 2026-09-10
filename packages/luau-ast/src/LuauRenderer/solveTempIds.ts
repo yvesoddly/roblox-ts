@@ -1,0 +1,156 @@
+import luau from "LuauAST";
+import { assert } from "LuauAST/util/assert";
+import { RenderState } from "LuauRenderer";
+import { visit } from "LuauRenderer/util/visit";
+
+function isFullyScopedNode(node: luau.Node): boolean {
+	return luau.isForStatement(node) || luau.isNumericForStatement(node) || luau.isFunctionLike(node);
+}
+
+function isScopeEdge(node: luau.Node, edge: "head" | "tail"): boolean {
+	if (node.parent) {
+		// is the first statement in a block that creates scope
+		if (luau.hasStatements(node.parent)) {
+			if (node === node.parent.statements[edge]?.value) {
+				return true;
+			}
+		}
+
+		// non-list elseBody would have the elseBody itself as a parent,
+		// which would be a luau.IfStatement and handled above
+		if (
+			luau.isIfStatement(node.parent) &&
+			luau.list.isList(node.parent.elseBody) &&
+			node === node.parent.elseBody[edge]?.value
+		) {
+			return true;
+		}
+	}
+
+	return false;
+}
+
+const isScopeStart = (node: luau.Node) => isScopeEdge(node, "head");
+const isScopeEnd = (node: luau.Node) => isScopeEdge(node, "tail");
+
+interface Scope {
+	ids: Set<string>;
+	lastTry: Map<string, number>;
+	parent?: Scope;
+}
+
+function createScope(parent?: Scope): Scope {
+	return {
+		ids: new Set(),
+		lastTry: new Map(),
+		parent,
+	};
+}
+
+function scopeHasId(scope: Scope, id: string): boolean {
+	if (scope.ids.has(id)) {
+		return true;
+	}
+	if (scope.parent) {
+		return scopeHasId(scope.parent, id);
+	}
+	return false;
+}
+
+export function solveTempIds(state: RenderState, ast: luau.List<luau.Node> | luau.Node) {
+	const tempIdsToProcess = new Array<luau.TemporaryIdentifier>();
+	const nodesToScopes = new Map<luau.Node, Scope>();
+
+	const scopeStack = [createScope()];
+
+	function pushScopeStack() {
+		scopeStack.push(createScope(peekScopeStack()));
+	}
+
+	function popScopeStack() {
+		return scopeStack.pop();
+	}
+
+	function peekScopeStack() {
+		const scope = scopeStack[scopeStack.length - 1];
+		assert(scope);
+		return scope;
+	}
+
+	function registerId(name: string) {
+		peekScopeStack().ids.add(name);
+	}
+
+	visit(ast, {
+		before: node => {
+			if (isScopeStart(node)) {
+				pushScopeStack();
+			}
+			if (luau.isFunctionDeclaration(node) && node.localize && luau.isIdentifier(node.name)) {
+				registerId(node.name.name);
+			}
+			if (isFullyScopedNode(node)) {
+				pushScopeStack();
+			}
+
+			if (luau.isTemporaryIdentifier(node)) {
+				nodesToScopes.set(node, peekScopeStack());
+				tempIdsToProcess.push(node);
+			} else if (luau.isVariableDeclaration(node)) {
+				if (luau.list.isList(node.left)) {
+					luau.list.forEach(node.left, node => {
+						if (luau.isIdentifier(node)) {
+							registerId(node.name);
+						}
+					});
+				} else if (luau.isIdentifier(node.left)) {
+					registerId(node.left.name);
+				}
+			} else if (luau.isForStatement(node)) {
+				luau.list.forEach(node.ids, id => {
+					if (luau.isIdentifier(id)) {
+						registerId(id.name);
+					}
+				});
+			} else if (luau.isNumericForStatement(node) && luau.isIdentifier(node.id)) {
+				registerId(node.id.name);
+			} else if (luau.isFunctionLike(node)) {
+				luau.list.forEach(node.parameters, node => {
+					if (luau.isIdentifier(node)) {
+						registerId(node.name);
+					}
+				});
+			}
+		},
+		after: node => {
+			if (isFullyScopedNode(node)) {
+				popScopeStack();
+			}
+			if (isScopeEnd(node)) {
+				popScopeStack();
+			}
+		},
+	});
+
+	for (const tempId of tempIdsToProcess) {
+		if (state.seenTempNodes.get(tempId.id) === undefined) {
+			const scope = nodesToScopes.get(tempId);
+			assert(scope);
+
+			const seperator = tempId.name === "" ? "" : "_";
+			const base = `_${tempId.name}`;
+
+			// ids are never released, so every suffix below the last try is still taken
+			// and the next temporary with the same hint can resume probing from there
+			let input = base;
+			let i = scope.lastTry.get(base) ?? 1;
+			while (scopeHasId(scope, input)) {
+				input = `${base}${seperator}${i++}`;
+			}
+			scope.lastTry.set(base, i);
+			scope.ids.add(input);
+
+			state.seenTempNodes.set(tempId.id, input);
+		}
+	}
+}

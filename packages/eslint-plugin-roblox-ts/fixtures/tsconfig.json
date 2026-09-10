@@ -1,0 +1,17 @@
+{
+	"compilerOptions": {
+		"target": "ESNext",
+		"module": "ESNext",
+		"moduleResolution": "Bundler",
+		"typeRoots": ["${configDir}/../node_modules/@rbxts", "${configDir}/../node_modules/@missing"],
+		"paths": {
+			"@shared/*": ["./src/shared/*"],
+			"@src/*": ["./src/*"]
+		},
+		"strict": true,
+		"skipLibCheck": true
+	},
+	"include": [
+		"**/*"
+	]
+}

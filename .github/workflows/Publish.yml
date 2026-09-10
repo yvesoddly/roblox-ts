@@ -1,9 +1,19 @@
 name: Publish
-run-name: Publish ${{ inputs.version || 'next' }} (@${{ github.actor }})
+run-name: Publish ${{ inputs.package || 'roblox-ts' }} ${{ inputs.version || 'next' }} (@${{ github.actor }})
 
 on:
   workflow_dispatch:
     inputs:
+      package:
+        description: Package to publish
+        type: choice
+        default: roblox-ts
+        options:
+          - roblox-ts
+          - luau-ast
+          - path-translator
+          - rojo-resolver
+          - cli
       version:
         description: Version to publish. Leave empty to publish a @next build.
         required: false
@@ -24,6 +34,9 @@ jobs:
         with:
           token: ${{ secrets.pat }}
 
+      - name: Setup workspace
+        uses: ./.github/actions/setup
+
       - name: Setup Node
         uses: actions/setup-node@v6
         with:
@@ -33,11 +46,9 @@ jobs:
       - name: Update npm
         run: npm install -g npm@latest # trusted publishing requires npm >= 11.5.1
 
-      - name: Install NPM Dependencies
-        uses: bahmutov/npm-install@v1
-
       - name: Publish @next
         if: inputs.version == ''
+        working-directory: packages/${{ inputs.package || 'roblox-ts' }}
         run: |
           VERSION="$(jq -r .version package.json)-dev-$(git rev-parse --short HEAD)"
           NAME="$(jq -r .name package.json)"
@@ -46,14 +57,28 @@ jobs:
             exit 0
           fi
           npm version --no-git-tag-version "$VERSION"
-          npm publish --tag next
+          pnpm pack --out "$RUNNER_TEMP/package.tgz"
+          npm publish "$RUNNER_TEMP/package.tgz" --tag next
 
       - name: Publish
         if: inputs.version != ''
+        working-directory: packages/${{ inputs.package || 'roblox-ts' }}
+        env:
+          RELEASE_VERSION: ${{ inputs.version }}
         run: |
           git config user.name "GitHub Actions"
           git config user.email "noreply@github.com"
-          npm version ${{ inputs.version }}
-          npm publish
+          npm version --no-git-tag-version "$RELEASE_VERSION"
+          pnpm pack --out "$RUNNER_TEMP/package.tgz"
+          npm publish "$RUNNER_TEMP/package.tgz"
+          VERSION="$(jq -r .version package.json)"
+          git add package.json
+          NAME="$(jq -r .name package.json)"
+          git commit -m "$NAME $VERSION"
+          if [ "$NAME" = "roblox-ts" ]; then
+            git tag "v$VERSION"
+          else
+            git tag "${NAME##*/}-v$VERSION"
+          fi
           git push
           git push --tags

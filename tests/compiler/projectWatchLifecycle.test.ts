@@ -7,21 +7,21 @@ import { expectSuccess, ReferenceFixture } from "./referenceFixture";
 let fixture: ReferenceFixture;
 beforeEach(() => {
 	fixture = new ReferenceFixture();
-	jest.useFakeTimers();
-	jest.spyOn(ts.sys, "write").mockImplementation(() => {});
+	vi.useFakeTimers();
+	vi.spyOn(ts.sys, "write").mockImplementation(() => {});
 });
 afterEach(() => {
-	jest.restoreAllMocks();
-	jest.useRealTimers();
+	vi.restoreAllMocks();
+	vi.useRealTimers();
 	fixture.close();
 });
 
 function createWatch() {
 	// control filesystem notification timing while building real source files with the real compiler
 	const events = new chokidar.FSWatcher();
-	jest.spyOn(events, "add").mockReturnValue(events);
-	jest.spyOn(events, "unwatch").mockReturnValue(events);
-	jest.spyOn(chokidar, "watch").mockReturnValue(events);
+	vi.spyOn(events, "add").mockReturnValue(events);
+	vi.spyOn(events, "unwatch").mockReturnValue(events);
+	vi.spyOn(chokidar, "watch").mockReturnValue(events);
 	const watch = setupProjectWatchProgram(fixture.createBuild(), false);
 
 	return { events, watch };
@@ -38,7 +38,7 @@ it("cancels a pending rebuild when the watcher is closed", async () => {
 		events.emit("change", fixture.file("game/src/index.ts"));
 
 		await watch.close();
-		jest.advanceTimersByTime(1000);
+		vi.advanceTimersByTime(1000);
 
 		expect(fixture.read("out/game/init.luau")).toBe(output);
 	} finally {
@@ -66,7 +66,7 @@ it("propagates unexpected transformer exceptions while watching", async () => {
 		fixture.write("game/src/index.ts", "export const value = 2;");
 		events.emit("change", fixture.file("game/src/index.ts"));
 
-		expect(() => jest.advanceTimersByTime(100)).toThrow("watch transformer failed");
+		expect(() => vi.advanceTimersByTime(100)).toThrow("watch transformer failed");
 		expect(fixture.read("out/game/init.luau")).toBe(output);
 	} finally {
 		await watch.close();

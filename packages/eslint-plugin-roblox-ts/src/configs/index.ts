@@ -1,0 +1,156 @@
+import type { CompatibleConfig } from "../utils/compatability-types";
+import { eslintCompat, eslintCompatLegacy } from "./eslint-compat";
+import { recommended, recommendedLegacy } from "./recommended";
+import { recommendedNoTypeCheck, recommendedNoTypeCheckLegacy } from "./recommended-no-type-check";
+import { tsRecommendedCompat, tsRecommendedCompatLegacy } from "./typescript-recommended-compat";
+
+const configsWithoutNames = {
+	"eslint-compat-legacy": eslintCompatLegacy as CompatibleConfig,
+
+	/**
+	 * ESLint core rules for Roblox-TS compatibility. These rules help prevent
+	 * JavaScript patterns that are incompatible with Roblox-TS.
+	 *
+	 * @example
+	 *
+	 * ```ts
+	 * // eslint.config.js
+	 * import robloxTs from "eslint-plugin-roblox-ts";
+	 *
+	 * export default [robloxTs.configs.eslintCompat];
+	 * ```
+	 */
+	"eslintCompat": eslintCompat as CompatibleConfig,
+	/**
+	 * ESLint core rules for Roblox-TS compatibility. These rules help prevent
+	 * JavaScript patterns that are incompatible with Roblox-TS.
+	 *
+	 * @example
+	 *
+	 * ```ts
+	 * // .eslintrc.js
+	 * module.exports = {
+	 * 	extends: ["plugin:roblox-ts/eslint-compat-legacy"],
+	 * };
+	 * ```
+	 */
+	"eslintCompatLegacy": eslintCompatLegacy as CompatibleConfig,
+
+	/**
+	 * Recommended configuration for ESLint v9+ (flat config). Enables all
+	 * plugin rules.
+	 *
+	 * @example
+	 *
+	 * ```ts
+	 * // eslint.config.js
+	 * import roblox from "eslint-plugin-roblox-ts";
+	 *
+	 * export default [roblox.configs.recommended];
+	 * ```
+	 */
+	"recommended": recommended as CompatibleConfig,
+
+	/**
+	 * Recommended configuration for legacy ESLint v8. Enables all plugin rules.
+	 *
+	 * @example
+	 *
+	 * ```ts
+	 * // .eslintrc.js
+	 * module.exports = {
+	 * 	extends: ["plugin:roblox-ts/recommended-legacy"],
+	 * };
+	 * ```
+	 */
+	"recommended-legacy": recommendedLegacy as CompatibleConfig,
+
+	/**
+	 * Configuration for legacy ESLint v8 that enables only the rules which run
+	 * without type information.
+	 *
+	 * @example
+	 *
+	 * ```ts
+	 * // .eslintrc.js
+	 * module.exports = {
+	 * 	extends: ["plugin:roblox-ts/recommended-no-type-check-legacy"],
+	 * };
+	 * ```
+	 */
+	"recommended-no-type-check-legacy": recommendedNoTypeCheckLegacy as CompatibleConfig,
+
+	/**
+	 * Recommended configuration for ESLint v9+ (flat config) that enables only
+	 * the rules which run without type information. Skips the TypeScript
+	 * project service, so it is substantially cheaper than `recommended`.
+	 *
+	 * @example
+	 *
+	 * ```ts
+	 * // eslint.config.js
+	 * import roblox from "eslint-plugin-roblox-ts";
+	 *
+	 * export default [roblox.configs.recommendedNoTypeCheck];
+	 * ```
+	 */
+	"recommendedNoTypeCheck": recommendedNoTypeCheck as CompatibleConfig,
+
+	/**
+	 * Configuration for legacy ESLint v8 that provides TypeScript ESLint
+	 * recommended compatibility overrides for Roblox-TS development patterns.
+	 *
+	 * @example
+	 *
+	 * ```ts
+	 * // .eslintrc.js
+	 * module.exports = {
+	 * 	extends: [
+	 * 		"plugin:@typescript-eslint/recommended",
+	 * 		"plugin:roblox-ts/tsRecommendedCompatLegacy",
+	 * 		"plugin:roblox-ts/recommended-legacy",
+	 * 	],
+	 * };
+	 * ```
+	 */
+	"ts-recommended-compat-legacy": tsRecommendedCompatLegacy as CompatibleConfig,
+	/**
+	 * Configuration for ESLint v9+ (flat config) that provides TypeScript
+	 * ESLint recommended compatibility overrides for Roblox-TS development
+	 * patterns.
+	 *
+	 * @example
+	 *
+	 * ```ts
+	 * // eslint.config.js
+	 * import tseslint from "@typescript-eslint/eslint-plugin";
+	 * import robloxTs from "eslint-plugin-roblox-ts";
+	 *
+	 * export default [
+	 * 	...tseslint.configs["flat/recommended"],
+	 * 	robloxTs.configs.tsRecommendedCompat,
+	 * 	robloxTs.configs.recommended,
+	 * ];
+	 * ```
+	 */
+	"tsRecommendedCompat": tsRecommendedCompat as CompatibleConfig,
+
+	"tsRecommendedCompatLegacy": tsRecommendedCompatLegacy as CompatibleConfig,
+};
+
+function convertToKebabCase(str: string): string {
+	return str.replace(
+		/[A-Z]+(?![a-z])|[A-Z]/g,
+		(match, offset: string) => (offset ? "-" : "") + match.toLowerCase(),
+	);
+}
+
+export const configs = Object.fromEntries(
+	Object.entries(configsWithoutNames).map(([key, config]) => {
+		if (key.toLowerCase().includes("legacy")) {
+			return [key, { ...config }];
+		}
+
+		return [key, { ...config, name: `roblox-ts/${convertToKebabCase(key)}` }];
+	}),
+);

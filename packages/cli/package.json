@@ -1,0 +1,40 @@
+{
+	"name": "@roblox-ts/cli",
+	"version": "3.0.0",
+	"description": "Command line interface for roblox-ts",
+	"repository": {
+		"type": "git",
+		"url": "git+https://github.com/roblox-ts/roblox-ts.git",
+		"directory": "packages/cli"
+	},
+	"bin": {
+		"rbxtsc": "out/cli.js"
+	},
+	"scripts": {
+		"prepack": "corepack pnpm run build",
+		"build": "tspc -b",
+		"build-watch": "tspc -b -w"
+	},
+	"license": "MIT",
+	"dependencies": {
+		"fs-extra": "^11.3.0",
+		"roblox-ts": "workspace:*",
+		"typescript": "=5.9.3",
+		"yargs": "^18.0.0"
+	},
+	"devDependencies": {
+		"@types/fs-extra": "^11.0.4",
+		"@types/node": "^24.0.4",
+		"@types/yargs": "^17.0.33",
+		"ts-patch": "^3.3.0",
+		"typescript-transform-paths": "^3.5.5"
+	},
+	"publishConfig": {
+		"access": "public"
+	},
+	"files": [
+		"out",
+		"!**/*.js.map",
+		"!**/*.tsbuildinfo"
+	]
+}

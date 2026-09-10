@@ -1,14 +1,10 @@
 {
 	"files": [],
-	"compilerOptions": {
-		"composite": true,
-		"baseUrl": "src",
-		"outDir": "out"
-	},
 	"references": [
-		{ "path": "./src/Shared" },
-		{ "path": "./src/CLI" },
-		{ "path": "./src/Project" },
-		{ "path": "./src/TSTransformer" }
+		{ "path": "./packages/path-translator" },
+		{ "path": "./packages/rojo-resolver" },
+		{ "path": "./packages/luau-ast" },
+		{ "path": "./packages/roblox-ts" },
+		{ "path": "./packages/cli" }
 	]
 }

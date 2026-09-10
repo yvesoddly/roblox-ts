@@ -1,0 +1,13 @@
+{
+	"extends": "../../tsconfig-base.json",
+	"compilerOptions": {
+		"outDir": "../../out/TSTransformer",
+		"rootDir": "."
+	},
+	"references": [
+		{ "path": "../Shared" },
+		{ "path": "../../../luau-ast" },
+		{ "path": "../../../path-translator" },
+		{ "path": "../../../rojo-resolver" }
+	]
+}
