@@ -190,7 +190,7 @@ test("compiler commands choose configured npm scripts and stop the process tree"
 	assert.deepEqual(spawned[0].arguments_, [
 		"npm",
 		["run", "watch", "--", "--verbose"],
-		{ cwd: directory, shell: true },
+		{ cwd: directory.split(path.sep).join("/"), shell: true },
 	]);
 	await commands.get("roblox-ts.stop")();
 	assert.deepEqual(killed, [123]);
