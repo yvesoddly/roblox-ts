@@ -1,6 +1,5 @@
 import { execFileSync } from "node:child_process";
-import { cpSync, mkdtempSync, rmSync, symlinkSync } from "node:fs";
-import { tmpdir } from "node:os";
+import { cpSync, mkdtempSync, rmSync } from "node:fs";
 import path from "node:path";
 import process from "node:process";
 import { fileURLToPath, pathToFileURL } from "node:url";
@@ -10,17 +9,12 @@ const rootDirectory = path.resolve(import.meta.dirname, "..");
 const tsxCli = fileURLToPath(import.meta.resolve("tsx/cli"));
 
 it("registers a scaffolded rule in the public plugin and recommended configs", () => {
-	const directory = mkdtempSync(path.join(tmpdir(), "roblox-ts-create-rule-"));
+	// inherit dependencies without linking across Windows drives
+	const directory = mkdtempSync(path.join(rootDirectory, "node_modules", ".create-rule-"));
 	try {
 		for (const name of ["src", "scripts", "package.json"]) {
 			cpSync(path.join(rootDirectory, name), path.join(directory, name), { recursive: true });
 		}
-
-		symlinkSync(
-			path.join(rootDirectory, "node_modules"),
-			path.join(directory, "node_modules"),
-			"junction",
-		);
 
 		execFileSync(
 			process.execPath,
