@@ -2,7 +2,7 @@ import type ts from "typescript";
 import { Provider } from "../util/provider";
 
 export function getCompletionEntryDetailsFactory(provider: Provider): ts.LanguageService["getCompletionEntryDetails"] {
-	const { service } = provider;
+	const { service, ts } = provider;
 
 	/**
 	 * Retrieve the text changes for a specific file given an array of code actions.
@@ -10,10 +10,12 @@ export function getCompletionEntryDetailsFactory(provider: Provider): ts.Languag
 	 * @param codeActions The code actions
 	 */
 	function flattenChanges(file: string, codeActions: ts.CodeAction[]) {
+		const normalizedFile = ts.normalizePath(file);
+
 		return codeActions
 			.filter((x) => x.description.match(/^Import '.*' from module/))
 			.reduce((acc, val) => acc.concat(val.changes), new Array<ts.FileTextChanges>())
-			.filter((x) => x.fileName === file)
+			.filter((x) => ts.normalizePath(x.fileName) === normalizedFile)
 			.reduce((acc, val) => acc.concat(val.textChanges), new Array<ts.TextChange>());
 	}
 

@@ -188,21 +188,25 @@ test("prefixes cross-boundary auto imports, resolves their details, and supports
 		}
 		return result;
 	};
-	const legacyDetails = project.proxy.getCompletionEntryDetails(
-		file,
-		source.length,
-		entry.name,
-		{},
-		entry.source,
-		preferences,
-		entry.data,
-	);
-	assert.ok(
-		legacyDetails.codeActions
-			.flatMap(action => action.changes)
-			.flatMap(change => change.textChanges)
-			.some(change => change.newText.includes("import type { RemoteThing }")),
-	);
+	// TypeScript accepts either separator but returns forward-slash paths in code actions
+	const normalizedFile = ts.normalizePath(file);
+	for (const fileName of [normalizedFile, normalizedFile.replace(/\//g, "\\")]) {
+		const legacyDetails = project.proxy.getCompletionEntryDetails(
+			fileName,
+			source.length,
+			entry.name,
+			{},
+			entry.source,
+			preferences,
+			entry.data,
+		);
+		assert.ok(
+			legacyDetails.codeActions
+				.flatMap(action => action.changes)
+				.flatMap(change => change.textChanges)
+				.some(change => change.newText.includes("import type { RemoteThing }")),
+		);
+	}
 
 	project.plugin.onConfigurationChanged({ mode: "remove" });
 	assert.ok(
