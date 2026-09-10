@@ -1,47 +1,35 @@
 #!/usr/bin/env node
 
-import { CLIError } from "CLI/errors/CLIError";
+import * as NodeRuntime from "@effect/platform-node/NodeRuntime";
+import * as NodeServices from "@effect/platform-node/NodeServices";
+import * as Effect from "effect/Effect";
+import * as Runtime from "effect/Runtime";
+import * as Command from "effect/unstable/cli/Command";
 import { COMPILER_VERSION } from "roblox-ts";
-import { LogService } from "roblox-ts/out/Shared/classes/LogService";
-import { hideBin } from "yargs/helpers";
-import yargs from "yargs/yargs";
 
-const cli = yargs(hideBin(process.argv));
+import { BuildCommand } from "./commands/build.js";
 
-cli
-	// help
-	.usage("roblox-ts - A TypeScript-to-Luau Compiler for Roblox")
-	.help("help")
-	.alias("h", "help")
-	.describe("help", "show help information")
+const cli = Command.make("rbxtsc").pipe(
+	Command.withDescription("A TypeScript-to-Luau compiler for Roblox"),
+	Command.withSubcommands([BuildCommand]),
+);
 
-	// version
-	.version(COMPILER_VERSION)
-	.alias("v", "version")
-	.describe("version", "show version information")
+function flushOutput(stream: NodeJS.WriteStream, onFlushed: () => void) {
+	if (stream.writableLength === 0) {
+		onFlushed();
+	} else {
+		stream.write("", onFlushed);
+	}
+}
 
-	// commands
-	.commandDir(`${__dirname}/commands`)
-
-	// options
-	.recommendCommands()
-	.strict()
-	.wrap(cli.terminalWidth())
-
-	// execute
-	// .fail() is necessary to properly `.toString()` custom error objects like CLIError
-	.fail(str => {
-		process.exitCode = 1;
-		if (str) {
-			LogService.fatal(str);
-		}
-	})
-	.parseAsync()
-	.catch(e => {
-		if (e instanceof CLIError) {
-			e.log();
-			debugger;
-		} else {
-			throw e;
-		}
-	});
+Command.run(cli, { version: COMPILER_VERSION }).pipe(
+	Effect.provide(NodeServices.layer),
+	NodeRuntime.runMain({
+		teardown(exit, onExit) {
+			// NodeRuntime exits immediately on failure; flush after finalizers and runtime error reporting
+			flushOutput(process.stdout, () => {
+				flushOutput(process.stderr, () => Runtime.defaultTeardown(exit, onExit));
+			});
+		},
+	}),
+);
