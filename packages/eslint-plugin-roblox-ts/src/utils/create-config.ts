@@ -7,7 +7,9 @@ import type { Prettify } from "./types";
 
 interface CreateConfigResult<T extends Linter.RulesRecord = Linter.RulesRecord> {
 	flat: FlatConfig.Config;
-	legacy: Linter.LegacyConfig & { rules: Prettify<T & typeof ESLINT_COMPAT> };
+	legacy: Linter.LegacyConfig & {
+		overrides: Array<Linter.ConfigOverride & { rules: Prettify<T & typeof ESLINT_COMPAT> }>;
+	};
 }
 
 export const TYPESCRIPT_FILES = ["**/*/*.?([cm])ts", "**/*/*.?([cm])tsx"];
@@ -31,6 +33,6 @@ export function createConfig<const T extends Linter.RulesRecord>(
 
 	return {
 		flat: { files: TYPESCRIPT_FILES, rules },
-		legacy: { overrides: [{ files: TYPESCRIPT_FILES }], rules },
+		legacy: { overrides: [{ files: TYPESCRIPT_FILES, rules }] },
 	};
 }

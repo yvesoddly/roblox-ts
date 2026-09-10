@@ -28,13 +28,13 @@
 	"types": "./dist/index.d.mts",
 	"files": ["dist"],
 	"scripts": {
-		"build": "nr generate:types && tsdown --clean --dts",
+		"build": "npm run generate:types && tsdown --clean --dts && publint --pack npm",
 		"create-rule": "tsx scripts/create-rule.ts",
 		"dev": "tsdown --stub",
 		"eslint-docs": "eslint-doc-generator",
 		"generate:types": "tsx scripts/generate-types.ts",
 		"lint": "eslint",
-		"prepublishOnly": "nr build",
+		"prepublishOnly": "npm run build",
 		"release": "bumpp",
 		"start": "tsx src/index.ts",
 		"test": "vitest",
@@ -47,11 +47,8 @@
 	"lint-staged": {
 		"*": "eslint --fix"
 	},
-	"resolutions": {
-		"eslint-plugin-roblox-ts": "workspace:*"
-	},
 	"dependencies": {
-		"@roblox-ts/luau-ast": "2.0.1",
+		"@roblox-ts/luau-ast": "workspace:*",
 		"@typescript-eslint/type-utils": "8.56.0",
 		"@typescript-eslint/utils": "8.56.0"
 	},
@@ -89,7 +86,6 @@
 		"eslint": ">=8.0.0",
 		"typescript": ">=5.2.0"
 	},
-	"packageManager": "pnpm@10.22.0+sha512.bf049efe995b28f527fd2b41ae0474ce29186f7edcb3bf545087bd61fbbebb2bf75362d1307fda09c2d288e1e499787ac12d4fcb617a974718a6051f2eee741c",
 	"engines": {
 		"node": "^18.18.0 || ^20.9.0 || >=22.5.1"
 	},

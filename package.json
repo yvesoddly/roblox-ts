@@ -3,22 +3,25 @@
 	"private": true,
 	"packageManager": "pnpm@11.25.0",
 	"scripts": {
-		"build": "pnpm -r build",
-		"build-watch": "pnpm --filter @roblox-ts/cli build-watch",
-		"devlink": "pnpm run build && pnpm --dir devlink add --global .",
-		"update-test-types": "pnpm --filter roblox-ts-workspace --filter roblox-ts-runtime-tests update @rbxts/types --latest --save-exact",
-		"test": "pnpm run build && pnpm run test-packages && pnpm run test-compile && pnpm run test-rojo && pnpm run test-run",
-		"test-compile": "pnpm run test-typecheck && vp test run --coverage",
+		"build": "corepack pnpm -r build",
+		"build-watch": "corepack pnpm --filter @roblox-ts/cli build-watch",
+		"devlink": "corepack pnpm run build && corepack pnpm --dir devlink add --global .",
+		"update-test-types": "corepack pnpm --filter roblox-ts-workspace --filter roblox-ts-runtime-tests update @rbxts/types --latest --save-exact",
+		"test": "corepack pnpm run build && corepack pnpm run test-packages && corepack pnpm run test-compile && corepack pnpm run test-rojo && corepack pnpm run test-run",
+		"test-compile": "corepack pnpm run test-typecheck && vp test run --coverage",
 		"test-typecheck": "tsc --noEmit -p tests/compiler/tsconfig.json && tsc --noEmit -p packages/luau-ast/tests/tsconfig.json",
 		"test-rojo": "rojo build tests -o ./tests/test.rbxl",
 		"test-run": "lune run ./tests/runTestsWithLune.luau ./tests/test.rbxl",
-		"test-roblox": "pnpm run build && pnpm run test-compile && pnpm run test-rojo && pnpm run run-in-roblox",
+		"test-roblox": "corepack pnpm run build && corepack pnpm run test-compile && corepack pnpm run test-rojo && corepack pnpm run run-in-roblox",
 		"run-in-roblox": "run-in-roblox --place ./tests/test.rbxl --script ./tests/out/main.server.luau",
 		"lint": "vp lint",
 		"fmt": "vp fmt",
 		"fmt:check": "vp fmt --check",
-		"check": "pnpm run lint && pnpm run fmt:check",
-		"test-packages": "pnpm --filter @roblox-ts/path-translator --filter @roblox-ts/rojo-resolver --filter @roblox-ts/ts-expose-internals run test"
+		"check": "corepack pnpm run lint && corepack pnpm run fmt:check && corepack pnpm run lint-packages",
+		"lint-packages": "corepack pnpm --filter @roblox-ts/luau-ast run build && corepack pnpm --filter create-roblox-ts run eslint && corepack pnpm --filter vscode-roblox-ts --filter eslint-plugin-roblox-ts run lint",
+		"test-packages": "corepack pnpm --filter @roblox-ts/path-translator --filter @roblox-ts/rojo-resolver --filter @roblox-ts/ts-expose-internals --filter create-roblox-ts --filter roblox-ts-extensions --filter vscode-roblox-ts run test && corepack pnpm --filter eslint-plugin-roblox-ts run typecheck && corepack pnpm --filter eslint-plugin-roblox-ts run test --run && corepack pnpm --filter eslint-plugin-roblox-ts run test:fixtures",
+		"test-toolchain": "node --test tests/toolchain/localToolchain.test.cjs",
+		"package-vscode": "corepack pnpm --filter vscode-roblox-ts... run build && corepack pnpm --filter vscode-roblox-ts run package"
 	},
 	"devDependencies": {
 		"@eslint-community/eslint-plugin-eslint-comments": "^4.5.0",
@@ -35,6 +38,7 @@
 		"fs-extra": "^11.3.0",
 		"roblox-ts": "workspace:*",
 		"typescript": "=5.9.3",
-		"vite-plus": "0.3.1"
+		"vite-plus": "0.3.1",
+		"vitest": "4.1.11"
 	}
 }

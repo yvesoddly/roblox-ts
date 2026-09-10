@@ -68,6 +68,11 @@ export default defineConfig({
 		ignorePatterns: [
 			// preserve the imported generator and exact TypeScript declarations; its own compile/tests run in CI
 			"packages/ts-expose-internals/",
+			// imported packages retain their own lint and formatting conventions
+			"packages/create-roblox-ts/",
+			"packages/roblox-ts-extensions/",
+			"packages/vscode-roblox-ts/",
+			"packages/eslint-plugin-roblox-ts/",
 			".local/",
 			".pnpm-store/",
 			"**/node_modules/",
@@ -199,6 +204,12 @@ export default defineConfig({
 		},
 		overrides: [
 			{
+				files: [".pnpmfile.cjs", "tests/toolchain/**/*.cjs"],
+				rules: {
+					"typescript/no-require-imports": "off",
+				},
+			},
+			{
 				files: ["**/*.ts", "**/*.tsx", "**/*.mts", "**/*.cts"],
 				rules: {
 					"constructor-super": "off",
@@ -273,6 +284,11 @@ export default defineConfig({
 		ignorePatterns: [
 			// preserve the imported generator and exact TypeScript declarations; its own compile/tests run in CI
 			"packages/ts-expose-internals/",
+			// imported packages retain their own lint and formatting conventions
+			"packages/create-roblox-ts/",
+			"packages/roblox-ts-extensions/",
+			"packages/vscode-roblox-ts/",
+			"packages/eslint-plugin-roblox-ts/",
 			".local/",
 			".pnpm-store/",
 			"**/node_modules/",

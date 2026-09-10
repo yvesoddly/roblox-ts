@@ -23,25 +23,12 @@ jobs:
         with:
           directory: roblox-ts
 
-      - name: Pack workspace packages
+      - name: Build workspace packages
         working-directory: roblox-ts
-        run: |
-          pnpm --filter @rbxts/compiler-types pack --out "$PWD/compiler-types.tgz"
-          pnpm --filter @roblox-ts/luau-ast pack --out "$PWD/luau-ast.tgz"
-          pnpm --filter @roblox-ts/path-translator pack --out "$PWD/path-translator.tgz"
-          pnpm --filter @roblox-ts/rojo-resolver pack --out "$PWD/rojo-resolver.tgz"
-          pnpm --filter roblox-ts pack --out "$PWD/roblox-ts.tgz"
-          pnpm --filter @roblox-ts/cli pack --out "$PWD/cli.tgz"
+        run: corepack pnpm run build
 
-      - name: Create template project
-        run: npm init roblox-ts@latest ${{ matrix.type }} -- -y --dir project --skipBuild
-
-      - name: Install local roblox-ts
-        run: |
-          cd project
-          npm install ../roblox-ts/compiler-types.tgz ../roblox-ts/luau-ast.tgz ../roblox-ts/path-translator.tgz ../roblox-ts/rojo-resolver.tgz ../roblox-ts/roblox-ts.tgz ../roblox-ts/cli.tgz
-
-      - name: Build
-        run: |
-          cd project
-          npm run build
+      - name: Test local generated-project toolchain
+        working-directory: roblox-ts
+        env:
+          RBXTS_TEMPLATE_TYPE: ${{ matrix.type }}
+        run: corepack pnpm run test-toolchain

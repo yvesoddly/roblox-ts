@@ -1,10 +1,13 @@
 #!/usr/bin/env tsx
-import { execSync } from "node:child_process";
-import { join } from "node:path";
+import assert from "node:assert/strict";
+import { execFileSync } from "node:child_process";
+import { createRequire } from "node:module";
+import { dirname, join, resolve } from "node:path";
 import process from "node:process";
 
 interface ESLintMessage {
 	column: number;
+	fatal?: boolean;
 	line: number;
 	message: string;
 	ruleId?: string;
@@ -60,20 +63,20 @@ function handleFixtureError(err: unknown, fixtureName: string): boolean {
 	if (stdout.trim() === "") {
 		testResults.push({
 			name: `${fixtureName} fixture`,
-			details: "No ESLint output received",
+			details: err instanceof Error ? err.message : "No ESLint output received",
 			passed: false,
 		});
 		return false;
 	}
 
 	try {
-		const results = JSON.parse(stdout) as Array<ESLintResult>;
+		const results = parseESLintResults(stdout);
 		return validateResults(results, fixtureName);
 	} catch (err_) {
 		const errorMessage = err_ instanceof Error ? err_.message : String(err_);
 		testResults.push({
 			name: `${fixtureName} fixture`,
-			details: `Failed to parse ESLint output: ${errorMessage}`,
+			details: `Invalid ESLint output: ${errorMessage}`,
 			passed: false,
 		});
 		return false;
@@ -105,6 +108,22 @@ function main(): never {
 	printTestSummary(allPassed, duration);
 
 	process.exit(allPassed ? 0 : 1);
+}
+
+function parseESLintResults(stdout: string): Array<ESLintResult> {
+	const results = JSON.parse(stdout) as Array<ESLintResult>;
+	assert.ok(results.length > 0, "Expected ESLint results for the fixture");
+
+	// parse failures skip rules and cannot establish their behavior
+	const { allMessages } = analyzeESLintResults(results);
+	const fatalMessages = allMessages.filter((message) => message.fatal === true);
+	assert.equal(
+		fatalMessages.length,
+		0,
+		fatalMessages.map((message) => message.message).join("\n"),
+	);
+
+	return results;
 }
 
 /**
@@ -173,46 +192,31 @@ function recordConstraintSuccess(fixtureName: string): void {
 	});
 }
 
-/**
- * Run ESLint on a fixture directory and capture output.
- *
- * @param eslintVersion - ESLint version being tested (v8 or v9).
- * @returns ESLint JSON output as string.
- */
-function runESLintOnFixture(eslintVersion: string): string {
-	const fixtureDirectory = join("fixtures", `eslint-${eslintVersion}`);
+function runESLint(eslintVersion: string, file: string): string {
+	const eslintManifestSpecifier = "eslint/package.json";
+	const fixtureDirectory = resolve("fixtures", `eslint-${eslintVersion}`);
+	const fixtureRequire = createRequire(join(fixtureDirectory, "package.json"));
+	const eslintManifest = fixtureRequire.resolve(eslintManifestSpecifier);
+	const { version } = fixtureRequire(eslintManifestSpecifier) as { version: string };
+	assert.equal(`v${version.split(".")[0]}`, eslintVersion);
 
-	return execSync(`cd ${fixtureDirectory} && npx eslint src/**/*.ts --format json`, {
-		encoding: "utf8",
-		stdio: "pipe",
-	});
+	const pluginRequire = createRequire(fixtureRequire.resolve("eslint-plugin-roblox-ts"));
+	assert.equal(pluginRequire.resolve(eslintManifestSpecifier), eslintManifest);
+	assert.equal(
+		pluginRequire.resolve("@typescript-eslint/parser"),
+		fixtureRequire.resolve("@typescript-eslint/parser"),
+	);
+
+	return execFileSync(
+		process.execPath,
+		[join(dirname(eslintManifest), "bin", "eslint.js"), file, "--format", "json"],
+		{ cwd: fixtureDirectory, encoding: "utf8", stdio: "pipe" },
+	);
 }
 
-/**
- * Run ESLint on root-level config file to test file constraint.
- *
- * @param eslintVersion - ESLint version being tested (v8 or v9).
- * @returns ESLint JSON output as string.
- */
-function runESLintOnRootFile(eslintVersion: string): string {
-	const fixtureDirectory = join("fixtures", `eslint-${eslintVersion}`);
-
-	return execSync(`cd ${fixtureDirectory} && npx eslint config-test.ts --format json`, {
-		encoding: "utf8",
-		stdio: "pipe",
-	});
-}
-
-/**
- * Test file constraint - verify root-level files don't trigger roblox-ts rules.
- *
- * @param fixtureName - Name of the fixture package to test.
- * @param eslintVersion - ESLint version being tested (v8 or v9).
- * @returns True if constraint test passed, false otherwise.
- */
 function testFileConstraint(fixtureName: string, eslintVersion: string): boolean {
 	try {
-		const stdout = runESLintOnRootFile(eslintVersion);
+		const stdout = runESLint(eslintVersion, "config-test.ts");
 		return validateConstraintResults(stdout, fixtureName);
 	} catch (err) {
 		const stdout = (err as { stdout?: string }).stdout ?? "";
@@ -220,16 +224,9 @@ function testFileConstraint(fixtureName: string, eslintVersion: string): boolean
 	}
 }
 
-/**
- * Test a specific fixture.
- *
- * @param fixtureName - Name of the fixture package to test.
- * @param eslintVersion - ESLint version being tested (v8 or v9).
- * @returns True if test passed, false otherwise.
- */
 function testFixture(fixtureName: string, eslintVersion: string): boolean {
 	try {
-		runESLintOnFixture(eslintVersion);
+		runESLint(eslintVersion, "src/**/*.ts");
 		// If ESLint succeeds (no errors), that's unexpected for our test fixtures
 		testResults.push({
 			name: `${fixtureName} fixture`,
@@ -261,7 +258,7 @@ function validateConstraintResults(stdout: string, fixtureName: string): boolean
 	}
 
 	try {
-		const results = JSON.parse(stdout) as Array<ESLintResult>;
+		const results = parseESLintResults(stdout);
 		const { robloxTsMessages } = analyzeESLintResults(results);
 
 		if (robloxTsMessages.length > 0) {
@@ -275,7 +272,7 @@ function validateConstraintResults(stdout: string, fixtureName: string): boolean
 		const errorMessage = err instanceof Error ? err.message : String(err);
 		testResults.push({
 			name: `${fixtureName} file constraints`,
-			details: `Failed to parse ESLint output: ${errorMessage}`,
+			details: `Invalid ESLint output: ${errorMessage}`,
 			passed: false,
 		});
 		return false;

@@ -11,7 +11,7 @@
 		"rbxtsc": "out/cli.js"
 	},
 	"scripts": {
-		"prepack": "pnpm run build",
+		"prepack": "corepack pnpm run build",
 		"build": "tspc -b",
 		"build-watch": "tspc -b -w"
 	},

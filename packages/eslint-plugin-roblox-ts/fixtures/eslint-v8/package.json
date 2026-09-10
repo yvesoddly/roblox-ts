@@ -8,12 +8,16 @@
     "lint": "eslint src/**/*.ts",
     "lint:fix": "eslint src/**/*.ts --fix"
   },
+  "dependenciesMeta": {
+    "eslint-plugin-roblox-ts": {
+      "injected": true
+    }
+  },
   "devDependencies": {
-    "@typescript-eslint/eslint-plugin": "catalog:cli",
-    "@typescript-eslint/parser": "catalog:cli",
-    "eslint-8": "catalog:fixtures",
+    "@typescript-eslint/eslint-plugin": "8.56.0",
+    "@typescript-eslint/parser": "8.56.0",
+    "eslint": "8.57.1",
     "eslint-plugin-roblox-ts": "workspace:*",
-    "typescript": "catalog:tsc"
+    "typescript": "5.9.3"
   }
 }
-  

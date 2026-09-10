@@ -6,8 +6,8 @@
 	"license": "MIT",
 	"types": "index.d.ts",
 	"scripts": {
-		"test": "pnpm run test-typecheck && vp test run --config vite.config.ts",
-		"test:with_live": "pnpm run test-typecheck && cross-env LIVE_TEST=true vp test run --config vite.config.ts",
+		"test": "corepack pnpm run test-typecheck && vp test run --config vite.config.ts",
+		"test:with_live": "corepack pnpm run test-typecheck && cross-env LIVE_TEST=true vp test run --config vite.config.ts",
 		"test-typecheck": "tsc -p test/tsconfig.json --noEmit",
 		"compile": "tsc",
 		"run": "ts-node -T -P tsconfig.json ./src/main.ts",

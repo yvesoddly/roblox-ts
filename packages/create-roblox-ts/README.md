@@ -12,13 +12,17 @@ and build options.
 
 ## Local development
 
-From the repository root, with Node.js 22 or newer for the tests:
+From the repository root, with Node.js 24 and Corepack:
 
 ```sh
-npm install --prefix packages/create-roblox-ts --package-lock=false
-npm --prefix packages/create-roblox-ts test
+corepack pnpm install --frozen-lockfile
+corepack pnpm --filter create-roblox-ts test
 npm --prefix packages/create-roblox-ts run test:integration
 ```
+
+The root `corepack pnpm run build` and `corepack pnpm run test-packages` commands
+also build and test this package. Its TypeScript compiler stays on `~5.2.2`, with
+Node-only ambient types so the root compiler's 5.9 declarations do not leak in.
 
 `test` builds the CLI and checks generation, package-manager commands, option
 handling, and overwrite protection offline. Only external commands are stubbed;
@@ -41,20 +45,17 @@ an incidental peer dependency. Package-local tests replace the upstream
 GitHub Actions generation matrix; workflows are not installed under a package.
 Upstream npm lockfiles are omitted in favor of the repository's shared pnpm lockfile.
 
-Follow-up work outside this package is deliberately not included:
+The root workspace explicitly includes this package and its development link.
+One root lockfile covers installation; root package tests run in the existing
+Linux/Windows unit-test CI. Imported source formatting and package-local ESLint
+checks are retained rather than applying compiler-specific formatting rules.
 
-- Refresh the root `pnpm-lock.yaml` before using a frozen workspace install.
-  The existing `packages/*` workspace glob already discovers this package.
-- Add this package's tests to the root test scripts and CI, including Windows
-  coverage from upstream. Root compiler tests do not run these Node tests.
-- Decide how generated projects consume the split compiler and CLI. Generation
-  still installs the published `roblox-ts` and `@rbxts/compiler-types` packages
-  and invokes `rbxtsc`. The workspace's `roblox-ts` package no longer owns that
-  binary; `@roblox-ts/cli` does, and compiler declarations are private here.
-  Adopting workspace builds requires coordinated dependency/version changes,
-  including the `--compilerVersion` mapping to `compiler-X.X.X` declaration tags.
-- Wire package publication into monorepo release automation. The existing
-  `prepublishOnly` build and upstream repository metadata remain unchanged.
+For generated consumers of the local workspace, use the separate root command
+`corepack pnpm run test-toolchain` after a root build. It defaults to the `game`
+template; `RBXTS_TEMPLATE_TYPE` selects `game`, `place`, `model`, `plugin`, or
+`package`. This network-dependent check is separate from `pnpm test` and from the
+registry-based `test:integration` suite above. The generator's normal dependency
+selection and `--compilerVersion` mapping remain unchanged.
 
 ### Known upstream limitation
 

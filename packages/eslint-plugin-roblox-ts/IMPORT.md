@@ -5,47 +5,49 @@ at commit `e1581d4f3d83a3d05b015a0a216507c3a20016de` (package version `1.4.1`).
 The upstream MIT license, public exports, configs, rules, documentation, tests,
 fixtures, and development scripts are preserved.
 
-## Local packaging
+## Workspace integration
 
-- The package manifest uses the upstream catalog versions explicitly so the
-  parent workspace does not need to define those catalogs. Fixture catalogs
-  remain in the package-local workspace.
-- The package-local lockfile retains upstream dependency resolutions, with only
-  the root importer's dependency specifiers adjusted.
-- The automatic `prepare` hook is removed to avoid modifying the parent
-  repository's Git hooks. The upstream hook configuration is otherwise retained.
-- Package lint permits explicit versions in `package.json`.
-- ESLint, its parser, rule-testing tools, and peer dependencies remain required
-  for this ESLint product, regardless of the parent repository's use of Oxlint.
+- Package and fixture manifests use explicit versions instead of nested catalogs.
+  The redundant package-local workspace and lockfile are replaced by the root
+  `pnpm-workspace.yaml` and `pnpm-lock.yaml`.
+- `@roblox-ts/luau-ast` links the local workspace package. TypeScript remains
+  5.9.3; the plugin retains its Vitest 4.0.18/Vite 7.2.2 and Oxlint 1.74.0 tools
+  separately from the root Vite Plus tools. The root `.pnpmfile.cjs` removes
+  only Oxlint 1.74.0's optional Vite Plus peer, preventing its standalone suite
+  from acquiring the root runner's incompatible Vitest coverage peers.
+- Each ESLint fixture declares the real `eslint` package, not an alias. Versions
+  are 8.57.1, 9.39.1, and 10.0.0. This corrects the imported v9 fixture's v10 alias.
+  Injected workspace copies bind the plugin's peers to each fixture; pnpm syncs
+  those copies after builds. Tests assert the binary and plugin peer paths before
+  checking violations and file constraints.
+- The automatic Git-hook `prepare` step remains removed. Root build approvals
+  do not enable the imported hook installer. Existing hook configuration is not
+  installed into the parent repository.
+- Build and package validation use npm commands that also work when pnpm is
+  accessed through Corepack. Publint still checks packed files, now via its CLI
+  with `--pack npm`, rather than tsdown's implicit global `pnpm pack` call.
+- Package lint permits explicit versions. Root lint/format preserves upstream
+  style; `lint-packages` runs the plugin's own ESLint check.
 
-The root lockfile, scripts, and CI are intentionally untouched. This import does
-not yet integrate the package into root frozen installs or validation commands.
-The nested workspace supports independent validation. The copied `.github/`
-workflows are upstream reference files, not active monorepo workflows.
+ESLint, its parser, rule-testing tools, and peer dependencies remain required
+for this ESLint product, regardless of the root repository's use of Oxlint.
+Copied package-local `.github/` workflows are upstream reference files, not
+active monorepo workflows.
 
 ## Validation
 
-Run from the monorepo root using pnpm 10.22.0 and Node 24:
+Run from the monorepo root with Node 24 and the root-pinned pnpm via Corepack:
 
 ```sh
-pnpm --dir packages/eslint-plugin-roblox-ts install --frozen-lockfile --ignore-scripts
-pnpm --dir packages/eslint-plugin-roblox-ts run build
-pnpm --dir packages/eslint-plugin-roblox-ts run typecheck
-pnpm --dir packages/eslint-plugin-roblox-ts run lint
-pnpm --dir packages/eslint-plugin-roblox-ts run test --run
-pnpm --dir packages/eslint-plugin-roblox-ts run test:fixtures
+corepack pnpm install --frozen-lockfile
+corepack pnpm run build
+corepack pnpm --filter eslint-plugin-roblox-ts run typecheck
+corepack pnpm --filter eslint-plugin-roblox-ts run lint
+corepack pnpm --filter eslint-plugin-roblox-ts run test --run
+corepack pnpm --filter eslint-plugin-roblox-ts run test:fixtures
 ```
 
-Run the test suite and compatibility fixtures sequentially: the Oxlint tests
-rebuild `dist/`, which the compatibility fixtures load.
-
-Upstream's `eslint-v9` fixture currently installs the `eslint-10` alias. The
-package's own ESLint is 9.39.1; to also test that fixture against ESLint 9:
-
-```sh
-pnpm --dir packages/eslint-plugin-roblox-ts/fixtures/eslint-v9 exec node ../../node_modules/eslint/bin/eslint.js 'src/**/*.ts' --format json
-```
-
-That direct lint command intentionally exits with status 1 because the fixture
-contains rule violations. Its JSON output must contain `roblox-ts/` diagnostics
-rather than configuration or parsing failures.
+Root `test-packages` runs the typecheck, Vitest suite, and compatibility fixtures
+in that order. Run suites sequentially because Oxlint tests can rebuild `dist/`,
+which compatibility fixtures load. Run a root build after source changes so
+pnpm refreshes the injected copies before fixture testing.

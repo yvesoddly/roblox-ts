@@ -63,8 +63,8 @@ export const recommendedNoTypeCheck = {
  * ```
  */
 export const recommendedNoTypeCheckLegacy: Linter.LegacyConfig = {
-	...baseLegacy,
 	overrides: [
+		...baseLegacy.overrides,
 		{
 			files: TYPESCRIPT_FILES,
 			parser: "@typescript-eslint/parser",

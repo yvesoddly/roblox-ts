@@ -19,3 +19,6 @@ jobs:
 
       - name: Compile Source Files
         run: pnpm run build
+
+      - name: Package VS Code Extension Locally
+        run: pnpm --filter vscode-roblox-ts run package

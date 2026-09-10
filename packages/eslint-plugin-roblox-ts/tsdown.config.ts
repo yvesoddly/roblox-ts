@@ -16,7 +16,6 @@ export default defineConfig({
 	onSuccess() {
 		console.info("🙏 Build succeeded!");
 	},
-	publint: true,
 	shims: true,
 	unused: {
 		level: "error",

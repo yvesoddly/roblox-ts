@@ -12,12 +12,16 @@ Local changes are repository metadata, behavioral tests, exact `5.5.3` pins for 
 TypeScript/internal-declarations pair, and Node-only TypeScript libraries. The latter avoids an upstream
 DOM/Node `AbortSignal` declaration conflict without suppressing type checking or changing emitted JavaScript.
 
-From the workspace root after dependencies are installed:
+From the workspace root with Node 24 and Corepack:
 
 ```sh
-pnpm --filter roblox-ts-extensions build
-pnpm --filter roblox-ts-extensions test
+corepack pnpm install --frozen-lockfile
+corepack pnpm --filter roblox-ts-extensions build
+corepack pnpm --filter roblox-ts-extensions test
 ```
+
+The root `corepack pnpm run build` and `corepack pnpm run test-packages` commands
+include this package. Its TypeScript/internal-declarations pair remains on `5.5.3`.
 
 Validation during import used Node `24.19.0`, npm `11.17.0`, and isolated dependencies outside the repository:
 
@@ -37,12 +41,10 @@ TypeScript `5.5.3` and `5.9.3` produce `Add import from` descriptions, so that a
 the explicit cross-boundary diagnostic quick fix works. The tests cover both current host details and the supported
 legacy action description. Other upstream behavior, including the configuration documentation below, is unchanged.
 
-Shared integration still requires a workspace lockfile refresh and adding this package to the root `test-packages`
-filters. The existing `packages/*` workspace glob and recursive build already discover it. The VS Code package
-should depend on `roblox-ts-extensions` via `workspace:*` and build this plugin before packing its production dependency
-closure. Root lint/format checks also need package-scoped `vite.config.ts` overrides or exclusions for upstream
-formatting/CommonJS conventions and generated `plugin/**` output. The imported sources are not reformatted to satisfy
-compiler-specific lint rules. This import does not change shared configuration or the lockfile.
+The shared workspace lockfile and explicit package membership cover this package. The VS Code extension
+links it through `workspace:*`; `corepack pnpm run package-vscode` builds both packages before producing a
+local VSIX. Root lint/format checks exclude the imported source style and generated `plugin/**` output.
+The language service retains its existing build and behavioral tests; no editor-host harness is tracked.
 
 ## Overview
 

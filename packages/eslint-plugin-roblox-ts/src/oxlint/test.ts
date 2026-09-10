@@ -52,7 +52,11 @@ export function ensureOxlintPluginBuilt(): void {
 		return;
 	}
 
-	execFileSync("pnpm", ["build"], { cwd: rootDirectory, shell: isWindows, stdio: "inherit" });
+	execFileSync("corepack", ["pnpm", "run", "build"], {
+		cwd: rootDirectory,
+		shell: isWindows,
+		stdio: "inherit",
+	});
 }
 
 /**

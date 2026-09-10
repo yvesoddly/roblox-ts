@@ -24,21 +24,26 @@ cancellation checks for a PID when spawning the compiler failed.
   needs a separate compatibility decision before release.
 - Removed unused Mocha/glob/vscode-test dependencies and the obsolete ESLint
   `@typescript-eslint/semi` rule, which does not exist in the declared plugin.
-- The existing workspace glob and recursive build need no changes. Updating the
-  shared lockfile, adding this package to root `test-packages`, and scoping root
-  lint/format checks for preserved upstream style are left to the integrator.
+- Root package membership, the shared lockfile, recursive build, and
+  `test-packages` include this extension. Root lint/format excludes upstream
+  source style; `lint-packages` retains the extension's own ESLint check.
+- Build CI also produces a local VSIX. No real editor-host test harness is
+  tracked; the Node suite uses a simulated VS Code host.
 
 ## Local commands
 
-After a workspace install and building the workspace dependencies, run from the
-repository root:
+Run from the repository root with Node 24 and Corepack:
 
 ```sh
-pnpm --filter vscode-roblox-ts build
-pnpm --filter vscode-roblox-ts test
-pnpm --filter vscode-roblox-ts lint
-pnpm --filter vscode-roblox-ts run package
+corepack pnpm install --frozen-lockfile
+corepack pnpm run build
+corepack pnpm --filter vscode-roblox-ts test
+corepack pnpm --filter vscode-roblox-ts lint
+corepack pnpm run package-vscode
 ```
+
+The root `test-packages` command includes the extension's Node tests. The
+`package-vscode` command also builds its local production dependencies.
 
 Packaging stages the compiled extension and installed production dependency
 closure outside the repository, dereferences workspace links, and replaces runtime
@@ -50,9 +55,12 @@ VSCE's missing-license check is explicitly skipped
 for local artifact inspection, not to grant distribution permission. Tests, maps,
 TypeScript sources, build metadata and standalone lockfiles are excluded.
 
-## Validation
+## Historical import validation
 
-Validation uses Node 24.19.0 and npm 11.17.0, with dependency installs in temporary
+The following describes the original import, not checks performed by a root
+workspace install or a tracked editor-host test command.
+
+Import validation used Node 24.19.0 and npm 11.17.0, with dependency installs in temporary
 folders and an ignored package-local `node_modules` symlink. The runtime packages
 are the imported language service and a clean scratch build of this repository's
 path translator, not registry replacements. The original frozen npm install fails
@@ -79,5 +87,4 @@ normal user profile. Actual compiler spawning and the oldest supported editor
 were not exercised in the real host.
 
 A package-local `.gitattributes` keeps the icon binary despite the root text rule;
-filtered and unfiltered Git hashes match. Root lint/format still needs scoped
-integration for upstream style; its configuration and lockfile remain untouched.
+filtered and unfiltered Git hashes matched during import.

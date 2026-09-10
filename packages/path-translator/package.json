@@ -9,10 +9,10 @@
 		"directory": "packages/path-translator"
 	},
 	"scripts": {
-		"prepack": "pnpm run build",
+		"prepack": "corepack pnpm run build",
 		"build": "tsc -b",
 		"build-watch": "tsc -b -w",
-		"test": "pnpm run build && node --test tests/*.test.cjs"
+		"test": "corepack pnpm run build && node --test tests/*.test.cjs"
 	},
 	"author": "",
 	"license": "MIT",

@@ -27,7 +27,7 @@ export default style(
 	{
 		files: ["package.json"],
 		rules: {
-			// the parent workspace cannot resolve this package's private catalogs
+			// the shared workspace uses explicit versions rather than catalogs
 			"pnpm/json-enforce-catalog": "off",
 		},
 	},
