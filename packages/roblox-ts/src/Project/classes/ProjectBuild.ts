@@ -1,5 +1,6 @@
-import fs from "fs-extra";
 import path from "path";
+
+import fs from "fs-extra";
 import { ProjectGraph, ProjectNode, projectPathKey } from "Project/classes/ProjectGraph";
 import { compileFiles } from "Project/functions/compileFiles";
 import { copyInclude } from "Project/functions/copyInclude";
@@ -103,7 +104,7 @@ export class ProjectBuild {
 
 	public getWatchPaths() {
 		const paths = new Set(this.configPaths);
-		const roots = [...this.states.values()].flatMap(state =>
+		const roots = [...this.states.values()].flatMap((state) =>
 			state.project.pathTranslator ? getRootDirs(state.project.config.options) : [],
 		);
 		for (const root of roots) {
@@ -121,8 +122,8 @@ export class ProjectBuild {
 			for (const input of state.inputs) {
 				if (
 					this.isOutputPath(input) ||
-					roots.some(root => isPathDescendantOf(input, projectPathKey(root))) ||
-					input.split(path.sep).some(part => part === "node_modules" || part === ".git")
+					roots.some((root) => isPathDescendantOf(input, projectPathKey(root))) ||
+					input.split(path.sep).some((part) => part === "node_modules" || part === ".git")
 				) {
 					continue;
 				}
@@ -135,32 +136,39 @@ export class ProjectBuild {
 
 	public isConfigPath(filePath: string) {
 		const key = projectPathKey(filePath);
-		if ([...this.configPaths].some(configPath => projectPathKey(configPath) === key)) {
+		if ([...this.configPaths].some((configPath) => projectPathKey(configPath) === key)) {
 			return true;
 		}
 		for (const { data } of this.graph.projects.values()) {
-			if ([...(data.rojoConfigFiles?.keys() ?? [])].some(configPath => projectPathKey(configPath) === key)) {
+			if (
+				[...(data.rojoConfigFiles?.keys() ?? [])].some(
+					(configPath) => projectPathKey(configPath) === key,
+				)
+			) {
 				return true;
 			}
 		}
 		return (
-			/^.+\.project\.json$/.test(path.basename(filePath)) && this.isRojoConfigDirectory(path.dirname(filePath))
+			/^.+\.project\.json$/.test(path.basename(filePath)) &&
+			this.isRojoConfigDirectory(path.dirname(filePath))
 		);
 	}
 
 	public isRojoConfigDirectory(directory: string) {
 		const key = projectPathKey(directory);
 		return [...this.graph.projects.values()].some(({ data }) =>
-			data.rojoConfigDirectories?.some(root => isPathDescendantOf(key, projectPathKey(root))),
+			data.rojoConfigDirectories?.some((root) => isPathDescendantOf(key, projectPathKey(root))),
 		);
 	}
 
 	public isSourceInputPath(filePath: string) {
 		return [...this.states.values()].some(
-			state =>
+			(state) =>
 				state.inputs.has(projectPathKey(filePath)) ||
 				(state.project.pathTranslator &&
-					getRootDirs(state.project.config.options).some(root => isPathDescendantOf(filePath, root))),
+					getRootDirs(state.project.config.options).some((root) =>
+						isPathDescendantOf(filePath, root),
+					)),
 		);
 	}
 
@@ -173,13 +181,13 @@ export class ProjectBuild {
 		for (const project of this.graph.projects.values()) {
 			if (
 				[project.pathTranslator?.buildInfoOutputPath, project.tsBuildInfoPath].some(
-					buildInfoPath => buildInfoPath && key === projectPathKey(buildInfoPath),
+					(buildInfoPath) => buildInfoPath && key === projectPathKey(buildInfoPath),
 				)
 			) {
 				return true;
 			}
 
-			if (getOutputRoots(project).some(root => isPathDescendantOf(key, projectPathKey(root)))) {
+			if (getOutputRoots(project).some((root) => isPathDescendantOf(key, projectPathKey(root)))) {
 				return true;
 			}
 		}
@@ -189,13 +197,17 @@ export class ProjectBuild {
 
 	public build(changedFiles?: ReadonlyArray<string>, referencesOnly = false): ts.EmitResult {
 		// removed configs must be recognized before refreshing the dependency list
-		const rojoChanged = changedFiles?.some(file => this.isConfigPath(file) || this.isRojoConfigDirectory(file));
+		const rojoChanged = changedFiles?.some(
+			(file) => this.isConfigPath(file) || this.isRojoConfigDirectory(file),
+		);
 		this.refresh();
 
 		const configChanged =
 			rojoChanged ||
-			changedFiles?.some(file =>
-				[...this.graph.configPaths].some(config => projectPathKey(config) === projectPathKey(file)),
+			changedFiles?.some((file) =>
+				[...this.graph.configPaths].some(
+					(config) => projectPathKey(config) === projectPathKey(file),
+				),
 			);
 
 		for (const state of this.states.values()) {
@@ -204,8 +216,9 @@ export class ProjectBuild {
 				!changedFiles ||
 				configChanged ||
 				changedFiles.some(
-					file =>
-						state.inputs.has(projectPathKey(file)) || roots.some(root => isPathDescendantOf(file, root)),
+					(file) =>
+						state.inputs.has(projectPathKey(file)) ||
+						roots.some((root) => isPathDescendantOf(file, root)),
 				)
 			) {
 				state.dirty = true;
@@ -215,7 +228,7 @@ export class ProjectBuild {
 		// the graph is in dependency order, so dirty prerequisites propagate before their consumers are visited
 		for (const state of this.states.values()) {
 			if (
-				state.project.dependencies.some(key => {
+				state.project.dependencies.some((key) => {
 					const dependency = this.states.get(key);
 					assert(dependency);
 					return dependency.dirty;
@@ -233,7 +246,7 @@ export class ProjectBuild {
 				continue;
 			}
 
-			state.blocked = state.project.dependencies.some(key => {
+			state.blocked = state.project.dependencies.some((key) => {
 				const dependency = this.states.get(key);
 				assert(dependency);
 				return dependency.blocked || hasErrors(dependency.diagnostics);
@@ -259,7 +272,7 @@ export class ProjectBuild {
 			}
 		}
 
-		const diagnostics = [...this.states.values()].flatMap(state => [...state.diagnostics]);
+		const diagnostics = [...this.states.values()].flatMap((state) => [...state.diagnostics]);
 
 		return {
 			emitSkipped: hasErrors(diagnostics),
@@ -281,7 +294,7 @@ export class ProjectBuild {
 		const builder = createProgram(config.fileNames, config.options, undefined, state.builder);
 		const program = builder.getProgram();
 
-		state.inputs = new Set(program.getSourceFiles().map(file => projectPathKey(file.fileName)));
+		state.inputs = new Set(program.getSourceFiles().map((file) => projectPathKey(file.fileName)));
 
 		const sourceFiles = new Set(getChangedSourceFiles(builder));
 		for (const [output, input] of outputs.files) {
