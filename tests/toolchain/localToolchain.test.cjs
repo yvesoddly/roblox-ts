@@ -232,7 +232,7 @@ void test(`local generator, compiler, and lint plugin work together for ${templa
 		verifyLocalPackage(projectManifest, "roblox-ts");
 		verifyLocalPackage(projectManifest, "@rbxts/compiler-types");
 		verifyLocalPackage(projectManifest, "eslint-plugin-roblox-ts");
-		assert.equal(readJson(projectManifest).scripts.build, "rbxtsc");
+		assert.equal(readJson(projectManifest).scripts.build, "rbxtsc build");
 
 		const sourcePath = path.join(project, templates[template].source);
 		const generatedSource = fs.readFileSync(sourcePath, "utf8");
@@ -283,7 +283,7 @@ export default [{
 		);
 
 		// invoke the installed manifest's bin, never npx or a PATH-resolved compiler from the parent workspace
-		run(process.execPath, [binFrom(cli, "rbxtsc")], project);
+		run(process.execPath, [binFrom(cli, "rbxtsc"), "build"], project);
 		const output = fs.readFileSync(path.join(project, templates[template].output), "utf8");
 		assert.match(output, /print\("local toolchain"\)/);
 		assert.match(output, /if value ~= 0 then/);

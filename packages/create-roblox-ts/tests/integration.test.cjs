@@ -52,7 +52,7 @@ test("packed CLI generates and builds every upstream project type", { timeout: 9
 			const directory = path.join(temporary, template);
 			run([cli, template, "-y", "--packageManager", "npm", "--dir", directory], temporary);
 			const pkg = JSON.parse(fs.readFileSync(path.join(directory, "package.json"), "utf8"));
-			assert.equal(pkg.scripts.build, "rbxtsc");
+			assert.equal(pkg.scripts.build, "rbxtsc build");
 			assert.ok(fs.existsSync(path.join(directory, "tsconfig.json")));
 			assert.ok(
 				fs
