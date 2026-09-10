@@ -7,6 +7,8 @@
 		"noEmit": true,
 		"strict": true,
 		"target": "ESNext",
+		// resolve Roblox's compiler-type references through the test workspace, not hoisted fixture dependencies
+		"typeRoots": ["../../tests/node_modules"],
 		"types": [],
 		"forceConsistentCasingInFileNames": true
 	},
