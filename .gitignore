@@ -18,3 +18,4 @@ out
 /sourcemap.json
 
 /.pnpm-store/
+.direnv/
