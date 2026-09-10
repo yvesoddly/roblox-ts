@@ -56,7 +56,7 @@ export const recommended = {
  * TypeScript parser configuration for ESLint v8 (legacy config) with
  * traditional project option.
  *
- * @note Compatible with @typescript-eslint/parser >=6.0.0.
+ * @note Requires @typescript-eslint/parser v8
  *
  * Can be used standalone or extended with other configurations.
  */

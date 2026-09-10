@@ -1,5 +1,5 @@
 // ESLint v8 Legacy Config
-// Compatible with @typescript-eslint/parser >=6.0.0
+// requires @typescript-eslint/parser v8
 {
   "extends": [
     "eslint:recommended",

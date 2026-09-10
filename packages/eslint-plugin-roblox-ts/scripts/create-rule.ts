@@ -31,7 +31,7 @@ const rootDirectory = resolve(directoryName, "..");
 const rulesDirectory = join(rootDirectory, "src", "rules");
 const templateDirectory = join(rootDirectory, "scripts", "template");
 const ruleDirectoryPath = join(rulesDirectory, ruleName);
-const indexPath = join(rootDirectory, "src", "index.ts");
+const pluginPath = join(rootDirectory, "src", "plugin.ts");
 
 // --- Create Rule Directory ---
 if (existsSync(ruleDirectoryPath)) {
@@ -60,28 +60,28 @@ for (const templateFileName of templateFiles) {
 	console.log(`Created file: ${resolvedFilePath}`);
 }
 
-// --- Update src/index.ts ---
+// register the rule where the recommended configs derive their rule lists
 try {
-	let indexContent = readFileSync(indexPath, "utf-8");
+	let pluginContent = readFileSync(pluginPath, "utf-8");
 
 	// Add import statement
 	const importStatement = `import { ${ruleNameCamelCase} } from "./rules/${ruleName}/rule";\n`;
 	// Find the last import statement
-	const lastImportMatch = indexContent.match(/import .* from ".*";\n(?!import)/);
+	const lastImportMatch = pluginContent.match(/import .* from ".*";\n(?!import)/);
 	if (lastImportMatch?.index !== undefined) {
-		indexContent =
-			indexContent.slice(0, lastImportMatch.index + lastImportMatch[0].length) +
+		pluginContent =
+			pluginContent.slice(0, lastImportMatch.index + lastImportMatch[0].length) +
 			importStatement +
-			indexContent.slice(lastImportMatch.index + lastImportMatch[0].length);
+			pluginContent.slice(lastImportMatch.index + lastImportMatch[0].length);
 	} else {
 		// Fallback if no imports found (unlikely)
-		indexContent = importStatement + indexContent;
+		pluginContent = importStatement + pluginContent;
 	}
 
 	// Add rule to the rules object
 	const ruleEntry = `\t\t"${ruleName}": ${ruleNameCamelCase},\n`;
 	const rulesObjectRegex = /rules: {\s*([\s\S]*?)\s*},/m;
-	const rulesMatch = indexContent.match(rulesObjectRegex);
+	const rulesMatch = pluginContent.match(rulesObjectRegex);
 
 	if (rulesMatch) {
 		const existingRules = rulesMatch[1];
@@ -90,7 +90,10 @@ try {
 		}
 
 		// Find the correct alphabetical position
-		const lines = existingRules.trim().split("\n");
+		const lines = existingRules
+			.trim()
+			.split("\n")
+			.map((line) => line.trim());
 		let insertIndex = lines.length;
 		for (const [index, line] of lines.entries()) {
 			const lineRuleNameMatch = line.match(/"([^"]+)"/);
@@ -101,21 +104,20 @@ try {
 		}
 
 		lines.splice(insertIndex, 0, ruleEntry.trim());
-		const updatedRules = `\n${lines.join("\n")}\n\t`;
-		indexContent = indexContent.replace(existingRules, updatedRules);
+		const updatedRules = `\n\t\t${lines.join("\n\t\t")}\n\t`;
+		pluginContent = pluginContent.replace(existingRules, updatedRules);
 
-		writeFileSync(indexPath, indexContent);
-		console.log(`Updated: ${indexPath}`);
+		writeFileSync(pluginPath, pluginContent);
+		console.log(`Updated: ${pluginPath}`);
 	} else {
-		console.error(
-			`Could not find the 'rules' object in ${indexPath}. Please add the rule manually.`,
-		);
+		throw new Error(`Could not find the 'rules' object in ${pluginPath}.`);
 	}
 } catch (err) {
-	console.error(`Error updating ${indexPath}:`, err);
-	console.error(`Please add the following manually to ${indexPath}:`);
+	console.error(`Error updating ${pluginPath}:`, err);
+	console.error(`Please add the following manually to ${pluginPath}:`);
 	console.error(`  Import: import { ${ruleNameCamelCase} } from "./rules/${ruleName}/rule";`);
 	console.error(`  Rule entry: "${ruleName}": ${ruleNameCamelCase},`);
+	process.exit(1);
 }
 
 console.log(`\nSuccessfully created rule "${ruleName}".`);
@@ -124,4 +126,4 @@ console.log("1. Implement the rule logic in", join(ruleDirectoryPath, "rule.ts")
 console.log("2. Write tests in", join(ruleDirectoryPath, "rule.spec.ts"));
 console.log("3. Update the documentation in", join(ruleDirectoryPath, "documentation.md"));
 console.log("4. Run `pnpm eslint-docs` to update the README.");
-console.log("5. Consider adding the rule to the recommended config in src/index.ts if applicable.");
+console.log("5. The rule is now included in the recommended configs via src/plugin.ts.");

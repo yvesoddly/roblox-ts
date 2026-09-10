@@ -1,3 +1,4 @@
+import tsParser from "@typescript-eslint/parser";
 import type { FlatConfig } from "@typescript-eslint/utils/ts-eslint";
 
 import type { Linter } from "eslint";
@@ -31,8 +32,25 @@ export function createConfig<const T extends Linter.RulesRecord>(
 		...overrides,
 	} as const satisfies Linter.RulesRecord;
 
+	// standalone compatibility presets must parse TypeScript without requiring a
+	// project
+	const parserOptions = { ecmaVersion: 2018, sourceType: "module" } as const;
+
 	return {
-		flat: { files: TYPESCRIPT_FILES, rules },
-		legacy: { overrides: [{ files: TYPESCRIPT_FILES, rules }] },
+		flat: {
+			files: TYPESCRIPT_FILES,
+			languageOptions: { parser: tsParser, parserOptions },
+			rules,
+		},
+		legacy: {
+			overrides: [
+				{
+					files: TYPESCRIPT_FILES,
+					parser: "@typescript-eslint/parser",
+					parserOptions,
+					rules,
+				},
+			],
+		},
 	};
 }

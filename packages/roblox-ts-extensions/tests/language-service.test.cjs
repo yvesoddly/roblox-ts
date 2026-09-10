@@ -108,6 +108,51 @@ test("reports value imports across boundaries, preserves TS diagnostics, and off
 	assert.deepEqual(change.textChanges, [{ newText: "import type", span: { start: 0, length: 6 } }]);
 });
 
+test("handles side-effect imports without losing diagnostics or offering invalid type-only fixes", t => {
+	const imports = [
+		'import "./initialize";',
+		'import "../server/initialize";',
+		'import { remote } from "../server/remote";',
+	];
+	const source = [...imports, 'const wrong: number = "text";', "remote;"].join("\n");
+	const project = createProject(t, {
+		"src/client/index.ts": source,
+		"src/client/initialize.ts": "export {};",
+		"src/server/initialize.ts": "export {};",
+		"src/server/remote.ts": "export const remote = 1;",
+	});
+	const file = project.filePath("src/client/index.ts");
+	const messages = [];
+	t.mock.method(console, "error", (...args) => messages.push(args.join(" ")));
+
+	const diagnostics = project.proxy.getSemanticDiagnostics(file);
+	assert.deepEqual(messages, []);
+	assert.ok(diagnostics.some(diagnostic => diagnostic.code === 2322));
+	const boundary = diagnostics.filter(diagnostic => diagnostic.code === diagnosticCode);
+	assert.deepEqual(
+		boundary.map(diagnostic => source.slice(diagnostic.start, diagnostic.start + diagnostic.length)),
+		imports.slice(1),
+	);
+	assert.ok(boundary.every(diagnostic => diagnostic.messageText === "Cannot import Server module from Client"));
+
+	const fixesFor = diagnostic =>
+		project.proxy.getCodeFixesAtPosition(
+			file,
+			diagnostic.start,
+			diagnostic.start + diagnostic.length,
+			[diagnosticCode],
+			{},
+			{},
+		);
+	assert.ok(!fixesFor(boundary[0]).some(action => action.fixName === "crossBoundaryImport"));
+	const fix = fixesFor(boundary[1]).find(action => action.fixName === "crossBoundaryImport");
+	assert.ok(fix);
+	assert.deepEqual(fix.changes[0].textChanges, [
+		{ newText: "import type", span: { start: boundary[1].start, length: 6 } },
+	]);
+	assert.deepEqual(messages, []);
+});
+
 test("permits type-only and shared imports and invalidates boundaries on configuration changes", t => {
 	const project = createProject(t, {
 		"src/client/index.ts":

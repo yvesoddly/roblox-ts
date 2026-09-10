@@ -30,7 +30,7 @@ guiding users who already know TypeScript to avoid unsupported features.
 | [no-array-pairs](src/rules/no-array-pairs/documentation.md)                           | Disallow usage of pairs() and ipairs() with Array<T>                      |    |    | 💭 |
 | [no-enum-merging](src/rules/no-enum-merging/documentation.md)                         | Disallow merging enum declarations                                        |    |    |    |
 | [no-export-assignment-let](src/rules/no-export-assignment-let/documentation.md)       | Disallow using `export =` on a let variable                               |    |    |    |
-| [no-for-in](src/rules/no-for-in/documentation.md)                                     | Disallow iterating with a for-in loop                                     | 🔧 |    |    |
+| [no-for-in](src/rules/no-for-in/documentation.md)                                     | Disallow iterating with a for-in loop                                     |    |    |    |
 | [no-function-expression-name](src/rules/no-function-expression-name/documentation.md) | Disallow the use of function expression names                             | 🔧 |    |    |
 | [no-get-set](src/rules/no-get-set/documentation.md)                                   | Disallow getters and setters                                              | 🔧 |    |    |
 | [no-implicit-self](src/rules/no-implicit-self/documentation.md)                       | Enforce the use of `.` instead of `:` for method calls                    | 🔧 |    |    |
@@ -72,15 +72,16 @@ guiding users who already know TypeScript to avoid unsupported features.
 
 ## Installation
 
-You'll first need to install [ESLint](https://eslint.org) v8.0.0 or greater:
+Install [ESLint](https://eslint.org) v8.57.0 or greater, the TypeScript parser
+v8, and TypeScript:
 
 ```sh
-npm install eslint --save-dev
+npm install eslint @typescript-eslint/parser@^8 typescript --save-dev
 ```
 
 **ESLint Version Support:**
 
-- ESLint v8.x: ✅ Fully supported
+- ESLint v8.57.x: ✅ Supported
 - ESLint v9.x: ✅ Fully supported
 - ESLint v10.x: ✅ Fully supported
 
@@ -147,14 +148,20 @@ are exactly the rules excluded from `recommendedNoTypeCheck`.
 
 ### Manual Configuration
 
-Altertatively, add `eslint-plugin-roblox-ts` to the plugins section of the
-ESLint configuration file and define the list of rules you will use.
+Alternatively, register the TypeScript parser and `eslint-plugin-roblox-ts`,
+then define the rules you will use. `no-any` does not need type information,
+so this example does not enable the project service.
 
 ```js
+import tsParser from "@typescript-eslint/parser";
 import roblox from "eslint-plugin-roblox-ts";
 
 export default [
 	{
+		files: ["**/*.ts", "**/*.tsx"],
+		languageOptions: {
+			parser: tsParser,
+		},
 		plugins: {
 			"roblox-ts": roblox,
 		},
@@ -174,12 +181,17 @@ export default [
 }
 ```
 
-Alternatively, add `eslint-plugin-roblox-ts` to the plugins section of your
-`.eslintrc` configuration file and configure the rules you want to use.
+Alternatively, configure the parser and rules in `.eslintrc`. This example
+includes the type-aware `no-object-math` rule, so enable the project service
+and include the linted files in your `tsconfig.json`.
 
 <!-- prettier-ignore -->
 ```json
 {
+	"parser": "@typescript-eslint/parser",
+	"parserOptions": {
+		"projectService": true
+	},
 	"plugins": [
 		"roblox-ts"
 	],

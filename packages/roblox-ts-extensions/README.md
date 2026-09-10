@@ -39,7 +39,7 @@ Upstream has no tests. This is not an interactive VS Code/tsserver integration t
 Preserved limitation: automatic type-only completion edits match legacy `Import '…' from module` action descriptions.
 TypeScript `5.5.3` and `5.9.3` produce `Add import from` descriptions, so that automatic rewrite does not run;
 the explicit cross-boundary diagnostic quick fix works. The tests cover both current host details and the supported
-legacy action description. Other upstream behavior, including the configuration documentation below, is unchanged.
+legacy action description. Boundary configuration accepts arrays of paths, as shown below.
 
 The shared workspace lockfile and explicit package membership cover this package. The VS Code extension
 links it through `workspace:*`; `corepack pnpm run package-vscode` builds both packages before producing a
@@ -76,11 +76,11 @@ To enable the plugin and configure it, please look to the sections below.
 interface PluginConfig {
 	// The directories to be determined client-sided. Rojo is preferred, however these can override Rojo if necessary.
 	// Default: []
-	client: string | string[];
+	client: Array<string>;
 
 	// The directories to be determined server-sided. Rojo is preferred, however these can override Rojo if necessary.
 	// Default: []
-	server: string | string[];
+	server: Array<string>;
 
 	// The autocomplete mode to use.
 	// Prefix: Prefixes completes with their network boundary, and makes cross-boundary (client<->server, shared->client/server) imports type only.

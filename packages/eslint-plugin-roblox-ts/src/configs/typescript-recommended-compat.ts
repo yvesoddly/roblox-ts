@@ -25,7 +25,7 @@ const { flat, legacy } = createConfig(TS_RECOMMENDED_OVERRIDES);
  * import robloxTs from "eslint-plugin-roblox-ts";
  *
  * export default [
- * 	...tseslint.configs.recommended,
+ * 	...tseslint.configs["flat/recommended"],
  * 	robloxTs.configs.tsRecommendedCompat,
  * 	robloxTs.configs.recommended,
  * ];
@@ -44,7 +44,7 @@ export const tsRecommendedCompat = flat;
  * // .eslintrc.js (ESLint v8)
  * module.exports = {
  * 	extends: [
- * 		"@typescript-eslint/recommended",
+ * 		"plugin:@typescript-eslint/recommended",
  * 		"plugin:roblox-ts/tsRecommendedCompatLegacy",
  * 		"plugin:roblox-ts/recommended-legacy",
  * 	],

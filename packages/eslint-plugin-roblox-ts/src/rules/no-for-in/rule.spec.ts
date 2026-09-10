@@ -42,12 +42,7 @@ const invalid: Array<InvalidTestCase> = [
 			}
 		`,
 		errors: [{ messageId: FOR_IN_VIOLATION }],
-		output: unindent`
-			const obj = { a: 1, b: 2 };
-			for (const key of obj) {
-				print(key);
-			}
-		`,
+		output: null,
 	},
 	{
 		code: unindent`
@@ -57,12 +52,7 @@ const invalid: Array<InvalidTestCase> = [
 			}
 		`,
 		errors: [{ messageId: FOR_IN_VIOLATION }],
-		output: unindent`
-			const arr = [1, 2, 3];
-			for (const index of arr) {
-				print(arr[index]);
-			}
-		`,
+		output: null,
 	},
 ];
 

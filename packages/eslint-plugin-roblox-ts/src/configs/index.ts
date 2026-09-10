@@ -5,6 +5,8 @@ import { recommendedNoTypeCheck, recommendedNoTypeCheckLegacy } from "./recommen
 import { tsRecommendedCompat, tsRecommendedCompatLegacy } from "./typescript-recommended-compat";
 
 const configsWithoutNames = {
+	"eslint-compat-legacy": eslintCompatLegacy as CompatibleConfig,
+
 	/**
 	 * ESLint core rules for Roblox-TS compatibility. These rules help prevent
 	 * JavaScript patterns that are incompatible with Roblox-TS.
@@ -15,11 +17,10 @@ const configsWithoutNames = {
 	 * // eslint.config.js
 	 * import robloxTs from "eslint-plugin-roblox-ts";
 	 *
-	 * export default [{ rules: robloxTs.configs.eslintCompat }];
+	 * export default [robloxTs.configs.eslintCompat];
 	 * ```
 	 */
 	"eslintCompat": eslintCompat as CompatibleConfig,
-
 	/**
 	 * ESLint core rules for Roblox-TS compatibility. These rules help prevent
 	 * JavaScript patterns that are incompatible with Roblox-TS.
@@ -105,7 +106,7 @@ const configsWithoutNames = {
 	 * // .eslintrc.js
 	 * module.exports = {
 	 * 	extends: [
-	 * 		"@typescript-eslint/recommended",
+	 * 		"plugin:@typescript-eslint/recommended",
 	 * 		"plugin:roblox-ts/tsRecommendedCompatLegacy",
 	 * 		"plugin:roblox-ts/recommended-legacy",
 	 * 	],
@@ -113,7 +114,6 @@ const configsWithoutNames = {
 	 * ```
 	 */
 	"ts-recommended-compat-legacy": tsRecommendedCompatLegacy as CompatibleConfig,
-
 	/**
 	 * Configuration for ESLint v9+ (flat config) that provides TypeScript
 	 * ESLint recommended compatibility overrides for Roblox-TS development
@@ -127,13 +127,15 @@ const configsWithoutNames = {
 	 * import robloxTs from "eslint-plugin-roblox-ts";
 	 *
 	 * export default [
-	 * 	...tseslint.configs.recommended,
+	 * 	...tseslint.configs["flat/recommended"],
 	 * 	robloxTs.configs.tsRecommendedCompat,
 	 * 	robloxTs.configs.recommended,
 	 * ];
 	 * ```
 	 */
 	"tsRecommendedCompat": tsRecommendedCompat as CompatibleConfig,
+
+	"tsRecommendedCompatLegacy": tsRecommendedCompatLegacy as CompatibleConfig,
 };
 
 function convertToKebabCase(str: string): string {

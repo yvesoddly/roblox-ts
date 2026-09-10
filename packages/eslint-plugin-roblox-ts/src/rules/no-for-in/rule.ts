@@ -15,8 +15,6 @@ function createOnce(context: Readonly<TSESLint.RuleContext<string, []>>): Roblox
 	return {
 		ForInStatement(node) {
 			context.report({
-				fix: (fix) =>
-					fix.replaceTextRange([node.left.range[1], node.right.range[0]], " of "),
 				messageId: FOR_IN_VIOLATION,
 				node,
 			});
@@ -34,7 +32,6 @@ export const noForIn = createRobloxRule({
 			recommended: true,
 			requiresTypeChecking: false,
 		},
-		fixable: "code",
 		messages,
 		schema: [],
 		type: "problem",

@@ -57,14 +57,9 @@ template; `RBXTS_TEMPLATE_TYPE` selects `game`, `place`, `model`, `plugin`, or
 registry-based `test:integration` suite above. The generator's normal dependency
 selection and `--compilerVersion` mapping remain unchanged.
 
-### Known upstream limitation
-
-Local generation with current registry dependencies successfully compiled all
-five project types, but the package template still declares `main: "out/init.lua"`
-while the installed compiler emits `out/init.luau`. The integration test reports
-this mismatch without changing the upstream generation/build contract. A passing
-build does not establish that the generated package's entry point resolves.
-Correcting the entry point is a separate behavior change.
+The package template declares `main: "out/init.luau"` for current compilers and
+retains `out/init.lua` for `--compilerVersion` pins below 3.0.0. The registry
+integration test requires both the declared runtime and type entry points to exist.
 
 Dependency modernization, including the generated legacy ESLint configuration,
 is separate from this behavior-preserving import. The local generator dependency

@@ -289,8 +289,11 @@ export default [{
 		assert.match(output, /if value ~= 0 then/);
 		assert.match(output, /toolchainHasValue\(1\)/);
 		if (template === "package") {
+			const manifest = readJson(projectManifest);
+			assert.equal(manifest.main, templates.package.output);
+			assert.ok(fs.statSync(path.join(project, manifest.main)).isFile());
 			assert.match(
-				fs.readFileSync(path.join(project, "out/index.d.ts"), "utf8"),
+				fs.readFileSync(path.join(project, manifest.types), "utf8"),
 				/makeHello\(name: string\): string/,
 			);
 		} else {

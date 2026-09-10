@@ -1,6 +1,6 @@
 # Disallow iterating with a for-in loop
 
-🔧 This rule is automatically fixable by the [`--fix` CLI option](https://eslint.org/docs/latest/user-guide/command-line-interface#--fix).
+📝 Disallow iterating with a for-in loop.
 
 <!-- end auto-generated rule header -->
 <!-- Do not manually modify this header. Run: `npm run eslint-docs` -->
@@ -11,6 +11,10 @@ The `for...in` statement iterates over the enumerable properties of an object.
 However, in TypeScript (and consequently roblox-ts), the type of the iterator
 variable in a `for...in` loop is always inferred as `string`. Due to this,
 the `for...in` syntax is not supported in roblox-ts.
+
+This rule does not autofix loops: replacing `in` with `of` changes iteration
+from keys to values, and ordinary objects are not iterable. Rewrite the loop
+according to which keys or values its body needs.
 
 ## Examples
 

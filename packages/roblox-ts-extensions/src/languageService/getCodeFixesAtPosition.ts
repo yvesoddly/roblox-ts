@@ -14,7 +14,8 @@ export function getCodeFixesAtPositionFactory(provider: Provider): ts.LanguageSe
 				if (start >= diag.start && end <= diag.start + diag.length) {
 					const sourceFile = provider.getSourceFile(file);
 					const $import = findImport(provider, sourceFile, diag.start);
-					if ($import) {
+					// side-effect imports cannot be converted to type-only imports
+					if ($import?.hasImportClause) {
 						orig = [
 							{
 								fixName: "crossBoundaryImport",

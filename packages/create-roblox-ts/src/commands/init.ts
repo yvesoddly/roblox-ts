@@ -119,7 +119,11 @@ async function init(argv: yargs.Arguments<InitOptions>, initMode: InitMode) {
 		[PackageManager.Yarn]: yarnAvailable,
 	};
 
-	const packageManagerCount = Object.values(packageManagerExistance).filter(exists => exists).length;
+	const availablePackageManagers = Object.values(PackageManager).filter(manager => packageManagerExistance[manager]);
+	const defaultPackageManager = argv.packageManager ?? availablePackageManagers[0];
+	if (defaultPackageManager === undefined) {
+		throw new InitError("No supported package manager found. Install npm, pnpm, or yarn.");
+	}
 
 	const {
 		template = initMode,
@@ -127,7 +131,7 @@ async function init(argv: yargs.Arguments<InitOptions>, initMode: InitMode) {
 		eslint = argv.eslint ?? argv.yes ?? false,
 		prettier = argv.prettier ?? argv.yes ?? false,
 		vscode = argv.vscode ?? argv.yes ?? false,
-		packageManager = argv.packageManager ?? PackageManager.NPM,
+		packageManager = defaultPackageManager,
 	}: {
 		template: InitMode;
 		git: boolean;
@@ -173,7 +177,10 @@ async function init(argv: yargs.Arguments<InitOptions>, initMode: InitMode) {
 			},
 			{
 				type: () =>
-					argv.packageManager === undefined && packageManagerCount > 1 && argv.yes === undefined && "select",
+					argv.packageManager === undefined &&
+					availablePackageManagers.length > 1 &&
+					argv.yes === undefined &&
+					"select",
 				name: "packageManager",
 				message: "Multiple package managers detected. Select package manager:",
 				choices: Object.entries(PackageManager)
@@ -190,10 +197,12 @@ async function init(argv: yargs.Arguments<InitOptions>, initMode: InitMode) {
 	const paths = {
 		packageJson: path.join(cwd, "package.json"),
 		packageLockJson: path.join(cwd, "package-lock.json"),
+		pnpmLock: path.join(cwd, "pnpm-lock.yaml"),
 		tsconfig: path.join(cwd, "tsconfig.json"),
 		gitignore: path.join(cwd, ".gitignore"),
 		eslintrc: path.join(cwd, ".eslintrc"),
 		prettierrc: path.join(cwd, ".prettierrc"),
+		vscode: path.join(cwd, ".vscode"),
 		settings: path.join(cwd, ".vscode", "settings.json"),
 		extensions: path.join(cwd, ".vscode", "extensions.json"),
 	};
@@ -207,11 +216,21 @@ async function init(argv: yargs.Arguments<InitOptions>, initMode: InitMode) {
 
 	const existingPaths = new Array<string>();
 	for (const filePath of pathValues) {
-		if (filePath && (await fs.pathExists(filePath))) {
-			const stat = await fs.stat(filePath);
-			if (stat.isFile() || stat.isSymbolicLink() || (await fs.readdir(filePath)).length > 0) {
-				existingPaths.push(path.relative(process.cwd(), filePath));
+		// lstat detects links themselves, including dangling links that pathExists would miss
+		const stat = await fs.lstat(filePath).catch((error: NodeJS.ErrnoException) => {
+			if (error.code !== "ENOENT") {
+				throw error;
 			}
+			return undefined;
+		});
+		if (
+			stat &&
+			(stat.isSymbolicLink() ||
+				!stat.isDirectory() ||
+				// unrelated vscode files are safe, but its directory must not redirect writes
+				(filePath !== paths.vscode && (await fs.readdir(filePath)).length > 0))
+		) {
+			existingPaths.push(path.relative(process.cwd(), filePath));
 		}
 	}
 
@@ -231,7 +250,11 @@ async function init(argv: yargs.Arguments<InitOptions>, initMode: InitMode) {
 		};
 		if (template === InitMode.Package) {
 			pkgJson.name = RBXTS_SCOPE + "/" + pkgJson.name;
-			pkgJson.main = "out/init.lua";
+			// compiler 3.0 switched the default output extension to .luau
+			pkgJson.main =
+				compilerVersion !== undefined && Number.parseInt(compilerVersion, 10) < 3
+					? "out/init.lua"
+					: "out/init.luau";
 			pkgJson.types = "out/index.d.ts";
 			pkgJson.files = ["out", "!**/*.tsbuildinfo"];
 			pkgJson.publishConfig = { access: "public" };

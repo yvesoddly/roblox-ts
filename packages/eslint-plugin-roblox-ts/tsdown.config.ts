@@ -11,10 +11,13 @@ export default defineConfig({
 		"@roblox-ts/luau-ast",
 	],
 	fixedExtension: true,
-	format: ["esm"],
+	format: ["esm", "cjs"],
 	inlineOnly: ["ts-api-utils"],
 	onSuccess() {
 		console.info("🙏 Build succeeded!");
+	},
+	outputOptions: {
+		exports: "named",
 	},
 	shims: true,
 	unused: {

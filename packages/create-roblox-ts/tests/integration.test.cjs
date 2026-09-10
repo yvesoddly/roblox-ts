@@ -60,13 +60,9 @@ test("packed CLI generates and builds every upstream project type", { timeout: 9
 					.some(file => /\.(lua|luau)$/.test(file)),
 			);
 			if (template === "package") {
-				assert.equal(pkg.main, "out/init.lua");
-				assert.ok(fs.existsSync(path.join(directory, pkg.types)));
-				if (!fs.existsSync(path.join(directory, pkg.main))) {
-					t.diagnostic(
-						`upstream package main ${pkg.main} is absent; emitted: ${fs.readdirSync(path.join(directory, "out")).join(", ")}`,
-					);
-				}
+				assert.equal(pkg.main, "out/init.luau");
+				assert.ok(fs.existsSync(path.join(directory, pkg.main)), `missing package main: ${pkg.main}`);
+				assert.ok(fs.existsSync(path.join(directory, pkg.types)), `missing package types: ${pkg.types}`);
 			}
 		});
 	}

@@ -21,12 +21,13 @@ export function transformImportPath(provider: Provider, filePath: string, import
 export function getImportInfo(provider: Provider, declaration: ts.ImportDeclaration) {
 	const { ts } = provider;
 	const { moduleSpecifier, importClause } = declaration;
-	assert(importClause && ts.isStringLiteral(moduleSpecifier));
+	assert(ts.isStringLiteral(moduleSpecifier));
 	const path = moduleSpecifier.text;
 	return {
 		path,
 		absolutePath: transformImportPath(provider, declaration.getSourceFile().fileName, path),
-		typeOnly: importClause.isTypeOnly,
+		typeOnly: importClause?.isTypeOnly ?? false,
+		hasImportClause: importClause !== undefined,
 		end: declaration.getEnd(),
 		start: declaration.getStart(),
 	};
@@ -72,6 +73,7 @@ export type ImportInfo = {
 	path: string;
 	absolutePath: string;
 	typeOnly: boolean;
+	hasImportClause: boolean;
 	start: number;
 	end: number;
 };
