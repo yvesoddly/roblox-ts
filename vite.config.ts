@@ -44,8 +44,9 @@ export default defineConfig({
   },
   lint: {
     plugins: ["typescript"],
+    // the explicit rule list below is the whole lint set; oxfmt's sortImports owns import ordering
     categories: {
-      correctness: "warn",
+      correctness: "off",
     },
     options: {
       // TypeScript 5.9 and tspc remain responsible for build type checking
@@ -140,13 +141,6 @@ export default defineConfig({
       "no-array-constructor": "error",
       "no-unused-expressions": "warn",
       curly: ["warn", "multi-line", "consistent"],
-      "eslint-comments/disable-enable-pair": [
-        "warn",
-        {
-          allowWholeFile: true,
-        },
-      ],
-      "eslint-comments/require-description": "warn",
       "no-console": "warn",
       "prefer-const": [
         "warn",
@@ -154,8 +148,6 @@ export default defineConfig({
           destructuring: "all",
         },
       ],
-      "simple-import-sort/exports": "warn",
-      "simple-import-sort/imports": "warn",
       "no-restricted-imports": [
         "error",
         {
@@ -268,7 +260,7 @@ export default defineConfig({
       "packages/ts-expose-internals/",
       // imported packages retain their own lint and formatting conventions
       "packages/create-roblox-ts/",
-      "packageseroblox-ts-extensions/",
+      "packages/roblox-ts-extensions/",
       "packages/vscode-roblox-ts/",
       "packages/eslint-plugin-roblox-ts/",
       ".local/",

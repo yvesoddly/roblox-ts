@@ -1,19 +1,11 @@
 {
-	"extends": "./tsconfig-base.json",
-	"files": ["src/index.ts", "src/browser.ts"],
-	"compilerOptions": {
-		"rootDir": "src",
-		"tsBuildInfoFile": "out/tsconfig.tsbuildinfo"
-	},
-	"references": [
-		{
-			"path": "./src/Shared"
-		},
-		{
-			"path": "./src/Project"
-		},
-		{
-			"path": "./src/TSTransformer"
-		}
-	]
+  "extends": "./tsconfig-base.json",
+  "compilerOptions": {
+    "rootDir": "src",
+    "module": "nodenext",
+    "moduleResolution": "nodenext",
+    "incremental": true,
+    "tsBuildInfoFile": "out/tsconfig.tsbuildinfo"
+  },
+  "include": ["src"]
 }

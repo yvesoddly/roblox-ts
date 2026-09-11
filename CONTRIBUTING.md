@@ -116,8 +116,8 @@ Node entry point, browser entry point, and bundled runtime files. Pack `@roblox-
 with `pnpm --filter @roblox-ts/cli pack` to distribute the `rbxtsc` command. CLI users install
 `@roblox-ts/cli`, which depends on the compiler.
 
-The compiler references the local `@roblox-ts/luau-ast` package. Root builds run in dependency order,
-and `pnpm run build-watch` watches the CLI, compiler, and AST packages through TypeScript project references. Vitest also loads
+The compiler depends on the local `@roblox-ts/luau-ast` package. pnpm orders root builds by workspace dependencies,
+and `pnpm run build-watch` runs one `tspc -w` per package for the CLI, compiler, and their workspace dependencies. Vitest also loads
 the AST and renderer source directly, so compiler tests cover changes in either package.
 
 Always pack with pnpm before publishing: it replaces `workspace:*` dependencies with package versions.

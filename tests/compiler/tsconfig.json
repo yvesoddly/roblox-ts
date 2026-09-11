@@ -1,19 +1,18 @@
 {
-	"extends": "../../packages/roblox-ts/tsconfig-base.json",
-	"compilerOptions": {
-		"composite": false,
-		"noEmit": true,
-		"rootDir": "../..",
-		"module": "ESNext",
-		"moduleResolution": "Bundler",
-		"types": ["node", "vite-plus/test/globals", "ts-expose-internals"],
-		"paths": {
-			"*": ["../../packages/roblox-ts/src/*"],
-			"LuauAST": ["../../packages/luau-ast/src/LuauAST"],
-			"LuauAST/*": ["../../packages/luau-ast/src/LuauAST/*"],
-			"LuauRenderer": ["../../packages/luau-ast/src/LuauRenderer"],
-			"LuauRenderer/*": ["../../packages/luau-ast/src/LuauRenderer/*"]
-		}
-	},
-	"include": ["**/*.ts"]
+  "extends": "../../packages/roblox-ts/tsconfig-base.json",
+  "compilerOptions": {
+    "noEmit": true,
+    "rootDir": "../..",
+    "module": "ESNext",
+    "moduleResolution": "Bundler",
+    "types": ["node", "vite-plus/test/globals", "ts-expose-internals"],
+    "paths": {
+      "*": ["../../packages/roblox-ts/src/*"],
+      "LuauAST": ["../../packages/luau-ast/src/LuauAST"],
+      "LuauAST/*": ["../../packages/luau-ast/src/LuauAST/*"],
+      "LuauRenderer": ["../../packages/luau-ast/src/LuauRenderer"],
+      "LuauRenderer/*": ["../../packages/luau-ast/src/LuauRenderer/*"]
+    }
+  },
+  "include": ["**/*.ts"]
 }
