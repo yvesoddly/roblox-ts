@@ -6,14 +6,14 @@ import { skipDownwards } from "TSTransformer/util/traversal";
 import ts from "typescript";
 
 export function transformParenthesizedExpression(
-	state: TransformState,
-	prereqs: Prereqs,
-	node: ts.ParenthesizedExpression,
+  state: TransformState,
+  prereqs: Prereqs,
+  node: ts.ParenthesizedExpression,
 ) {
-	const expression = transformExpression(state, prereqs, skipDownwards(node.expression));
-	if (luau.isSimple(expression)) {
-		return expression;
-	} else {
-		return luau.create(luau.SyntaxKind.ParenthesizedExpression, { expression });
-	}
+  const expression = transformExpression(state, prereqs, skipDownwards(node.expression));
+  if (luau.isSimple(expression)) {
+    return expression;
+  } else {
+    return luau.create(luau.SyntaxKind.ParenthesizedExpression, { expression });
+  }
 }

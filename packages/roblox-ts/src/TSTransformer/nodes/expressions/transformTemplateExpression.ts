@@ -5,27 +5,31 @@ import { transformInterpolatedStringPart } from "TSTransformer/nodes/transformIn
 import { ensureTransformOrder } from "TSTransformer/util/ensureTransformOrder";
 import ts from "typescript";
 
-export function transformTemplateExpression(state: TransformState, prereqs: Prereqs, node: ts.TemplateExpression) {
-	const parts = luau.list.make<luau.InterpolatedStringPart | luau.Expression>();
+export function transformTemplateExpression(
+  state: TransformState,
+  prereqs: Prereqs,
+  node: ts.TemplateExpression,
+) {
+  const parts = luau.list.make<luau.InterpolatedStringPart | luau.Expression>();
 
-	if (node.head.text.length > 0) {
-		luau.list.push(parts, transformInterpolatedStringPart(node.head));
-	}
+  if (node.head.text.length > 0) {
+    luau.list.push(parts, transformInterpolatedStringPart(node.head));
+  }
 
-	const orderedExpressions = ensureTransformOrder(
-		state,
-		prereqs,
-		node.templateSpans.map(templateSpan => templateSpan.expression),
-	);
+  const orderedExpressions = ensureTransformOrder(
+    state,
+    prereqs,
+    node.templateSpans.map((templateSpan) => templateSpan.expression),
+  );
 
-	for (let i = 0; i < node.templateSpans.length; i++) {
-		luau.list.push(parts, orderedExpressions[i]);
+  for (let i = 0; i < node.templateSpans.length; i++) {
+    luau.list.push(parts, orderedExpressions[i]);
 
-		const templateSpan = node.templateSpans[i];
-		if (templateSpan.literal.text.length > 0) {
-			luau.list.push(parts, transformInterpolatedStringPart(templateSpan.literal));
-		}
-	}
+    const templateSpan = node.templateSpans[i];
+    if (templateSpan.literal.text.length > 0) {
+      luau.list.push(parts, transformInterpolatedStringPart(templateSpan.literal));
+    }
+  }
 
-	return luau.create(luau.SyntaxKind.InterpolatedString, { parts });
+  return luau.create(luau.SyntaxKind.InterpolatedString, { parts });
 }

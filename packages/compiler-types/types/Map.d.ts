@@ -23,46 +23,46 @@
  * print(point.x);
  */
 interface ReadonlyMap<K, V> extends Iterable<[K, V]> {
-	/**
-	 * **DO NOT USE!**
-	 *
-	 * This field exists to force TypeScript to recognize this as a nominal type
-	 * @hidden
-	 * @deprecated
-	 */
-	readonly _nominal_Map: unique symbol;
+  /**
+   * **DO NOT USE!**
+   *
+   * This field exists to force TypeScript to recognize this as a nominal type
+   * @hidden
+   * @deprecated
+   */
+  readonly _nominal_Map: unique symbol;
 
-	/**
-	 * Returns true if empty, otherwise false.
-	 */
-	isEmpty(this: ReadonlyMap<K, V>): boolean;
+  /**
+   * Returns true if empty, otherwise false.
+   */
+  isEmpty(this: ReadonlyMap<K, V>): boolean;
 
-	/**
-	 * Performs the specified action for each (element / pair of elements) in the Map
-	 * @param callbackfn  A function that accepts up to three arguments. forEach calls the callbackfn function one time
-	 * for each (element / pair of elements) in the array.
-	 */
-	forEach(this: ReadonlyMap<K, V>, callbackfn: (value: V, key: K, self: this) => void): void;
+  /**
+   * Performs the specified action for each (element / pair of elements) in the Map
+   * @param callbackfn  A function that accepts up to three arguments. forEach calls the callbackfn function one time
+   * for each (element / pair of elements) in the array.
+   */
+  forEach(this: ReadonlyMap<K, V>, callbackfn: (value: V, key: K, self: this) => void): void;
 
-	/**
-	 * Returns the number of elements in the Map
-	 */
-	size(this: ReadonlyMap<K, V>): number;
+  /**
+   * Returns the number of elements in the Map
+   */
+  size(this: ReadonlyMap<K, V>): number;
 
-	/**
-	 * Returns a boolean for whether the given key exists in the Map
-	 */
-	has(this: ReadonlyMap<K, V>, key: K): boolean;
+  /**
+   * Returns a boolean for whether the given key exists in the Map
+   */
+  has(this: ReadonlyMap<K, V>, key: K): boolean;
 
-	/**
-	 * Returns the value associated with the given key
-	 */
-	get(this: ReadonlyMap<K, V>, key: K): V | undefined;
+  /**
+   * Returns the value associated with the given key
+   */
+  get(this: ReadonlyMap<K, V>, key: K): V | undefined;
 }
 
 interface ReadonlyMapConstructor {
-	new <K, V>(): ReadonlyMap<K, V>;
-	new <K, V>(entries: ReadonlyArray<readonly [K, V]>): ReadonlyMap<K, V>;
+  new <K, V>(): ReadonlyMap<K, V>;
+  new <K, V>(entries: ReadonlyArray<readonly [K, V]>): ReadonlyMap<K, V>;
 }
 declare const ReadonlyMap: ReadonlyMapConstructor;
 
@@ -92,27 +92,27 @@ declare const ReadonlyMap: ReadonlyMapConstructor;
  * point.z = 15 // error!
  */
 interface Map<K, V> extends ReadonlyMap<K, V> {
-	/**
-	 * Associates a key with a value which can be accessed later by `Map.get`
-	 */
-	set(this: Map<K, V>, key: K, value: V): this;
+  /**
+   * Associates a key with a value which can be accessed later by `Map.get`
+   */
+  set(this: Map<K, V>, key: K, value: V): this;
 
-	/**
-	 * Deletes the given key from the Map.
-	 *
-	 * Returns a boolean indicating whether or not a value was removed.
-	 */
-	delete(this: Map<K, V>, key: K): boolean;
+  /**
+   * Deletes the given key from the Map.
+   *
+   * Returns a boolean indicating whether or not a value was removed.
+   */
+  delete(this: Map<K, V>, key: K): boolean;
 
-	/**
-	 * Deletes all members of the Map
-	 */
-	clear(this: Map<K, V>): void;
+  /**
+   * Deletes all members of the Map
+   */
+  clear(this: Map<K, V>): void;
 }
 
 interface MapConstructor {
-	new <K, V>(): Map<K, V>;
-	new <K, V>(entries: ReadonlyArray<readonly [K, V]>): Map<K, V>;
+  new <K, V>(): Map<K, V>;
+  new <K, V>(entries: ReadonlyArray<readonly [K, V]>): Map<K, V>;
 }
 declare const Map: MapConstructor;
 
@@ -120,7 +120,7 @@ declare const Map: MapConstructor;
 interface WeakMap<K extends object, V> extends Map<K, V> {}
 
 interface WeakMapConstructor {
-	new <K extends object, V>(): WeakMap<K, V>;
-	new <K extends object, V>(entries: ReadonlyArray<readonly [K, V]>): WeakMap<K, V>;
+  new <K extends object, V>(): WeakMap<K, V>;
+  new <K extends object, V>(entries: ReadonlyArray<readonly [K, V]>): WeakMap<K, V>;
 }
 declare const WeakMap: WeakMapConstructor;

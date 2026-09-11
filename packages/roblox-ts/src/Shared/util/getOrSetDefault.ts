@@ -5,10 +5,10 @@
  * @param getDefaultValue A function that returns a default value that `key` should be mapped to, if `key` is not already mapped to something.
  */
 export function getOrSetDefault<K, V>(map: Map<K, V>, key: K, getDefaultValue: () => V) {
-	let value = map.get(key);
-	if (value === undefined) {
-		value = getDefaultValue();
-		map.set(key, value);
-	}
-	return value;
+  let value = map.get(key);
+  if (value === undefined) {
+    value = getDefaultValue();
+    map.set(key, value);
+  }
+  return value;
 }

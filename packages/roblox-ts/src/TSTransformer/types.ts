@@ -1,11 +1,11 @@
 import { MacroManager } from "TSTransformer";
 
 export interface TransformServices {
-	macroManager: MacroManager;
+  macroManager: MacroManager;
 }
 
 export interface TryUses {
-	usesReturn: boolean;
-	usesBreak: boolean;
-	usesContinue: boolean;
+  usesReturn: boolean;
+  usesBreak: boolean;
+  usesContinue: boolean;
 }

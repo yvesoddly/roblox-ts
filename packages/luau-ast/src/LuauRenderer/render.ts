@@ -45,53 +45,53 @@ import { visit } from "LuauRenderer/util/visit";
 type Renderer<T extends luau.SyntaxKind> = (state: RenderState, node: luau.NodeByKind[T]) => string;
 
 const KIND_TO_RENDERER = identity<{ [K in luau.SyntaxKind]: Renderer<K> }>({
-	// indexable expressions
-	[luau.SyntaxKind.Identifier]: renderIdentifier,
-	[luau.SyntaxKind.TemporaryIdentifier]: renderTemporaryIdentifier,
-	[luau.SyntaxKind.ComputedIndexExpression]: renderComputedIndexExpression,
-	[luau.SyntaxKind.PropertyAccessExpression]: renderPropertyAccessExpression,
-	[luau.SyntaxKind.CallExpression]: renderCallExpression,
-	[luau.SyntaxKind.MethodCallExpression]: renderMethodCallExpression,
-	[luau.SyntaxKind.ParenthesizedExpression]: renderParenthesizedExpression,
+  // indexable expressions
+  [luau.SyntaxKind.Identifier]: renderIdentifier,
+  [luau.SyntaxKind.TemporaryIdentifier]: renderTemporaryIdentifier,
+  [luau.SyntaxKind.ComputedIndexExpression]: renderComputedIndexExpression,
+  [luau.SyntaxKind.PropertyAccessExpression]: renderPropertyAccessExpression,
+  [luau.SyntaxKind.CallExpression]: renderCallExpression,
+  [luau.SyntaxKind.MethodCallExpression]: renderMethodCallExpression,
+  [luau.SyntaxKind.ParenthesizedExpression]: renderParenthesizedExpression,
 
-	// expressions
-	[luau.SyntaxKind.None]: () => assert(false, "Cannot render None"),
-	[luau.SyntaxKind.NilLiteral]: () => "nil",
-	[luau.SyntaxKind.FalseLiteral]: () => "false",
-	[luau.SyntaxKind.TrueLiteral]: () => "true",
-	[luau.SyntaxKind.NumberLiteral]: renderNumberLiteral,
-	[luau.SyntaxKind.StringLiteral]: renderStringLiteral,
-	[luau.SyntaxKind.VarArgsLiteral]: () => "...",
-	[luau.SyntaxKind.FunctionExpression]: renderFunctionExpression,
-	[luau.SyntaxKind.BinaryExpression]: renderBinaryExpression,
-	[luau.SyntaxKind.UnaryExpression]: renderUnaryExpression,
-	[luau.SyntaxKind.IfExpression]: renderIfExpression,
-	[luau.SyntaxKind.InterpolatedString]: renderInterpolatedString,
-	[luau.SyntaxKind.Array]: renderArray,
-	[luau.SyntaxKind.Map]: renderMap,
-	[luau.SyntaxKind.Set]: renderSet,
-	[luau.SyntaxKind.MixedTable]: renderMixedTable,
+  // expressions
+  [luau.SyntaxKind.None]: () => assert(false, "Cannot render None"),
+  [luau.SyntaxKind.NilLiteral]: () => "nil",
+  [luau.SyntaxKind.FalseLiteral]: () => "false",
+  [luau.SyntaxKind.TrueLiteral]: () => "true",
+  [luau.SyntaxKind.NumberLiteral]: renderNumberLiteral,
+  [luau.SyntaxKind.StringLiteral]: renderStringLiteral,
+  [luau.SyntaxKind.VarArgsLiteral]: () => "...",
+  [luau.SyntaxKind.FunctionExpression]: renderFunctionExpression,
+  [luau.SyntaxKind.BinaryExpression]: renderBinaryExpression,
+  [luau.SyntaxKind.UnaryExpression]: renderUnaryExpression,
+  [luau.SyntaxKind.IfExpression]: renderIfExpression,
+  [luau.SyntaxKind.InterpolatedString]: renderInterpolatedString,
+  [luau.SyntaxKind.Array]: renderArray,
+  [luau.SyntaxKind.Map]: renderMap,
+  [luau.SyntaxKind.Set]: renderSet,
+  [luau.SyntaxKind.MixedTable]: renderMixedTable,
 
-	// statements
-	[luau.SyntaxKind.Assignment]: renderAssignment,
-	[luau.SyntaxKind.BreakStatement]: renderBreakStatement,
-	[luau.SyntaxKind.CallStatement]: renderCallStatement,
-	[luau.SyntaxKind.ContinueStatement]: renderContinueStatement,
-	[luau.SyntaxKind.DoStatement]: renderDoStatement,
-	[luau.SyntaxKind.WhileStatement]: renderWhileStatement,
-	[luau.SyntaxKind.RepeatStatement]: renderRepeatStatement,
-	[luau.SyntaxKind.IfStatement]: renderIfStatement,
-	[luau.SyntaxKind.NumericForStatement]: renderNumericForStatement,
-	[luau.SyntaxKind.ForStatement]: renderForStatement,
-	[luau.SyntaxKind.FunctionDeclaration]: renderFunctionDeclaration,
-	[luau.SyntaxKind.MethodDeclaration]: renderMethodDeclaration,
-	[luau.SyntaxKind.VariableDeclaration]: renderVariableDeclaration,
-	[luau.SyntaxKind.ReturnStatement]: renderReturnStatement,
-	[luau.SyntaxKind.Comment]: renderComment,
+  // statements
+  [luau.SyntaxKind.Assignment]: renderAssignment,
+  [luau.SyntaxKind.BreakStatement]: renderBreakStatement,
+  [luau.SyntaxKind.CallStatement]: renderCallStatement,
+  [luau.SyntaxKind.ContinueStatement]: renderContinueStatement,
+  [luau.SyntaxKind.DoStatement]: renderDoStatement,
+  [luau.SyntaxKind.WhileStatement]: renderWhileStatement,
+  [luau.SyntaxKind.RepeatStatement]: renderRepeatStatement,
+  [luau.SyntaxKind.IfStatement]: renderIfStatement,
+  [luau.SyntaxKind.NumericForStatement]: renderNumericForStatement,
+  [luau.SyntaxKind.ForStatement]: renderForStatement,
+  [luau.SyntaxKind.FunctionDeclaration]: renderFunctionDeclaration,
+  [luau.SyntaxKind.MethodDeclaration]: renderMethodDeclaration,
+  [luau.SyntaxKind.VariableDeclaration]: renderVariableDeclaration,
+  [luau.SyntaxKind.ReturnStatement]: renderReturnStatement,
+  [luau.SyntaxKind.Comment]: renderComment,
 
-	// fields
-	[luau.SyntaxKind.MapField]: renderMapField,
-	[luau.SyntaxKind.InterpolatedStringPart]: renderInterpolatedStringPart,
+  // fields
+  [luau.SyntaxKind.MapField]: renderMapField,
+  [luau.SyntaxKind.InterpolatedStringPart]: renderInterpolatedStringPart,
 });
 
 /**
@@ -101,39 +101,39 @@ const KIND_TO_RENDERER = identity<{ [K in luau.SyntaxKind]: Renderer<K> }>({
  * @param node The node to render as Luau code.
  */
 export function render<T extends luau.SyntaxKind>(state: RenderState, node: luau.Node<T>): string {
-	// eslint-disable-next-line @typescript-eslint/no-explicit-any -- node.kind selects the matching renderer parameter type
-	return KIND_TO_RENDERER[node.kind](state, node as any);
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any -- node.kind selects the matching renderer parameter type
+  return KIND_TO_RENDERER[node.kind](state, node as any);
 }
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars -- retained for interactive AST debugging
 function debugAST(ast: luau.List<luau.Statement>) {
-	let indent = "";
+  let indent = "";
 
-	const pushIndent = () => (indent += "\t");
-	const popIndent = () => (indent = indent.substring(1));
+  const pushIndent = () => (indent += "\t");
+  const popIndent = () => (indent = indent.substring(1));
 
-	visit(ast, {
-		before: node => {
-			// eslint-disable-next-line no-console -- print the AST when debugging the renderer
-			console.log(`${indent}${getKindName(node.kind)}`);
-			pushIndent();
-		},
-		after: () => {
-			popIndent();
-		},
-	});
+  visit(ast, {
+    before: (node) => {
+      // eslint-disable-next-line no-console -- print the AST when debugging the renderer
+      console.log(`${indent}${getKindName(node.kind)}`);
+      pushIndent();
+    },
+    after: () => {
+      popIndent();
+    },
+  });
 }
 
 /**
  * Returns a string that represents the given syntax tree, `ast`, as Luau code.
  */
 export function renderAST(ast: luau.List<luau.Statement>): string {
-	const state = new RenderState();
+  const state = new RenderState();
 
-	solveTempIds(state, ast);
+  solveTempIds(state, ast);
 
-	// useful for visualizing the Luau AST structure
-	// debugAST(ast);
+  // useful for visualizing the Luau AST structure
+  // debugAST(ast);
 
-	return renderStatements(state, ast);
+  return renderStatements(state, ast);
 }

@@ -6,20 +6,20 @@ import { isBreakBlockedByTryStatement } from "TSTransformer/util/isBlockedByTryS
 import ts from "typescript";
 
 export function transformBreakStatement(state: TransformState, node: ts.BreakStatement) {
-	if (node.label) {
-		DiagnosticService.addDiagnostic(errors.noLabeledStatement(node.label));
-		return luau.list.make<luau.Statement>();
-	}
+  if (node.label) {
+    DiagnosticService.addDiagnostic(errors.noLabeledStatement(node.label));
+    return luau.list.make<luau.Statement>();
+  }
 
-	if (isBreakBlockedByTryStatement(node)) {
-		state.markTryUses("usesBreak");
+  if (isBreakBlockedByTryStatement(node)) {
+    state.markTryUses("usesBreak");
 
-		return luau.list.make(
-			luau.create(luau.SyntaxKind.ReturnStatement, {
-				expression: state.TS(node, "TRY_BREAK"),
-			}),
-		);
-	}
+    return luau.list.make(
+      luau.create(luau.SyntaxKind.ReturnStatement, {
+        expression: state.TS(node, "TRY_BREAK"),
+      }),
+    );
+  }
 
-	return luau.list.make(luau.create(luau.SyntaxKind.BreakStatement, {}));
+  return luau.list.make(luau.create(luau.SyntaxKind.BreakStatement, {}));
 }

@@ -1,8 +1,9 @@
 import { spawn } from "child_process";
 import { once } from "events";
-import fs from "fs-extra";
 import os from "os";
 import path from "path";
+
+import fs from "fs-extra";
 import { ProjectBuild } from "Project";
 import { setupProjectWatchProgram } from "Project/functions/setupProjectWatchProgram";
 import { LoggableError } from "Shared/errors/LoggableError";
@@ -13,244 +14,261 @@ import ts from "typescript";
 import { TEST_ROOT } from "./constants";
 
 export class ReferenceFixture {
-	// Windows short paths from TEMP can crash libuv's native filesystem watcher
-	public readonly directory = fs.realpathSync.native(fs.mkdtempSync(path.join(os.tmpdir(), "rbxts-references-")));
-	private readonly projects = new Set<string>();
-	private readonly builds = new Array<ProjectBuild>();
+  // Windows short paths from TEMP can crash libuv's native filesystem watcher
+  public readonly directory = fs.realpathSync.native(
+    fs.mkdtempSync(path.join(os.tmpdir(), "rbxts-references-")),
+  );
+  private readonly projects = new Set<string>();
+  private readonly builds = new Array<ProjectBuild>();
 
-	constructor() {
-		fs.copySync(path.join(TEST_ROOT, "node_modules/@rbxts"), this.file("node_modules/@rbxts"), {
-			dereference: true,
-		});
+  constructor() {
+    fs.copySync(path.join(TEST_ROOT, "node_modules/@rbxts"), this.file("node_modules/@rbxts"), {
+      dereference: true,
+    });
 
-		this.json("package.json", { name: "reference-fixture", version: "1.0.0" });
-		this.json("base.json", {
-			compilerOptions: {
-				allowSyntheticDefaultImports: true,
-				module: "commonjs",
-				moduleResolution: "Node",
-				moduleDetection: "force",
-				noLib: true,
-				strict: true,
-				target: "ESNext",
-				incremental: true,
-				skipLibCheck: true,
-				typeRoots: ["node_modules/@rbxts"],
-				types: ["compiler-types", "types"],
-			},
-		});
-	}
+    this.json("package.json", { name: "reference-fixture", version: "1.0.0" });
+    this.json("base.json", {
+      compilerOptions: {
+        allowSyntheticDefaultImports: true,
+        module: "commonjs",
+        moduleResolution: "Node",
+        moduleDetection: "force",
+        noLib: true,
+        strict: true,
+        target: "ESNext",
+        incremental: true,
+        skipLibCheck: true,
+        typeRoots: ["node_modules/@rbxts"],
+        types: ["compiler-types", "types"],
+      },
+    });
+  }
 
-	public file(relative: string) {
-		return path.join(this.directory, relative);
-	}
+  public file(relative: string) {
+    return path.join(this.directory, relative);
+  }
 
-	public write(relative: string, text: string) {
-		fs.outputFileSync(this.file(relative), text);
-	}
+  public write(relative: string, text: string) {
+    fs.outputFileSync(this.file(relative), text);
+  }
 
-	public json(relative: string, value: unknown) {
-		fs.outputJsonSync(this.file(relative), value, { spaces: 2 });
-	}
+  public json(relative: string, value: unknown) {
+    fs.outputJsonSync(this.file(relative), value, { spaces: 2 });
+  }
 
-	public project(name: string, references: Array<string> = [], options: Record<string, unknown> = {}) {
-		this.projects.add(name);
-		this.json(`${name}/tsconfig.json`, {
-			extends: "../base.json",
-			compilerOptions: {
-				rootDir: "src",
-				outDir: `../out/${name}`,
-				tsBuildInfoFile: `../cache/${name}.tsbuildinfo`,
-				composite: name !== "game",
-				...options,
-			},
-			include: ["src"],
-			references: references.map(reference => ({ path: `../${reference}` })),
-		});
+  public project(
+    name: string,
+    references: Array<string> = [],
+    options: Record<string, unknown> = {},
+  ) {
+    this.projects.add(name);
+    this.json(`${name}/tsconfig.json`, {
+      extends: "../base.json",
+      compilerOptions: {
+        rootDir: "src",
+        outDir: `../out/${name}`,
+        tsBuildInfoFile: `../cache/${name}.tsbuildinfo`,
+        composite: name !== "game",
+        ...options,
+      },
+      include: ["src"],
+      references: references.map((reference) => ({ path: `../${reference}` })),
+    });
 
-		this.write(`${name}/src/index.ts`, "export const value = 1;");
-		this.rojo();
-	}
+    this.write(`${name}/src/index.ts`, "export const value = 1;");
+    this.rojo();
+  }
 
-	public rojo(mappings: Record<string, unknown> = {}) {
-		this.json("default.project.json", {
-			name: "references",
-			tree: {
-				$className: "DataModel",
-				ReplicatedStorage: {
-					$className: "ReplicatedStorage",
-					include: { $path: "include" },
-					...Object.fromEntries([...this.projects].map(name => [name, { $path: `out/${name}` }])),
-					...mappings,
-				},
-			},
-		});
-	}
+  public rojo(mappings: Record<string, unknown> = {}) {
+    this.json("default.project.json", {
+      name: "references",
+      tree: {
+        $className: "DataModel",
+        ReplicatedStorage: {
+          $className: "ReplicatedStorage",
+          include: { $path: "include" },
+          ...Object.fromEntries([...this.projects].map((name) => [name, { $path: `out/${name}` }])),
+          ...mappings,
+        },
+      },
+    });
+  }
 
-	public read(relative: string) {
-		return fs.readFileSync(this.file(relative), "utf8");
-	}
+  public read(relative: string) {
+    return fs.readFileSync(this.file(relative), "utf8");
+  }
 
-	public options(): Partial<ProjectOptions> {
-		return { rojo: this.file("default.project.json"), includePath: this.file("include"), writeOnlyChanged: true };
-	}
+  public options(): Partial<ProjectOptions> {
+    return {
+      rojo: this.file("default.project.json"),
+      includePath: this.file("include"),
+      writeOnlyChanged: true,
+    };
+  }
 
-	public createBuild(options: Partial<ProjectOptions> = {}, project = "game") {
-		const build = new ProjectBuild(this.file(`${project}/tsconfig.json`), { ...this.options(), ...options });
-		this.builds.push(build);
+  public createBuild(options: Partial<ProjectOptions> = {}, project = "game") {
+    const build = new ProjectBuild(this.file(`${project}/tsconfig.json`), {
+      ...this.options(),
+      ...options,
+    });
+    this.builds.push(build);
 
-		return build;
-	}
+    return build;
+  }
 
-	public close() {
-		for (const build of this.builds) {
-			build.close();
-		}
+  public close() {
+    for (const build of this.builds) {
+      build.close();
+    }
 
-		fs.removeSync(this.directory);
-	}
+    fs.removeSync(this.directory);
+  }
 }
 
 // loggable errors expose their diagnostic text through toString rather than Error.message
 export function expectLoggableError(action: () => unknown, message: string | RegExp) {
-	try {
-		action();
-	} catch (error) {
-		expect(error).toBeInstanceOf(LoggableError);
-		expect(String(error)).toMatch(message);
-		return;
-	}
+  try {
+    action();
+  } catch (error) {
+    expect(error).toBeInstanceOf(LoggableError);
+    expect(String(error)).toMatch(message);
+    return;
+  }
 
-	throw new Error("Expected a loggable error");
+  throw new Error("Expected a loggable error");
 }
 
 export function expectSuccess(result: ts.EmitResult) {
-	if (result.emitSkipped || result.diagnostics.length > 0) {
-		throw new Error(formatDiagnostics(result.diagnostics));
-	}
+  if (result.emitSkipped || result.diagnostics.length > 0) {
+    throw new Error(formatDiagnostics(result.diagnostics));
+  }
 }
 
-export async function startWatch(fixture: ReferenceFixture, usePolling = false, mode: "project" | "cli" = "project") {
-	let log = "";
-	let count = 0;
-	let lastOutput = 0;
+export async function startWatch(
+  fixture: ReferenceFixture,
+  usePolling = false,
+  mode: "project" | "cli" = "project",
+) {
+  let log = "";
+  let count = 0;
+  let lastOutput = 0;
 
-	const read = (chunk: Buffer | string) => {
-		log += chunk.toString();
-		count = (log.match(/Watching for file changes\./g) ?? []).length;
-		lastOutput = Date.now();
-	};
+  const read = (chunk: Buffer | string) => {
+    log += chunk.toString();
+    count = (log.match(/Watching for file changes\./g) ?? []).length;
+    lastOutput = Date.now();
+  };
 
-	let child: ReturnType<typeof spawn> | undefined;
-	let close: () => Promise<void>;
-	if (mode === "project") {
-		// running the real watcher in Vitest includes config reloads and filesystem events in coverage
-		const build = fixture.createBuild();
-		const write = vi.spyOn(ts.sys, "write").mockImplementation(read);
-		let watcher: ReturnType<typeof setupProjectWatchProgram>;
-		try {
-			watcher = setupProjectWatchProgram(build, usePolling);
-		} catch (error) {
-			write.mockRestore();
-			throw error;
-		}
+  let child: ReturnType<typeof spawn> | undefined;
+  let close: () => Promise<void>;
+  if (mode === "project") {
+    // running the real watcher in Vitest includes config reloads and filesystem events in coverage
+    const build = fixture.createBuild();
+    const write = vi.spyOn(ts.sys, "write").mockImplementation(read);
+    let watcher: ReturnType<typeof setupProjectWatchProgram>;
+    try {
+      watcher = setupProjectWatchProgram(build, usePolling);
+    } catch (error) {
+      write.mockRestore();
+      throw error;
+    }
 
-		close = async () => {
-			try {
-				await watcher.close();
-			} finally {
-				write.mockRestore();
-			}
-		};
-	} else {
-		child = spawn(
-			process.execPath,
-			[
-				require.resolve("@roblox-ts/cli/out/cli.js"),
-				"-p",
-				fixture.file("game"),
-				"--rojo",
-				fixture.file("default.project.json"),
-				"--includePath",
-				fixture.file("include"),
-				"-w",
-				...(usePolling ? ["--usePolling"] : []),
-			],
-			{ cwd: fixture.directory, stdio: ["ignore", "pipe", "pipe"] },
-		);
+    close = async () => {
+      try {
+        await watcher.close();
+      } finally {
+        write.mockRestore();
+      }
+    };
+  } else {
+    child = spawn(
+      process.execPath,
+      [
+        require.resolve("@roblox-ts/cli/out/cli.js"),
+        "-p",
+        fixture.file("game"),
+        "--rojo",
+        fixture.file("default.project.json"),
+        "--includePath",
+        fixture.file("include"),
+        "-w",
+        ...(usePolling ? ["--usePolling"] : []),
+      ],
+      { cwd: fixture.directory, stdio: ["ignore", "pipe", "pipe"] },
+    );
 
-		if (!child.stdout || !child.stderr) {
-			throw new Error("Watch process must expose stdout and stderr");
-		}
+    if (!child.stdout || !child.stderr) {
+      throw new Error("Watch process must expose stdout and stderr");
+    }
 
-		child.stdout.on("data", read);
-		child.stderr.on("data", read);
-		const watchProcess = child;
-		close = async () => {
-			const closed = once(watchProcess, "close");
-			watchProcess.kill();
-			await closed;
-		};
-	}
+    child.stdout.on("data", read);
+    child.stderr.on("data", read);
+    const watchProcess = child;
+    close = async () => {
+      const closed = once(watchProcess, "close");
+      watchProcess.kill();
+      await closed;
+    };
+  }
 
-	const exited = () => child !== undefined && child.exitCode !== null;
+  const exited = () => child !== undefined && child.exitCode !== null;
 
-	const wait = (previous: number) =>
-		new Promise<void>((resolve, reject) => {
-			const timeout = setTimeout(() => finish(new Error(`Watch did not finish:\n${log}`)), 15000);
+  const wait = (previous: number) =>
+    new Promise<void>((resolve, reject) => {
+      const timeout = setTimeout(() => finish(new Error(`Watch did not finish:\n${log}`)), 15000);
 
-			const interval = setInterval(() => {
-				if (exited()) {
-					finish(new Error(`Watch exited:\n${log}`));
-				} else if (
-					count > previous &&
-					(log.match(/Starting (?:incremental )?compilation/g) ?? []).length === count &&
-					Date.now() - lastOutput >= 500
-				) {
-					finish();
-				}
-			}, 20);
+      const interval = setInterval(() => {
+        if (exited()) {
+          finish(new Error(`Watch exited:\n${log}`));
+        } else if (
+          count > previous &&
+          (log.match(/Starting (?:incremental )?compilation/g) ?? []).length === count &&
+          Date.now() - lastOutput >= 500
+        ) {
+          finish();
+        }
+      }, 20);
 
-			function finish(error?: Error) {
-				clearTimeout(timeout);
-				clearInterval(interval);
+      function finish(error?: Error) {
+        clearTimeout(timeout);
+        clearInterval(interval);
 
-				if (error) {
-					reject(error);
-				} else {
-					resolve();
-				}
-			}
-		});
+        if (error) {
+          reject(error);
+        } else {
+          resolve();
+        }
+      }
+    });
 
-	try {
-		await wait(0);
-	} catch (error) {
-		await close();
-		throw error;
-	}
+  try {
+    await wait(0);
+  } catch (error) {
+    await close();
+    throw error;
+  }
 
-	return {
-		async edit(action: () => void) {
-			const previous = count;
-			action();
-			await wait(previous);
-		},
+  return {
+    async edit(action: () => void) {
+      const previous = count;
+      action();
+      await wait(previous);
+    },
 
-		async expectNoBuild(action: () => void) {
-			const previous = log.length;
-			action();
-			await new Promise(resolve => setTimeout(resolve, 1250));
+    async expectNoBuild(action: () => void) {
+      const previous = log.length;
+      action();
+      await new Promise((resolve) => setTimeout(resolve, 1250));
 
-			if (exited() || log.length !== previous) {
-				throw new Error(`Expected watch to remain idle:\n${log}`);
-			}
-		},
+      if (exited() || log.length !== previous) {
+        throw new Error(`Expected watch to remain idle:\n${log}`);
+      }
+    },
 
-		get log() {
-			return log;
-		},
+    get log() {
+      return log;
+    },
 
-		close,
-	};
+    close,
+  };
 }

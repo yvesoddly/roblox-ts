@@ -1,9 +1,9 @@
 {
-	"name": "roblox-ts",
-	"build": {
-		"dockerfile": "Dockerfile"
-	},
-	"postCreateCommand": ".devcontainer/setup-playground.sh",
-	"extensions": ["editorconfig.editorconfig", "oxc.oxc-vscode"],
-	"forwardPorts": [34872]
+  "name": "roblox-ts",
+  "build": {
+    "dockerfile": "Dockerfile"
+  },
+  "postCreateCommand": ".devcontainer/setup-playground.sh",
+  "extensions": ["editorconfig.editorconfig", "oxc.oxc-vscode"],
+  "forwardPorts": [34872]
 }

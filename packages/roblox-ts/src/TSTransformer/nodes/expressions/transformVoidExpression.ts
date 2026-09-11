@@ -5,7 +5,11 @@ import { transformExpressionStatementInner } from "TSTransformer/nodes/statement
 import { skipDownwards } from "TSTransformer/util/traversal";
 import ts from "typescript";
 
-export function transformVoidExpression(state: TransformState, prereqs: Prereqs, node: ts.VoidExpression) {
-	prereqs.pushList(transformExpressionStatementInner(state, skipDownwards(node.expression)));
-	return luau.create(luau.SyntaxKind.NilLiteral, {});
+export function transformVoidExpression(
+  state: TransformState,
+  prereqs: Prereqs,
+  node: ts.VoidExpression,
+) {
+  prereqs.pushList(transformExpressionStatementInner(state, skipDownwards(node.expression)));
+  return luau.create(luau.SyntaxKind.NilLiteral, {});
 }

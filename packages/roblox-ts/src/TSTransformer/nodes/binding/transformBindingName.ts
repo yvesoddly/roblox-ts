@@ -7,22 +7,22 @@ import { transformIdentifierDefined } from "TSTransformer/nodes/expressions/tran
 import ts from "typescript";
 
 export function transformBindingName(
-	state: TransformState,
-	name: ts.BindingName,
-	initializers: luau.List<luau.Statement>,
+  state: TransformState,
+  name: ts.BindingName,
+  initializers: luau.List<luau.Statement>,
 ) {
-	let id: luau.AnyIdentifier;
-	if (ts.isIdentifier(name)) {
-		id = transformIdentifierDefined(state, name);
-	} else {
-		id = luau.tempId("binding");
-		const bindingPrereqs = new Prereqs();
-		if (ts.isArrayBindingPattern(name)) {
-			transformArrayBindingPattern(state, bindingPrereqs, name, id);
-		} else {
-			transformObjectBindingPattern(state, bindingPrereqs, name, id);
-		}
-		luau.list.pushList(initializers, bindingPrereqs.statements);
-	}
-	return id;
+  let id: luau.AnyIdentifier;
+  if (ts.isIdentifier(name)) {
+    id = transformIdentifierDefined(state, name);
+  } else {
+    id = luau.tempId("binding");
+    const bindingPrereqs = new Prereqs();
+    if (ts.isArrayBindingPattern(name)) {
+      transformArrayBindingPattern(state, bindingPrereqs, name, id);
+    } else {
+      transformObjectBindingPattern(state, bindingPrereqs, name, id);
+    }
+    luau.list.pushList(initializers, bindingPrereqs.statements);
+  }
+  return id;
 }

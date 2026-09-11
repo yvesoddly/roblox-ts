@@ -5,18 +5,18 @@ import { transformExpression } from "TSTransformer/nodes/expressions/transformEx
 import ts from "typescript";
 
 export function transformThrowStatement(state: TransformState, node: ts.ThrowStatement) {
-	const statements = luau.list.make<luau.Statement>();
-	const prereqs = new Prereqs();
-	const args = new Array<luau.Expression>();
-	if (node.expression !== undefined) {
-		args.push(transformExpression(state, prereqs, node.expression));
-	}
-	luau.list.pushList(statements, prereqs.statements);
-	luau.list.push(
-		statements,
-		luau.create(luau.SyntaxKind.CallStatement, {
-			expression: luau.call(luau.globals.error, args),
-		}),
-	);
-	return statements;
+  const statements = luau.list.make<luau.Statement>();
+  const prereqs = new Prereqs();
+  const args = new Array<luau.Expression>();
+  if (node.expression !== undefined) {
+    args.push(transformExpression(state, prereqs, node.expression));
+  }
+  luau.list.pushList(statements, prereqs.statements);
+  luau.list.push(
+    statements,
+    luau.create(luau.SyntaxKind.CallStatement, {
+      expression: luau.call(luau.globals.error, args),
+    }),
+  );
+  return statements;
 }

@@ -3,5 +3,7 @@ import { createStringFromLiteral } from "TSTransformer/util/createStringFromLite
 import ts from "typescript";
 
 export function transformInterpolatedStringPart(node: ts.TemplateLiteralToken | ts.StringLiteral) {
-	return luau.create(luau.SyntaxKind.InterpolatedStringPart, { text: createStringFromLiteral(node) });
+  return luau.create(luau.SyntaxKind.InterpolatedStringPart, {
+    text: createStringFromLiteral(node),
+  });
 }

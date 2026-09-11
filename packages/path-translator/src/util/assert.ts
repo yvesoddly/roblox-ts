@@ -4,13 +4,13 @@
  * @param message Optional. The message of the error
  */
 export function assert(value: unknown, message?: string): asserts value {
-	/* istanbul ignore if */
-	if (!value) {
-		debugger;
-		throw new Error(
-			`Assertion Failed! ${message ?? ""}` +
-				"\nThis is a bug! Please submit a bug report here:" +
-				"\nhttps://github.com/roblox-ts/path-translator/issues",
-		);
-	}
+  /* istanbul ignore if */
+  if (!value) {
+    debugger;
+    throw new Error(
+      `Assertion Failed! ${message ?? ""}` +
+        "\nThis is a bug! Please submit a bug report here:" +
+        "\nhttps://github.com/roblox-ts/path-translator/issues",
+    );
+  }
 }

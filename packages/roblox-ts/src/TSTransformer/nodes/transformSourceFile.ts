@@ -14,67 +14,67 @@ import { getAncestor } from "TSTransformer/util/traversal";
 import ts from "typescript";
 
 function getExportPair(
-	state: TransformState,
-	exportSymbol: ts.Symbol,
+  state: TransformState,
+  exportSymbol: ts.Symbol,
 ): [name: luau.Expression, id: luau.AnyIdentifier] {
-	const declaration = exportSymbol.getDeclarations()?.[0];
-	if (declaration && ts.isExportSpecifier(declaration)) {
-		const exportName = declaration.propertyName ?? declaration.name;
-		// exportName is only a StringLiteral for re-exports, which are filtered out in handleExports
-		assert(ts.isIdentifier(exportName));
-		const namePrereqs = new Prereqs();
-		const name = transformPropertyName(state, namePrereqs, declaration.name);
-		assert(luau.list.isEmpty(namePrereqs.statements));
-		return [name, transformIdentifierDefined(state, exportName)];
-	} else {
-		let name = exportSymbol.name;
-		if (
-			exportSymbol.name === "default" &&
-			declaration &&
-			(ts.isFunctionDeclaration(declaration) || ts.isClassDeclaration(declaration)) &&
-			declaration.name
-		) {
-			name = declaration.name.text;
-		}
+  const declaration = exportSymbol.getDeclarations()?.[0];
+  if (declaration && ts.isExportSpecifier(declaration)) {
+    const exportName = declaration.propertyName ?? declaration.name;
+    // exportName is only a StringLiteral for re-exports, which are filtered out in handleExports
+    assert(ts.isIdentifier(exportName));
+    const namePrereqs = new Prereqs();
+    const name = transformPropertyName(state, namePrereqs, declaration.name);
+    assert(luau.list.isEmpty(namePrereqs.statements));
+    return [name, transformIdentifierDefined(state, exportName)];
+  } else {
+    let name = exportSymbol.name;
+    if (
+      exportSymbol.name === "default" &&
+      declaration &&
+      (ts.isFunctionDeclaration(declaration) || ts.isClassDeclaration(declaration)) &&
+      declaration.name
+    ) {
+      name = declaration.name.text;
+    }
 
-		return [luau.string(exportSymbol.name), luau.id(name)];
-	}
+    return [luau.string(exportSymbol.name), luau.id(name)];
+  }
 }
 
 function isExportSymbolFromExportFrom(exportSymbol: ts.Symbol) {
-	if (exportSymbol.declarations) {
-		for (const exportSpecifier of exportSymbol.declarations) {
-			if (ts.isExportSpecifier(exportSpecifier)) {
-				const exportDec = exportSpecifier.parent.parent;
-				if (ts.isExportDeclaration(exportDec) && exportDec.moduleSpecifier) {
-					return true;
-				}
-			}
-		}
-	}
-	return false;
+  if (exportSymbol.declarations) {
+    for (const exportSpecifier of exportSymbol.declarations) {
+      if (ts.isExportSpecifier(exportSpecifier)) {
+        const exportDec = exportSpecifier.parent.parent;
+        if (ts.isExportDeclaration(exportDec) && exportDec.moduleSpecifier) {
+          return true;
+        }
+      }
+    }
+  }
+  return false;
 }
 
 function getIgnoredExportSymbols(state: TransformState, sourceFile: ts.SourceFile): Set<ts.Symbol> {
-	const ignoredSymbols = new Set<ts.Symbol>();
-	for (const statement of sourceFile.statements) {
-		if (ts.isExportDeclaration(statement) && statement.moduleSpecifier) {
-			if (!statement.exportClause) {
-				// export * from "./module";
-				const moduleSymbol = getOriginalSymbolOfNode(state.typeChecker, statement.moduleSpecifier);
-				if (moduleSymbol) {
-					state.getModuleExports(moduleSymbol).forEach(v => ignoredSymbols.add(v));
-				}
-			} else if (ts.isNamespaceExport(statement.exportClause)) {
-				// export * as id from "./module";
-				const idSymbol = state.typeChecker.getSymbolAtLocation(statement.exportClause.name);
-				if (idSymbol) {
-					ignoredSymbols.add(idSymbol);
-				}
-			}
-		}
-	}
-	return ignoredSymbols;
+  const ignoredSymbols = new Set<ts.Symbol>();
+  for (const statement of sourceFile.statements) {
+    if (ts.isExportDeclaration(statement) && statement.moduleSpecifier) {
+      if (!statement.exportClause) {
+        // export * from "./module";
+        const moduleSymbol = getOriginalSymbolOfNode(state.typeChecker, statement.moduleSpecifier);
+        if (moduleSymbol) {
+          state.getModuleExports(moduleSymbol).forEach((v) => ignoredSymbols.add(v));
+        }
+      } else if (ts.isNamespaceExport(statement.exportClause)) {
+        // export * as id from "./module";
+        const idSymbol = state.typeChecker.getSymbolAtLocation(statement.exportClause.name);
+        if (idSymbol) {
+          ignoredSymbols.add(idSymbol);
+        }
+      }
+    }
+  }
+  return ignoredSymbols;
 }
 
 /**
@@ -87,13 +87,14 @@ function getIgnoredExportSymbols(state: TransformState, sourceFile: ts.SourceFil
  * this mimics TypeScript behavior
  */
 function isExportSymbolOnlyFromDeclare(exportSymbol: ts.Symbol): boolean {
-	return (
-		exportSymbol.declarations?.every(declaration => {
-			const statement = getAncestor(declaration, ts.isStatement);
-			const modifiers = statement && ts.canHaveModifiers(statement) ? ts.getModifiers(statement) : undefined;
-			return modifiers?.some(v => v.kind === ts.SyntaxKind.DeclareKeyword);
-		}) ?? false
-	);
+  return (
+    exportSymbol.declarations?.every((declaration) => {
+      const statement = getAncestor(declaration, ts.isStatement);
+      const modifiers =
+        statement && ts.canHaveModifiers(statement) ? ts.getModifiers(statement) : undefined;
+      return modifiers?.some((v) => v.kind === ts.SyntaxKind.DeclareKeyword);
+    }) ?? false
+  );
 }
 
 /**
@@ -103,110 +104,110 @@ function isExportSymbolOnlyFromDeclare(exportSymbol: ts.Symbol): boolean {
  * @param statements The transformed list of statements of the state.
  */
 function handleExports(
-	state: TransformState,
-	sourceFile: ts.SourceFile,
-	symbol: ts.Symbol,
-	statements: luau.List<luau.Statement>,
+  state: TransformState,
+  sourceFile: ts.SourceFile,
+  symbol: ts.Symbol,
+  statements: luau.List<luau.Statement>,
 ) {
-	const ignoredExportSymbols = getIgnoredExportSymbols(state, sourceFile);
+  const ignoredExportSymbols = getIgnoredExportSymbols(state, sourceFile);
 
-	let mustPushExports = state.hasExportFrom;
-	const exportPairs = new Array<[luau.Expression, luau.AnyIdentifier]>();
-	if (!state.hasExportEquals) {
-		for (const exportSymbol of state.getModuleExports(symbol)) {
-			if (ignoredExportSymbols.has(exportSymbol)) continue;
+  let mustPushExports = state.hasExportFrom;
+  const exportPairs = new Array<[luau.Expression, luau.AnyIdentifier]>();
+  if (!state.hasExportEquals) {
+    for (const exportSymbol of state.getModuleExports(symbol)) {
+      if (ignoredExportSymbols.has(exportSymbol)) continue;
 
-			// ignore prototype exports
-			if (!!(exportSymbol.flags & ts.SymbolFlags.Prototype)) continue;
+      // ignore prototype exports
+      if (!!(exportSymbol.flags & ts.SymbolFlags.Prototype)) continue;
 
-			// export { default as x } from "./module";
-			if (isExportSymbolFromExportFrom(exportSymbol)) continue;
+      // export { default as x } from "./module";
+      if (isExportSymbolFromExportFrom(exportSymbol)) continue;
 
-			const originalSymbol = ts.skipAlias(exportSymbol, state.typeChecker);
+      const originalSymbol = ts.skipAlias(exportSymbol, state.typeChecker);
 
-			// only export values
-			if (!isSymbolOfValue(originalSymbol)) continue;
+      // only export values
+      if (!isSymbolOfValue(originalSymbol)) continue;
 
-			// handle this in transformIdentifier
-			if (isSymbolMutable(state, originalSymbol)) {
-				mustPushExports = true;
-				continue;
-			}
+      // handle this in transformIdentifier
+      if (isSymbolMutable(state, originalSymbol)) {
+        mustPushExports = true;
+        continue;
+      }
 
-			// ignore exports in the form of `export declare const x: T;`
-			if (isExportSymbolOnlyFromDeclare(exportSymbol)) continue;
+      // ignore exports in the form of `export declare const x: T;`
+      if (isExportSymbolOnlyFromDeclare(exportSymbol)) continue;
 
-			exportPairs.push(getExportPair(state, exportSymbol));
-		}
-	}
+      exportPairs.push(getExportPair(state, exportSymbol));
+    }
+  }
 
-	if (state.hasExportEquals) {
-		// local exports variable is created in transformExportAssignment
-		const finalStatement = sourceFile.statements[sourceFile.statements.length - 1];
-		if (!(ts.isExportAssignment(finalStatement) && finalStatement.isExportEquals)) {
-			luau.list.push(
-				statements,
-				luau.create(luau.SyntaxKind.ReturnStatement, {
-					expression: luau.globals.exports,
-				}),
-			);
-		}
-	} else if (mustPushExports) {
-		// if there's an export let/from, we need to put `local exports = {}` at the top of the file
-		luau.list.unshift(
-			statements,
-			luau.create(luau.SyntaxKind.VariableDeclaration, {
-				left: luau.globals.exports,
-				right: luau.map(),
-			}),
-		);
-		for (const [exportKey, exportId] of exportPairs) {
-			luau.list.push(
-				statements,
-				luau.create(luau.SyntaxKind.Assignment, {
-					left: luau.create(luau.SyntaxKind.ComputedIndexExpression, {
-						expression: luau.globals.exports,
-						index: exportKey,
-					}),
-					operator: "=",
-					right: exportId,
-				}),
-			);
-		}
-		luau.list.push(
-			statements,
-			luau.create(luau.SyntaxKind.ReturnStatement, {
-				expression: luau.globals.exports,
-			}),
-		);
-	} else if (exportPairs.length > 0) {
-		// only regular exports, we can do this as just returning an object at the bottom of the file
-		const fields = luau.list.make<luau.MapField>();
-		for (const [exportKey, exportId] of exportPairs) {
-			luau.list.push(
-				fields,
-				luau.create(luau.SyntaxKind.MapField, {
-					index: exportKey,
-					value: exportId,
-				}),
-			);
-		}
-		luau.list.push(
-			statements,
-			luau.create(luau.SyntaxKind.ReturnStatement, {
-				expression: luau.create(luau.SyntaxKind.Map, {
-					fields,
-				}),
-			}),
-		);
-	}
+  if (state.hasExportEquals) {
+    // local exports variable is created in transformExportAssignment
+    const finalStatement = sourceFile.statements[sourceFile.statements.length - 1];
+    if (!(ts.isExportAssignment(finalStatement) && finalStatement.isExportEquals)) {
+      luau.list.push(
+        statements,
+        luau.create(luau.SyntaxKind.ReturnStatement, {
+          expression: luau.globals.exports,
+        }),
+      );
+    }
+  } else if (mustPushExports) {
+    // if there's an export let/from, we need to put `local exports = {}` at the top of the file
+    luau.list.unshift(
+      statements,
+      luau.create(luau.SyntaxKind.VariableDeclaration, {
+        left: luau.globals.exports,
+        right: luau.map(),
+      }),
+    );
+    for (const [exportKey, exportId] of exportPairs) {
+      luau.list.push(
+        statements,
+        luau.create(luau.SyntaxKind.Assignment, {
+          left: luau.create(luau.SyntaxKind.ComputedIndexExpression, {
+            expression: luau.globals.exports,
+            index: exportKey,
+          }),
+          operator: "=",
+          right: exportId,
+        }),
+      );
+    }
+    luau.list.push(
+      statements,
+      luau.create(luau.SyntaxKind.ReturnStatement, {
+        expression: luau.globals.exports,
+      }),
+    );
+  } else if (exportPairs.length > 0) {
+    // only regular exports, we can do this as just returning an object at the bottom of the file
+    const fields = luau.list.make<luau.MapField>();
+    for (const [exportKey, exportId] of exportPairs) {
+      luau.list.push(
+        fields,
+        luau.create(luau.SyntaxKind.MapField, {
+          index: exportKey,
+          value: exportId,
+        }),
+      );
+    }
+    luau.list.push(
+      statements,
+      luau.create(luau.SyntaxKind.ReturnStatement, {
+        expression: luau.create(luau.SyntaxKind.Map, {
+          fields,
+        }),
+      }),
+    );
+  }
 }
 
 function getLastNonCommentStatement(listNode?: luau.ListNode<luau.Statement>) {
-	while (listNode && luau.isComment(listNode.value)) {
-		listNode = listNode.prev;
-	}
-	return listNode;
+  while (listNode && luau.isComment(listNode.value)) {
+    listNode = listNode.prev;
+  }
+  return listNode;
 }
 
 /**
@@ -215,43 +216,50 @@ function getLastNonCommentStatement(listNode?: luau.ListNode<luau.Statement>) {
  * @param node The sourcefile to convert to a Luau AST.
  */
 export function transformSourceFile(state: TransformState, node: ts.SourceFile) {
-	const symbol = state.typeChecker.getSymbolAtLocation(node);
-	assert(symbol);
-	state.setModuleIdBySymbol(symbol, luau.globals.exports);
+  const symbol = state.typeChecker.getSymbolAtLocation(node);
+  assert(symbol);
+  state.setModuleIdBySymbol(symbol, luau.globals.exports);
 
-	// transform the `ts.Statements` of the source file into a `list.list<...>`
-	const statements = transformStatementList(state, node, node.statements, undefined);
+  // transform the `ts.Statements` of the source file into a `list.list<...>`
+  const statements = transformStatementList(state, node, node.statements, undefined);
 
-	handleExports(state, node, symbol, statements);
+  handleExports(state, node, symbol, statements);
 
-	// moduleScripts must `return nil` if they do not export any values
-	const lastStatement = getLastNonCommentStatement(statements.tail);
-	if (!lastStatement || !luau.isReturnStatement(lastStatement.value)) {
-		const outputPath = state.pathTranslator.getOutputPath(node.fileName);
-		if (state.rojoResolver.getRbxTypeFromFilePath(outputPath) === RbxType.ModuleScript) {
-			luau.list.push(statements, luau.create(luau.SyntaxKind.ReturnStatement, { expression: luau.nil() }));
-		}
-	}
+  // moduleScripts must `return nil` if they do not export any values
+  const lastStatement = getLastNonCommentStatement(statements.tail);
+  if (!lastStatement || !luau.isReturnStatement(lastStatement.value)) {
+    const outputPath = state.pathTranslator.getOutputPath(node.fileName);
+    if (state.rojoResolver.getRbxTypeFromFilePath(outputPath) === RbxType.ModuleScript) {
+      luau.list.push(
+        statements,
+        luau.create(luau.SyntaxKind.ReturnStatement, { expression: luau.nil() }),
+      );
+    }
+  }
 
-	const headerStatements = luau.list.make<luau.Statement>();
+  const headerStatements = luau.list.make<luau.Statement>();
 
-	// add build information to the tree
-	luau.list.push(headerStatements, luau.comment(` Compiled with roblox-ts v${COMPILER_VERSION}`));
+  // add build information to the tree
+  luau.list.push(headerStatements, luau.comment(` Compiled with roblox-ts v${COMPILER_VERSION}`));
 
-	// add the Runtime library to the tree if it is used
-	if (state.usesRuntimeLib) {
-		luau.list.push(headerStatements, state.createRuntimeLibImport(node));
-	}
+  // add the Runtime library to the tree if it is used
+  if (state.usesRuntimeLib) {
+    luau.list.push(headerStatements, state.createRuntimeLibImport(node));
+  }
 
-	// extract Luau directive comments like --!strict so we can put them before headerStatements
-	const directiveComments = luau.list.make<luau.Statement>();
-	while (statements.head && luau.isComment(statements.head.value) && statements.head.value.text.startsWith("!")) {
-		// safety: statements.head is checked in while condition
-		luau.list.push(directiveComments, luau.list.shift(statements)!);
-	}
+  // extract Luau directive comments like --!strict so we can put them before headerStatements
+  const directiveComments = luau.list.make<luau.Statement>();
+  while (
+    statements.head &&
+    luau.isComment(statements.head.value) &&
+    statements.head.value.text.startsWith("!")
+  ) {
+    // safety: statements.head is checked in while condition
+    luau.list.push(directiveComments, luau.list.shift(statements)!);
+  }
 
-	luau.list.unshiftList(statements, headerStatements);
-	luau.list.unshiftList(statements, directiveComments);
+  luau.list.unshiftList(statements, headerStatements);
+  luau.list.unshiftList(statements, directiveComments);
 
-	return statements;
+  return statements;
 }

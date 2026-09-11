@@ -23,134 +23,145 @@ const RBXTS_SCOPE_PATH = pathJoin(NODE_MODULES_PATH, RBXTS_SCOPE);
 const INCLUDE_PATH = pathJoin(PROJECT_DIR, "include");
 
 export class VirtualProject {
-	private readonly data: ProjectData;
+  private readonly data: ProjectData;
 
-	public readonly vfs: VirtualFileSystem;
+  public readonly vfs: VirtualFileSystem;
 
-	private readonly compilerOptions: ts.CompilerOptions;
-	private readonly rojoResolver: RojoResolver;
-	private readonly pkgRojoResolvers: Array<RojoResolver>;
-	private readonly compilerHost: ts.CompilerHost;
+  private readonly compilerOptions: ts.CompilerOptions;
+  private readonly rojoResolver: RojoResolver;
+  private readonly pkgRojoResolvers: Array<RojoResolver>;
+  private readonly compilerHost: ts.CompilerHost;
 
-	private program: ts.Program | undefined;
-	private nodeModulesPathMapping = new Map<string, string>();
+  private program: ts.Program | undefined;
+  private nodeModulesPathMapping = new Map<string, string>();
 
-	constructor(projectOptions: Partial<ProjectOptions> = {}) {
-		this.data = {
-			isPackage: false,
-			nodeModulesPath: NODE_MODULES_PATH,
-			projectOptions: {
-				...DEFAULT_PROJECT_OPTIONS,
-				rojo: "",
-				type: ProjectType.Model,
-				optimizedLoops: true,
-				...projectOptions,
-			},
-			projectPath: PROJECT_DIR,
-			rojoConfigPath: undefined,
-			tsConfigPath: "",
-		};
+  constructor(projectOptions: Partial<ProjectOptions> = {}) {
+    this.data = {
+      isPackage: false,
+      nodeModulesPath: NODE_MODULES_PATH,
+      projectOptions: {
+        ...DEFAULT_PROJECT_OPTIONS,
+        rojo: "",
+        type: ProjectType.Model,
+        optimizedLoops: true,
+        ...projectOptions,
+      },
+      projectPath: PROJECT_DIR,
+      rojoConfigPath: undefined,
+      tsConfigPath: "",
+    };
 
-		this.compilerOptions = {
-			allowSyntheticDefaultImports: true,
-			downlevelIteration: true,
-			noLib: true,
-			strict: true,
-			target: ts.ScriptTarget.ESNext,
-			module: ts.ModuleKind.CommonJS,
-			moduleResolution: ts.ModuleResolutionKind.Node10,
-			moduleDetection: ts.ModuleDetectionKind.Force,
-			typeRoots: [RBXTS_SCOPE_PATH],
-			resolveJsonModule: true,
-			experimentalDecorators: true,
-			rootDir: ROOT_DIR,
-			outDir: OUT_DIR,
-			jsx: ts.JsxEmit.React,
-			jsxFactory: "React.createElement",
-			jsxFragmentFactory: "React.Fragment",
-		};
-		validateCompilerOptions(this.compilerOptions, this.data.projectPath);
+    this.compilerOptions = {
+      allowSyntheticDefaultImports: true,
+      downlevelIteration: true,
+      noLib: true,
+      strict: true,
+      target: ts.ScriptTarget.ESNext,
+      module: ts.ModuleKind.CommonJS,
+      moduleResolution: ts.ModuleResolutionKind.Node10,
+      moduleDetection: ts.ModuleDetectionKind.Force,
+      typeRoots: [RBXTS_SCOPE_PATH],
+      resolveJsonModule: true,
+      experimentalDecorators: true,
+      rootDir: ROOT_DIR,
+      outDir: OUT_DIR,
+      jsx: ts.JsxEmit.React,
+      jsxFactory: "React.createElement",
+      jsxFragmentFactory: "React.Fragment",
+    };
+    validateCompilerOptions(this.compilerOptions, this.data.projectPath);
 
-		this.vfs = new VirtualFileSystem();
+    this.vfs = new VirtualFileSystem();
 
-		const system = {
-			getExecutingFilePath: () => __filename,
-			getCurrentDirectory: () => "/",
-		} as ts.System;
+    const system = {
+      getExecutingFilePath: () => __filename,
+      getCurrentDirectory: () => "/",
+    } as ts.System;
 
-		this.compilerHost = ts.createCompilerHostWorker(this.compilerOptions, undefined, system);
-		this.compilerHost.readFile = filePath => this.vfs.readFile(filePath);
-		this.compilerHost.fileExists = filePath => this.vfs.fileExists(filePath);
-		this.compilerHost.directoryExists = dirPath => this.vfs.directoryExists(dirPath);
-		this.compilerHost.getDirectories = dirPath => this.vfs.getDirectories(dirPath);
-		this.compilerHost.useCaseSensitiveFileNames = () => true;
-		this.compilerHost.getCurrentDirectory = () => PATH_SEP;
+    this.compilerHost = ts.createCompilerHostWorker(this.compilerOptions, undefined, system);
+    this.compilerHost.readFile = (filePath) => this.vfs.readFile(filePath);
+    this.compilerHost.fileExists = (filePath) => this.vfs.fileExists(filePath);
+    this.compilerHost.directoryExists = (dirPath) => this.vfs.directoryExists(dirPath);
+    this.compilerHost.getDirectories = (dirPath) => this.vfs.getDirectories(dirPath);
+    this.compilerHost.useCaseSensitiveFileNames = () => true;
+    this.compilerHost.getCurrentDirectory = () => PATH_SEP;
 
-		this.rojoResolver = RojoResolver.fromTree(PROJECT_DIR, {
-			$path: OUT_DIR,
-			include: {
-				$path: INCLUDE_PATH,
-				node_modules: {
-					$className: "Folder",
-					"@rbxts": {
-						$path: RBXTS_SCOPE_PATH,
-					},
-				},
-			},
-		} as never);
-		this.pkgRojoResolvers = this.compilerOptions.typeRoots!.map(RojoResolver.synthetic);
-	}
+    this.rojoResolver = RojoResolver.fromTree(PROJECT_DIR, {
+      $path: OUT_DIR,
+      include: {
+        $path: INCLUDE_PATH,
+        node_modules: {
+          $className: "Folder",
+          "@rbxts": {
+            $path: RBXTS_SCOPE_PATH,
+          },
+        },
+      },
+    } as never);
+    this.pkgRojoResolvers = this.compilerOptions.typeRoots!.map(RojoResolver.synthetic);
+  }
 
-	public compileSource(source: string) {
-		this.vfs.writeFile(PLAYGROUND_PATH, source);
+  public compileSource(source: string) {
+    this.vfs.writeFile(PLAYGROUND_PATH, source);
 
-		const rootNames = this.vfs
-			.getFilePaths()
-			.filter(v => v.endsWith(ts.Extension.Ts) || v.endsWith(ts.Extension.Tsx));
-		this.program = ts.createProgram(rootNames, this.compilerOptions, this.compilerHost, this.program);
-		const typeChecker = this.program.getTypeChecker();
+    const rootNames = this.vfs
+      .getFilePaths()
+      .filter((v) => v.endsWith(ts.Extension.Ts) || v.endsWith(ts.Extension.Tsx));
+    this.program = ts.createProgram(
+      rootNames,
+      this.compilerOptions,
+      this.compilerHost,
+      this.program,
+    );
+    const typeChecker = this.program.getTypeChecker();
 
-		const services = createTransformServices(typeChecker);
-		const pathTranslator = new PathTranslator(ROOT_DIR, OUT_DIR, undefined, false, this.data.projectOptions.luau);
+    const services = createTransformServices(typeChecker);
+    const pathTranslator = new PathTranslator(
+      ROOT_DIR,
+      OUT_DIR,
+      undefined,
+      false,
+      this.data.projectOptions.luau,
+    );
 
-		const sourceFile = this.program.getSourceFile(PLAYGROUND_PATH);
-		assert(sourceFile);
+    const sourceFile = this.program.getSourceFile(PLAYGROUND_PATH);
+    assert(sourceFile);
 
-		const diagnostics = new Array<ts.Diagnostic>();
-		diagnostics.push(...ts.getPreEmitDiagnostics(this.program, sourceFile));
-		diagnostics.push(...getCustomPreEmitDiagnostics(this.data, sourceFile));
-		if (hasErrors(diagnostics)) throw new DiagnosticError(diagnostics);
+    const diagnostics = new Array<ts.Diagnostic>();
+    diagnostics.push(...ts.getPreEmitDiagnostics(this.program, sourceFile));
+    diagnostics.push(...getCustomPreEmitDiagnostics(this.data, sourceFile));
+    if (hasErrors(diagnostics)) throw new DiagnosticError(diagnostics);
 
-		const multiTransformState = new MultiTransformState();
+    const multiTransformState = new MultiTransformState();
 
-		const runtimeLibRbxPath = undefined;
-		const projectType = this.data.projectOptions.type!;
+    const runtimeLibRbxPath = undefined;
+    const projectType = this.data.projectOptions.type!;
 
-		const transformState = new TransformState(
-			this.program,
-			this.data,
-			services,
-			pathTranslator,
-			multiTransformState,
-			this.compilerOptions,
-			this.rojoResolver,
-			this.pkgRojoResolvers,
-			this.nodeModulesPathMapping,
-			runtimeLibRbxPath,
-			typeChecker,
-			projectType,
-			sourceFile,
-		);
+    const transformState = new TransformState(
+      this.program,
+      this.data,
+      services,
+      pathTranslator,
+      multiTransformState,
+      this.compilerOptions,
+      this.rojoResolver,
+      this.pkgRojoResolvers,
+      this.nodeModulesPathMapping,
+      runtimeLibRbxPath,
+      typeChecker,
+      projectType,
+      sourceFile,
+    );
 
-		const luaAST = transformSourceFile(transformState, sourceFile);
-		diagnostics.push(...DiagnosticService.flush());
-		if (hasErrors(diagnostics)) throw new DiagnosticError(diagnostics);
+    const luaAST = transformSourceFile(transformState, sourceFile);
+    diagnostics.push(...DiagnosticService.flush());
+    if (hasErrors(diagnostics)) throw new DiagnosticError(diagnostics);
 
-		const luaSource = renderAST(luaAST);
-		return luaSource;
-	}
+    const luaSource = renderAST(luaAST);
+    return luaSource;
+  }
 
-	public setMapping(typings: string, main: string) {
-		this.nodeModulesPathMapping.set(typings, main);
-	}
+  public setMapping(typings: string, main: string) {
+    this.nodeModulesPathMapping.set(typings, main);
+  }
 }

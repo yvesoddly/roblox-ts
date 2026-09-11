@@ -7,9 +7,9 @@ import { render, RenderState } from "LuauRenderer";
  * Adds `...` onto the end if node.hasDotDotDot is true
  */
 export function renderParameters(state: RenderState, node: luau.HasParameters) {
-	const paramStrs = luau.list.mapToArray(node.parameters, param => render(state, param));
-	if (node.hasDotDotDot) {
-		paramStrs.push("...");
-	}
-	return paramStrs.join(", ");
+  const paramStrs = luau.list.mapToArray(node.parameters, (param) => render(state, param));
+  if (node.hasDotDotDot) {
+    paramStrs.push("...");
+  }
+  return paramStrs.join(", ");
 }

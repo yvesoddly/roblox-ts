@@ -1,8 +1,8 @@
 import { createTestProject } from "./createTestProject";
 
 it("emits enum case values directly", () => {
-	const project = createTestProject();
-	const output = project.compileSource(`
+  const project = createTestProject();
+  const output = project.compileSource(`
 		enum Kind {
 			A = "A",
 			B = "B",
@@ -20,5 +20,5 @@ it("emits enum case values directly", () => {
 			}
 		}
 	`);
-	expect(output.replace(/^-- Compiled with.*\n/, "")).toMatchSnapshot();
+  expect(output.replace(/^-- Compiled with.*\n/, "")).toMatchSnapshot();
 });

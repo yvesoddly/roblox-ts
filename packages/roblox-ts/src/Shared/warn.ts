@@ -6,5 +6,5 @@ import { LogService } from "Shared/classes/LogService";
  * @param message
  */
 export function warn(message: string) {
-	LogService.writeLine(`${kleur.yellow("Compiler Warning:")} ${message}`);
+  LogService.writeLine(`${kleur.yellow("Compiler Warning:")} ${message}`);
 }

@@ -8,51 +8,55 @@ import { getStatements } from "TSTransformer/util/getStatements";
 import ts from "typescript";
 
 export function transformIfStatementInner(
-	state: TransformState,
-	prereqs: Prereqs,
-	node: ts.IfStatement,
+  state: TransformState,
+  prereqs: Prereqs,
+  node: ts.IfStatement,
 ): luau.IfStatement {
-	const condition = createTruthinessChecks(
-		state,
-		prereqs,
-		transformExpression(state, prereqs, node.expression),
-		node.expression,
-	);
+  const condition = createTruthinessChecks(
+    state,
+    prereqs,
+    transformExpression(state, prereqs, node.expression),
+    node.expression,
+  );
 
-	const statements = transformStatementList(state, node.thenStatement, getStatements(node.thenStatement));
+  const statements = transformStatementList(
+    state,
+    node.thenStatement,
+    getStatements(node.thenStatement),
+  );
 
-	const elseStatement = node.elseStatement;
+  const elseStatement = node.elseStatement;
 
-	let elseBody: luau.IfStatement | luau.List<luau.Statement>;
-	if (elseStatement === undefined) {
-		elseBody = luau.list.make<luau.Statement>();
-	} else if (ts.isIfStatement(elseStatement)) {
-		const elseIfPrereqs = new Prereqs();
-		const elseIf = transformIfStatementInner(state, elseIfPrereqs, elseStatement);
-		if (luau.list.isEmpty(elseIfPrereqs.statements)) {
-			elseBody = elseIf;
-		} else {
-			const elseIfStatements = luau.list.make<luau.Statement>();
-			luau.list.pushList(elseIfStatements, elseIfPrereqs.statements);
-			luau.list.push(elseIfStatements, elseIf);
-			elseBody = elseIfStatements;
-		}
-	} else {
-		elseBody = transformStatementList(state, elseStatement, getStatements(elseStatement));
-	}
+  let elseBody: luau.IfStatement | luau.List<luau.Statement>;
+  if (elseStatement === undefined) {
+    elseBody = luau.list.make<luau.Statement>();
+  } else if (ts.isIfStatement(elseStatement)) {
+    const elseIfPrereqs = new Prereqs();
+    const elseIf = transformIfStatementInner(state, elseIfPrereqs, elseStatement);
+    if (luau.list.isEmpty(elseIfPrereqs.statements)) {
+      elseBody = elseIf;
+    } else {
+      const elseIfStatements = luau.list.make<luau.Statement>();
+      luau.list.pushList(elseIfStatements, elseIfPrereqs.statements);
+      luau.list.push(elseIfStatements, elseIf);
+      elseBody = elseIfStatements;
+    }
+  } else {
+    elseBody = transformStatementList(state, elseStatement, getStatements(elseStatement));
+  }
 
-	return luau.create(luau.SyntaxKind.IfStatement, {
-		condition,
-		statements,
-		elseBody,
-	});
+  return luau.create(luau.SyntaxKind.IfStatement, {
+    condition,
+    statements,
+    elseBody,
+  });
 }
 
 export function transformIfStatement(state: TransformState, node: ts.IfStatement) {
-	const statements = luau.list.make<luau.Statement>();
-	const prereqs = new Prereqs();
-	const statement = transformIfStatementInner(state, prereqs, node);
-	luau.list.pushList(statements, prereqs.statements);
-	luau.list.push(statements, statement);
-	return statements;
+  const statements = luau.list.make<luau.Statement>();
+  const prereqs = new Prereqs();
+  const statement = transformIfStatementInner(state, prereqs, node);
+  luau.list.pushList(statements, prereqs.statements);
+  luau.list.push(statements, statement);
+  return statements;
 }

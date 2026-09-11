@@ -5,5 +5,5 @@ import ts from "typescript";
  * Thus excluding types and const enums
  */
 export function isSymbolOfValue(symbol: ts.Symbol) {
-	return !!(symbol.flags & ts.SymbolFlags.Value) && !(symbol.flags & ts.SymbolFlags.ConstEnum);
+  return !!(symbol.flags & ts.SymbolFlags.Value) && !(symbol.flags & ts.SymbolFlags.ConstEnum);
 }

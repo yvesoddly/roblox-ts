@@ -14,50 +14,50 @@ import { validateNotAnyType } from "TSTransformer/util/validateNotAny";
 import ts from "typescript";
 
 export function transformObjectBindingPattern(
-	state: TransformState,
-	prereqs: Prereqs,
-	bindingPattern: ts.ObjectBindingPattern,
-	parentId: luau.AnyIdentifier,
+  state: TransformState,
+  prereqs: Prereqs,
+  bindingPattern: ts.ObjectBindingPattern,
+  parentId: luau.AnyIdentifier,
 ) {
-	validateNotAnyType(state, bindingPattern);
-	const preSpreadNames = new Array<luau.Expression>();
-	for (const element of bindingPattern.elements) {
-		const name = element.name;
-		const prop = element.propertyName;
-		const isSpread = element.dotDotDotToken !== undefined;
+  validateNotAnyType(state, bindingPattern);
+  const preSpreadNames = new Array<luau.Expression>();
+  for (const element of bindingPattern.elements) {
+    const name = element.name;
+    const prop = element.propertyName;
+    const isSpread = element.dotDotDotToken !== undefined;
 
-		if (ts.isIdentifier(name)) {
-			const value = isSpread
-				? spreadDestructureObject(prereqs, parentId, preSpreadNames)
-				: objectAccessor(state, prereqs, parentId, state.getType(bindingPattern), prop ?? name);
-			preSpreadNames.push(value);
+    if (ts.isIdentifier(name)) {
+      const value = isSpread
+        ? spreadDestructureObject(prereqs, parentId, preSpreadNames)
+        : objectAccessor(state, prereqs, parentId, state.getType(bindingPattern), prop ?? name);
+      preSpreadNames.push(value);
 
-			if (isSpread && isPossiblyType(state.getType(bindingPattern), isRobloxType(state))) {
-				DiagnosticService.addDiagnostic(errors.noRestSpreadingOfRobloxTypes(element));
-				continue;
-			}
+      if (isSpread && isPossiblyType(state.getType(bindingPattern), isRobloxType(state))) {
+        DiagnosticService.addDiagnostic(errors.noRestSpreadingOfRobloxTypes(element));
+        continue;
+      }
 
-			const id = transformVariable(state, prereqs, name, value);
-			if (element.initializer) {
-				prereqs.push(transformInitializer(state, id, element.initializer));
-			}
-		} else {
-			// if name is not identifier, it must be a binding pattern
-			// in that case, prop is guaranteed to exist
-			assert(prop);
-			assert(!isSpread);
-			const value = objectAccessor(state, prereqs, parentId, state.getType(bindingPattern), prop);
-			preSpreadNames.push(value);
+      const id = transformVariable(state, prereqs, name, value);
+      if (element.initializer) {
+        prereqs.push(transformInitializer(state, id, element.initializer));
+      }
+    } else {
+      // if name is not identifier, it must be a binding pattern
+      // in that case, prop is guaranteed to exist
+      assert(prop);
+      assert(!isSpread);
+      const value = objectAccessor(state, prereqs, parentId, state.getType(bindingPattern), prop);
+      preSpreadNames.push(value);
 
-			const id = prereqs.pushToVar(value, "binding");
-			if (element.initializer) {
-				prereqs.push(transformInitializer(state, id, element.initializer));
-			}
-			if (ts.isArrayBindingPattern(name)) {
-				transformArrayBindingPattern(state, prereqs, name, id);
-			} else {
-				transformObjectBindingPattern(state, prereqs, name, id);
-			}
-		}
-	}
+      const id = prereqs.pushToVar(value, "binding");
+      if (element.initializer) {
+        prereqs.push(transformInitializer(state, id, element.initializer));
+      }
+      if (ts.isArrayBindingPattern(name)) {
+        transformArrayBindingPattern(state, prereqs, name, id);
+      } else {
+        transformObjectBindingPattern(state, prereqs, name, id);
+      }
+    }
+  }
 }

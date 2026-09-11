@@ -16,54 +16,54 @@ import { assert } from "LuauAST/util/assert";
 const IF_EXPRESSION_PRECEDENCE = 1;
 
 const UNARY_OPERATOR_PRECEDENCE: { [K in luau.UnaryOperator]: number } = {
-	not: 7,
-	"#": 7,
-	"-": 7,
+  not: 7,
+  "#": 7,
+  "-": 7,
 };
 
 const BINARY_OPERATOR_PRECEDENCE: { [K in luau.BinaryOperator]: number } = {
-	or: 1,
-	and: 2,
-	"<": 3,
-	">": 3,
-	"<=": 3,
-	">=": 3,
-	"~=": 3,
-	"==": 3,
-	"..": 4,
-	"+": 5,
-	"-": 5,
-	"*": 6,
-	"/": 6,
-	"//": 6,
-	"%": 6,
-	"^": 8,
+  or: 1,
+  and: 2,
+  "<": 3,
+  ">": 3,
+  "<=": 3,
+  ">=": 3,
+  "~=": 3,
+  "==": 3,
+  "..": 4,
+  "+": 5,
+  "-": 5,
+  "*": 6,
+  "/": 6,
+  "//": 6,
+  "%": 6,
+  "^": 8,
 };
 
 // are these all the expression types that need to be considered..?
 function getPrecedence(node: luau.ExpressionWithPrecedence) {
-	if (luau.isIfExpression(node)) {
-		return IF_EXPRESSION_PRECEDENCE;
-	} else if (luau.isBinaryExpression(node)) {
-		return BINARY_OPERATOR_PRECEDENCE[node.operator];
-	} else if (luau.isUnaryExpression(node)) {
-		return UNARY_OPERATOR_PRECEDENCE[node.operator];
-	}
-	assert(false);
+  if (luau.isIfExpression(node)) {
+    return IF_EXPRESSION_PRECEDENCE;
+  } else if (luau.isBinaryExpression(node)) {
+    return BINARY_OPERATOR_PRECEDENCE[node.operator];
+  } else if (luau.isUnaryExpression(node)) {
+    return UNARY_OPERATOR_PRECEDENCE[node.operator];
+  }
+  assert(false);
 }
 
 export function needsParentheses(node: luau.ExpressionWithPrecedence) {
-	if (node.parent && luau.isExpressionWithPrecedence(node.parent)) {
-		const nodePrecedence = getPrecedence(node);
-		const parentPrecedence = getPrecedence(node.parent);
-		if (nodePrecedence < parentPrecedence) {
-			return true;
-		} else if (nodePrecedence === parentPrecedence) {
-			if (luau.isBinaryExpression(node.parent)) {
-				const rightAssociative = node.parent.operator === "^" || node.parent.operator === "..";
-				return node === (rightAssociative ? node.parent.left : node.parent.right);
-			}
-		}
-	}
-	return false;
+  if (node.parent && luau.isExpressionWithPrecedence(node.parent)) {
+    const nodePrecedence = getPrecedence(node);
+    const parentPrecedence = getPrecedence(node.parent);
+    if (nodePrecedence < parentPrecedence) {
+      return true;
+    } else if (nodePrecedence === parentPrecedence) {
+      if (luau.isBinaryExpression(node.parent)) {
+        const rightAssociative = node.parent.operator === "^" || node.parent.operator === "..";
+        return node === (rightAssociative ? node.parent.left : node.parent.right);
+      }
+    }
+  }
+  return false;
 }

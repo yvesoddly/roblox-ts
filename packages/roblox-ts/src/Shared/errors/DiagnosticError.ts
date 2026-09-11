@@ -3,11 +3,11 @@ import { formatDiagnostics } from "Shared/util/formatDiagnostics";
 import ts from "typescript";
 
 export class DiagnosticError extends LoggableError {
-	constructor(public readonly diagnostics: ReadonlyArray<ts.Diagnostic>) {
-		super();
-	}
+  constructor(public readonly diagnostics: ReadonlyArray<ts.Diagnostic>) {
+    super();
+  }
 
-	public toString() {
-		return formatDiagnostics(this.diagnostics);
-	}
+  public toString() {
+    return formatDiagnostics(this.diagnostics);
+  }
 }

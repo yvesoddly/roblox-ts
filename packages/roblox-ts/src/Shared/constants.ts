@@ -1,4 +1,5 @@
 import path from "path";
+
 import { ProjectOptions } from "Shared/types";
 
 export const PACKAGE_ROOT = path.join(__dirname, "..", "..");
@@ -27,31 +28,31 @@ export const MODULE_SUBEXT = "";
 
 export const FILENAME_WARNINGS = new Map<string, string>();
 for (const scriptType of [SERVER_SUBEXT, CLIENT_SUBEXT, MODULE_SUBEXT]) {
-	for (const fileType of [TS_EXT, TSX_EXT, DTS_EXT]) {
-		FILENAME_WARNINGS.set(INIT_NAME + scriptType + fileType, INDEX_NAME + scriptType + fileType);
-	}
+  for (const fileType of [TS_EXT, TSX_EXT, DTS_EXT]) {
+    FILENAME_WARNINGS.set(INIT_NAME + scriptType + fileType, INDEX_NAME + scriptType + fileType);
+  }
 }
 
 export const PARENT_FIELD = "Parent";
 
 export enum ProjectType {
-	Game = "game",
-	Model = "model",
-	Package = "package",
+  Game = "game",
+  Model = "model",
+  Package = "package",
 }
 
 export const DEFAULT_PROJECT_OPTIONS: ProjectOptions = {
-	includePath: "",
-	rojo: undefined,
-	type: undefined,
-	watch: false,
-	usePolling: false,
-	verbose: false,
-	noInclude: false,
-	logTruthyChanges: false,
-	writeOnlyChanged: false,
-	writeTransformedFiles: false,
-	optimizedLoops: true,
-	allowCommentDirectives: false,
-	luau: true,
+  includePath: "",
+  rojo: undefined,
+  type: undefined,
+  watch: false,
+  usePolling: false,
+  verbose: false,
+  noInclude: false,
+  logTruthyChanges: false,
+  writeOnlyChanged: false,
+  writeTransformedFiles: false,
+  optimizedLoops: true,
+  allowCommentDirectives: false,
+  luau: true,
 };

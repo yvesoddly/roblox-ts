@@ -21,12 +21,18 @@ declare function typeOf(value: any): keyof CheckableTypes;
  * }
  * ```
  */
-declare function typeIs<T extends keyof CheckableTypes>(value: any, type: T): value is CheckableTypes[T];
+declare function typeIs<T extends keyof CheckableTypes>(
+  value: any,
+  type: T,
+): value is CheckableTypes[T];
 
 /**
  * Returns true if `instance.ClassName == className`, otherwise false.
  */
-declare function classIs<T extends keyof Instances>(instance: Instance, className: T): instance is Instances[T];
+declare function classIs<T extends keyof Instances>(
+  instance: Instance,
+  className: T,
+): instance is Instances[T];
 
 /**
  * Returns the passed argument. This function is a macro that compiles to just `arg`.

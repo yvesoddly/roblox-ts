@@ -2,12 +2,15 @@
 import * as luau from "LuauAST/bundle";
 
 function makeGuard<T extends keyof luau.NodeByKind>(...kinds: [...Array<T>]) {
-	const set = new Set<luau.SyntaxKind>(kinds);
-	return (node: luau.Node): node is luau.NodeByKind[T] => set.has(node.kind);
+  const set = new Set<luau.SyntaxKind>(kinds);
+  return (node: luau.Node): node is luau.NodeByKind[T] => set.has(node.kind);
 }
 
 // indexable expressions
-export const isAnyIdentifier = makeGuard(luau.SyntaxKind.Identifier, luau.SyntaxKind.TemporaryIdentifier);
+export const isAnyIdentifier = makeGuard(
+  luau.SyntaxKind.Identifier,
+  luau.SyntaxKind.TemporaryIdentifier,
+);
 export const isIdentifier = makeGuard(luau.SyntaxKind.Identifier);
 export const isTemporaryIdentifier = makeGuard(luau.SyntaxKind.TemporaryIdentifier);
 export const isComputedIndexExpression = makeGuard(luau.SyntaxKind.ComputedIndexExpression);
@@ -17,9 +20,10 @@ export const isMethodCallExpression = makeGuard(luau.SyntaxKind.MethodCallExpres
 export const isParenthesizedExpression = makeGuard(luau.SyntaxKind.ParenthesizedExpression);
 
 export function isIndexableExpression(node: luau.Node): node is luau.IndexableExpression {
-	return (
-		node.kind >= luau.SyntaxKind.FirstIndexableExpression && node.kind <= luau.SyntaxKind.LastIndexableExpression
-	);
+  return (
+    node.kind >= luau.SyntaxKind.FirstIndexableExpression &&
+    node.kind <= luau.SyntaxKind.LastIndexableExpression
+  );
 }
 
 // expressions
@@ -41,7 +45,9 @@ export const isSet = makeGuard(luau.SyntaxKind.Set);
 export const isMixedTable = makeGuard(luau.SyntaxKind.MixedTable);
 
 export function isExpression(node: luau.Node): node is luau.Expression {
-	return node.kind >= luau.SyntaxKind.FirstExpression && node.kind <= luau.SyntaxKind.LastExpression;
+  return (
+    node.kind >= luau.SyntaxKind.FirstExpression && node.kind <= luau.SyntaxKind.LastExpression
+  );
 }
 
 // statements
@@ -62,7 +68,7 @@ export const isReturnStatement = makeGuard(luau.SyntaxKind.ReturnStatement);
 export const isComment = makeGuard(luau.SyntaxKind.Comment);
 
 export function isStatement(node: luau.Node): node is luau.Statement {
-	return node.kind >= luau.SyntaxKind.FirstStatement && node.kind <= luau.SyntaxKind.LastStatement;
+  return node.kind >= luau.SyntaxKind.FirstStatement && node.kind <= luau.SyntaxKind.LastStatement;
 }
 
 // fields
@@ -70,82 +76,85 @@ export const isMapField = makeGuard(luau.SyntaxKind.MapField);
 export const isInterpolatedStringPart = makeGuard(luau.SyntaxKind.InterpolatedStringPart);
 
 export function isField(node: luau.Node): node is luau.Field {
-	return node.kind >= luau.SyntaxKind.FirstField && node.kind <= luau.SyntaxKind.LastField;
+  return node.kind >= luau.SyntaxKind.FirstField && node.kind <= luau.SyntaxKind.LastField;
 }
 
 export function isNode(value: unknown): value is luau.Node {
-	if (typeof value === "object" && value !== null && "kind" in value) {
-		// hack
-		const { kind } = value as { kind: unknown };
-		return (
-			typeof kind === "number" &&
-			kind >= luau.SyntaxKind.FirstIndexableExpression &&
-			kind <= luau.SyntaxKind.LastField
-		);
-	}
-	return false;
+  if (typeof value === "object" && value !== null && "kind" in value) {
+    // hack
+    const { kind } = value as { kind: unknown };
+    return (
+      typeof kind === "number" &&
+      kind >= luau.SyntaxKind.FirstIndexableExpression &&
+      kind <= luau.SyntaxKind.LastField
+    );
+  }
+  return false;
 }
 
 export const isSimple = makeGuard(
-	luau.SyntaxKind.Identifier,
-	luau.SyntaxKind.TemporaryIdentifier,
-	luau.SyntaxKind.NilLiteral,
-	luau.SyntaxKind.TrueLiteral,
-	luau.SyntaxKind.FalseLiteral,
-	luau.SyntaxKind.NumberLiteral,
-	luau.SyntaxKind.StringLiteral,
+  luau.SyntaxKind.Identifier,
+  luau.SyntaxKind.TemporaryIdentifier,
+  luau.SyntaxKind.NilLiteral,
+  luau.SyntaxKind.TrueLiteral,
+  luau.SyntaxKind.FalseLiteral,
+  luau.SyntaxKind.NumberLiteral,
+  luau.SyntaxKind.StringLiteral,
 );
 
 export const isSimplePrimitive = makeGuard(
-	luau.SyntaxKind.NilLiteral,
-	luau.SyntaxKind.TrueLiteral,
-	luau.SyntaxKind.FalseLiteral,
-	luau.SyntaxKind.NumberLiteral,
-	luau.SyntaxKind.StringLiteral,
+  luau.SyntaxKind.NilLiteral,
+  luau.SyntaxKind.TrueLiteral,
+  luau.SyntaxKind.FalseLiteral,
+  luau.SyntaxKind.NumberLiteral,
+  luau.SyntaxKind.StringLiteral,
 );
 
 export const isTable = makeGuard(
-	luau.SyntaxKind.Array,
-	luau.SyntaxKind.Set,
-	luau.SyntaxKind.Map,
-	luau.SyntaxKind.MixedTable,
+  luau.SyntaxKind.Array,
+  luau.SyntaxKind.Set,
+  luau.SyntaxKind.Map,
+  luau.SyntaxKind.MixedTable,
 );
 
 export const isFinalStatement = makeGuard(
-	luau.SyntaxKind.BreakStatement,
-	luau.SyntaxKind.ReturnStatement,
-	luau.SyntaxKind.ContinueStatement,
+  luau.SyntaxKind.BreakStatement,
+  luau.SyntaxKind.ReturnStatement,
+  luau.SyntaxKind.ContinueStatement,
 );
 
-export const isCall = makeGuard(luau.SyntaxKind.CallExpression, luau.SyntaxKind.MethodCallExpression);
+export const isCall = makeGuard(
+  luau.SyntaxKind.CallExpression,
+  luau.SyntaxKind.MethodCallExpression,
+);
 
 export const isWritableExpression: (node: luau.Node) => node is luau.WritableExpression = makeGuard(
-	luau.SyntaxKind.Identifier,
-	luau.SyntaxKind.TemporaryIdentifier,
-	luau.SyntaxKind.PropertyAccessExpression,
-	luau.SyntaxKind.ComputedIndexExpression,
+  luau.SyntaxKind.Identifier,
+  luau.SyntaxKind.TemporaryIdentifier,
+  luau.SyntaxKind.PropertyAccessExpression,
+  luau.SyntaxKind.ComputedIndexExpression,
 );
 
 export const isFunctionLike = makeGuard(
-	luau.SyntaxKind.FunctionDeclaration,
-	luau.SyntaxKind.FunctionExpression,
-	luau.SyntaxKind.MethodDeclaration,
+  luau.SyntaxKind.FunctionDeclaration,
+  luau.SyntaxKind.FunctionExpression,
+  luau.SyntaxKind.MethodDeclaration,
 );
 
 export const hasStatements = makeGuard(
-	luau.SyntaxKind.ForStatement,
-	luau.SyntaxKind.NumericForStatement,
-	luau.SyntaxKind.FunctionExpression,
-	luau.SyntaxKind.DoStatement,
-	luau.SyntaxKind.FunctionDeclaration,
-	luau.SyntaxKind.IfStatement,
-	luau.SyntaxKind.MethodDeclaration,
-	luau.SyntaxKind.RepeatStatement,
-	luau.SyntaxKind.WhileStatement,
+  luau.SyntaxKind.ForStatement,
+  luau.SyntaxKind.NumericForStatement,
+  luau.SyntaxKind.FunctionExpression,
+  luau.SyntaxKind.DoStatement,
+  luau.SyntaxKind.FunctionDeclaration,
+  luau.SyntaxKind.IfStatement,
+  luau.SyntaxKind.MethodDeclaration,
+  luau.SyntaxKind.RepeatStatement,
+  luau.SyntaxKind.WhileStatement,
 );
 
 export const isExpressionWithPrecedence = makeGuard(
-	luau.SyntaxKind.IfExpression,
-	luau.SyntaxKind.UnaryExpression,
-	luau.SyntaxKind.BinaryExpression,
+  luau.SyntaxKind.IfExpression,
+  luau.SyntaxKind.UnaryExpression,
+  luau.SyntaxKind.BinaryExpression,
 );

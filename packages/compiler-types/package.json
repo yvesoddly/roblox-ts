@@ -1,13 +1,13 @@
 {
-	"name": "@rbxts/compiler-types",
-	"version": "3.0.0-types.0",
-	"description": "",
-	"main": "types/core.d.ts",
-	"types": "types/core.d.ts",
-	"author": "roblox-ts",
-	"license": "MIT",
-	"files": [
-		"types/*.d.ts"
-	],
-	"private": true
+  "name": "@rbxts/compiler-types",
+  "version": "3.0.0-types.0",
+  "private": true,
+  "description": "",
+  "license": "MIT",
+  "author": "roblox-ts",
+  "files": [
+    "types/*.d.ts"
+  ],
+  "main": "types/core.d.ts",
+  "types": "types/core.d.ts"
 }

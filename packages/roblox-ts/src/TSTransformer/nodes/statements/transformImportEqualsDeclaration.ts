@@ -8,36 +8,46 @@ import { createImportExpression } from "TSTransformer/util/createImportExpressio
 import { isSymbolOfValue } from "TSTransformer/util/isSymbolOfValue";
 import ts from "typescript";
 
-export function transformImportEqualsDeclaration(state: TransformState, node: ts.ImportEqualsDeclaration) {
-	const { moduleReference } = node;
-	if (ts.isExternalModuleReference(moduleReference)) {
-		const statements = luau.list.make<luau.Statement>();
-		assert(ts.isStringLiteral(moduleReference.expression));
-		const importExp = createImportExpression(state, node.getSourceFile(), moduleReference.expression);
+export function transformImportEqualsDeclaration(
+  state: TransformState,
+  node: ts.ImportEqualsDeclaration,
+) {
+  const { moduleReference } = node;
+  if (ts.isExternalModuleReference(moduleReference)) {
+    const statements = luau.list.make<luau.Statement>();
+    assert(ts.isStringLiteral(moduleReference.expression));
+    const importExp = createImportExpression(
+      state,
+      node.getSourceFile(),
+      moduleReference.expression,
+    );
 
-		const aliasSymbol = state.typeChecker.getSymbolAtLocation(node.name);
-		assert(aliasSymbol);
-		if (isSymbolOfValue(ts.skipAlias(aliasSymbol, state.typeChecker))) {
-			const importPrereqs = new Prereqs();
-			transformVariable(state, importPrereqs, node.name, importExp);
-			luau.list.pushList(statements, importPrereqs.statements);
-		}
+    const aliasSymbol = state.typeChecker.getSymbolAtLocation(node.name);
+    assert(aliasSymbol);
+    if (isSymbolOfValue(ts.skipAlias(aliasSymbol, state.typeChecker))) {
+      const importPrereqs = new Prereqs();
+      transformVariable(state, importPrereqs, node.name, importExp);
+      luau.list.pushList(statements, importPrereqs.statements);
+    }
 
-		// ensure we emit something
-		if (
-			state.compilerOptions.verbatimModuleSyntax &&
-			luau.list.isEmpty(statements) &&
-			luau.isCallExpression(importExp)
-		) {
-			luau.list.push(statements, luau.create(luau.SyntaxKind.CallStatement, { expression: importExp }));
-		}
+    // ensure we emit something
+    if (
+      state.compilerOptions.verbatimModuleSyntax &&
+      luau.list.isEmpty(statements) &&
+      luau.isCallExpression(importExp)
+    ) {
+      luau.list.push(
+        statements,
+        luau.create(luau.SyntaxKind.CallStatement, { expression: importExp }),
+      );
+    }
 
-		return statements;
-	} else {
-		// Identifier | QualifiedName
-		// see: https://github.com/roblox-ts/roblox-ts/issues/1895
-		const importPrereqs = new Prereqs();
-		transformVariable(state, importPrereqs, node.name, transformEntityName(state, moduleReference));
-		return importPrereqs.statements;
-	}
+    return statements;
+  } else {
+    // Identifier | QualifiedName
+    // see: https://github.com/roblox-ts/roblox-ts/issues/1895
+    const importPrereqs = new Prereqs();
+    transformVariable(state, importPrereqs, node.name, transformEntityName(state, moduleReference));
+    return importPrereqs.statements;
+  }
 }

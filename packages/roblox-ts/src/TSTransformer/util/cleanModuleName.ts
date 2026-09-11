@@ -1,3 +1,3 @@
 export function cleanModuleName(name: string) {
-	return name.replace(/\W/g, "_");
+  return name.replace(/\W/g, "_");
 }

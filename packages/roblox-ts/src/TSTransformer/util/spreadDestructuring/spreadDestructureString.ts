@@ -3,26 +3,26 @@ import { Prereqs } from "TSTransformer/classes/Prereqs";
 import { getMatcherForStringAccessor } from "TSTransformer/util/binding/getMatcherForStringAccessor";
 
 export function spreadDestructureString(
-	prereqs: Prereqs,
-	parentId: luau.AnyIdentifier,
-	index: number,
-	idStack: Array<luau.AnyIdentifier>,
+  prereqs: Prereqs,
+  parentId: luau.AnyIdentifier,
+  index: number,
+  idStack: Array<luau.AnyIdentifier>,
 ) {
-	const matcher = getMatcherForStringAccessor(prereqs, parentId, idStack);
-	const rest = prereqs.pushToVar(luau.array(), "rest");
-	const charId = luau.tempId("char");
+  const matcher = getMatcherForStringAccessor(prereqs, parentId, idStack);
+  const rest = prereqs.pushToVar(luau.array(), "rest");
+  const charId = luau.tempId("char");
 
-	prereqs.push(
-		luau.create(luau.SyntaxKind.ForStatement, {
-			ids: luau.list.make(charId),
-			expression: matcher,
-			statements: luau.list.make(
-				luau.create(luau.SyntaxKind.CallStatement, {
-					expression: luau.call(luau.globals.table.insert, [rest, charId]),
-				}),
-			),
-		}),
-	);
+  prereqs.push(
+    luau.create(luau.SyntaxKind.ForStatement, {
+      ids: luau.list.make(charId),
+      expression: matcher,
+      statements: luau.list.make(
+        luau.create(luau.SyntaxKind.CallStatement, {
+          expression: luau.call(luau.globals.table.insert, [rest, charId]),
+        }),
+      ),
+    }),
+  );
 
-	return rest;
+  return rest;
 }

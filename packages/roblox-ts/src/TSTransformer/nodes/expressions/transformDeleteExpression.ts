@@ -5,8 +5,12 @@ import { transformExpression } from "TSTransformer/nodes/expressions/transformEx
 import { isUsedAsStatement } from "TSTransformer/util/isUsedAsStatement";
 import ts from "typescript";
 
-export function transformDeleteExpression(state: TransformState, prereqs: Prereqs, node: ts.DeleteExpression) {
-	// we just want the prereqs, deleting is done in the index expression transforms
-	transformExpression(state, prereqs, node.expression);
-	return !isUsedAsStatement(node) ? luau.bool(true) : luau.none();
+export function transformDeleteExpression(
+  state: TransformState,
+  prereqs: Prereqs,
+  node: ts.DeleteExpression,
+) {
+  // we just want the prereqs, deleting is done in the index expression transforms
+  transformExpression(state, prereqs, node.expression);
+  return !isUsedAsStatement(node) ? luau.bool(true) : luau.none();
 }

@@ -10,45 +10,45 @@ import ts from "typescript";
  * if `assumeChangesOnlyAffectDirectDependencies == false`, this will only check direct dependencies
  */
 export function getChangedFilePaths(program: ts.BuilderProgram, pathHints?: Array<string>) {
-	const compilerOptions = program.getCompilerOptions();
-	const buildState = program.state;
+  const compilerOptions = program.getCompilerOptions();
+  const buildState = program.state;
 
-	// buildState.referencedMap is sourceFile -> files that this file imports
-	// but we need sourceFile -> files that import this file
-	const reversedReferencedMap = new Map<string, Set<string>>();
+  // buildState.referencedMap is sourceFile -> files that this file imports
+  // but we need sourceFile -> files that import this file
+  const reversedReferencedMap = new Map<string, Set<string>>();
 
-	const referencedMap = buildState.referencedMap;
+  const referencedMap = buildState.referencedMap;
 
-	if (referencedMap) {
-		for (const filePath of ts.arrayFrom(referencedMap.keys())) {
-			referencedMap.getValues(filePath)?.forEach((_, refFilePath) => {
-				getOrSetDefault(reversedReferencedMap, refFilePath, () => new Set()).add(filePath);
-			});
-		}
-	}
+  if (referencedMap) {
+    for (const filePath of ts.arrayFrom(referencedMap.keys())) {
+      referencedMap.getValues(filePath)?.forEach((_, refFilePath) => {
+        getOrSetDefault(reversedReferencedMap, refFilePath, () => new Set()).add(filePath);
+      });
+    }
+  }
 
-	const changedFilesSet = new Set<string>();
+  const changedFilesSet = new Set<string>();
 
-	const search = (filePath: string) => {
-		changedFilesSet.add(filePath);
-		reversedReferencedMap.get(filePath)?.forEach(refFilePath => {
-			if (!changedFilesSet.has(refFilePath)) {
-				changedFilesSet.add(refFilePath);
-				if (compilerOptions.assumeChangesOnlyAffectDirectDependencies !== true) {
-					search(refFilePath);
-				}
-			}
-		});
-	};
+  const search = (filePath: string) => {
+    changedFilesSet.add(filePath);
+    reversedReferencedMap.get(filePath)?.forEach((refFilePath) => {
+      if (!changedFilesSet.has(refFilePath)) {
+        changedFilesSet.add(refFilePath);
+        if (compilerOptions.assumeChangesOnlyAffectDirectDependencies !== true) {
+          search(refFilePath);
+        }
+      }
+    });
+  };
 
-	if (pathHints) {
-		for (const hint of pathHints) {
-			search(getCanonicalFileName(hint));
-		}
-	} else {
-		buildState.changedFilesSet?.forEach((_, fileName) => search(fileName));
-		buildState.changedFilesSet?.clear();
-	}
+  if (pathHints) {
+    for (const hint of pathHints) {
+      search(getCanonicalFileName(hint));
+    }
+  } else {
+    buildState.changedFilesSet?.forEach((_, fileName) => search(fileName));
+    buildState.changedFilesSet?.clear();
+  }
 
-	return changedFilesSet;
+  return changedFilesSet;
 }

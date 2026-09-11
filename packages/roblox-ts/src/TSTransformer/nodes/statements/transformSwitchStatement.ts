@@ -8,189 +8,193 @@ import { expressionMightMutate } from "TSTransformer/util/expressionMightMutate"
 import ts from "typescript";
 
 function transformCaseClauseExpression(
-	state: TransformState,
-	caseClauseExpression: ts.Expression,
-	switchExpression: luau.Expression,
-	fallThroughFlagId: luau.TemporaryIdentifier,
-	canFallThroughTo: boolean,
+  state: TransformState,
+  caseClauseExpression: ts.Expression,
+  switchExpression: luau.Expression,
+  fallThroughFlagId: luau.TemporaryIdentifier,
+  canFallThroughTo: boolean,
 ) {
-	const caseValueId = luau.tempId("caseValue");
-	const casePrereqs = new Prereqs();
-	const expression = transformExpression(state, casePrereqs, caseClauseExpression);
-	let prereqStatements = luau.list.make<luau.Statement>();
-	luau.list.pushList(prereqStatements, casePrereqs.statements);
-	const caseValueMightMutate = expressionMightMutate(state, expression, caseClauseExpression);
+  const caseValueId = luau.tempId("caseValue");
+  const casePrereqs = new Prereqs();
+  const expression = transformExpression(state, casePrereqs, caseClauseExpression);
+  let prereqStatements = luau.list.make<luau.Statement>();
+  luau.list.pushList(prereqStatements, casePrereqs.statements);
+  const caseValueMightMutate = expressionMightMutate(state, expression, caseClauseExpression);
 
-	if (caseValueMightMutate) {
-		luau.list.push(
-			prereqStatements,
-			luau.create(luau.SyntaxKind.VariableDeclaration, {
-				left: caseValueId,
-				right: expression,
-			}),
-		);
-	}
+  if (caseValueMightMutate) {
+    luau.list.push(
+      prereqStatements,
+      luau.create(luau.SyntaxKind.VariableDeclaration, {
+        left: caseValueId,
+        right: expression,
+      }),
+    );
+  }
 
-	let condition: luau.Expression = luau.binary(
-		switchExpression,
-		"==",
-		caseValueMightMutate ? caseValueId : expression,
-	);
+  let condition: luau.Expression = luau.binary(
+    switchExpression,
+    "==",
+    caseValueMightMutate ? caseValueId : expression,
+  );
 
-	if (canFallThroughTo) {
-		if (!luau.list.isEmpty(prereqStatements)) {
-			const noFallThroughCondition = luau.unary("not", fallThroughFlagId);
+  if (canFallThroughTo) {
+    if (!luau.list.isEmpty(prereqStatements)) {
+      const noFallThroughCondition = luau.unary("not", fallThroughFlagId);
 
-			luau.list.push(
-				prereqStatements,
-				luau.create(luau.SyntaxKind.Assignment, {
-					left: fallThroughFlagId,
-					operator: "=",
-					right: condition,
-				}),
-			);
+      luau.list.push(
+        prereqStatements,
+        luau.create(luau.SyntaxKind.Assignment, {
+          left: fallThroughFlagId,
+          operator: "=",
+          right: condition,
+        }),
+      );
 
-			prereqStatements = luau.list.make<luau.Statement>(
-				luau.create(luau.SyntaxKind.IfStatement, {
-					condition: noFallThroughCondition,
-					statements: prereqStatements,
-					elseBody: luau.list.make<luau.Statement>(),
-				}),
-			);
+      prereqStatements = luau.list.make<luau.Statement>(
+        luau.create(luau.SyntaxKind.IfStatement, {
+          condition: noFallThroughCondition,
+          statements: prereqStatements,
+          elseBody: luau.list.make<luau.Statement>(),
+        }),
+      );
 
-			condition = fallThroughFlagId;
-		} else {
-			condition = luau.binary(fallThroughFlagId, "or", condition);
-		}
-	}
+      condition = fallThroughFlagId;
+    } else {
+      condition = luau.binary(fallThroughFlagId, "or", condition);
+    }
+  }
 
-	return {
-		condition,
-		prereqStatements,
-	};
+  return {
+    condition,
+    prereqStatements,
+  };
 }
 
 function transformCaseClause(
-	state: TransformState,
-	node: ts.CaseClause,
-	switchExpression: luau.Expression,
-	fallThroughFlagId: luau.TemporaryIdentifier,
-	canFallThroughTo: boolean,
-	shouldUpdateFallThroughFlag: boolean,
+  state: TransformState,
+  node: ts.CaseClause,
+  switchExpression: luau.Expression,
+  fallThroughFlagId: luau.TemporaryIdentifier,
+  canFallThroughTo: boolean,
+  shouldUpdateFallThroughFlag: boolean,
 ) {
-	const { condition, prereqStatements } = transformCaseClauseExpression(
-		state,
-		node.expression,
-		switchExpression,
-		fallThroughFlagId,
-		canFallThroughTo,
-	);
+  const { condition, prereqStatements } = transformCaseClauseExpression(
+    state,
+    node.expression,
+    switchExpression,
+    fallThroughFlagId,
+    canFallThroughTo,
+  );
 
-	const nonEmptyStatements = node.statements.filter(v => !ts.isEmptyStatement(v));
-	const firstStatement = nonEmptyStatements[0];
-	const statements =
-		nonEmptyStatements.length === 1 && ts.isBlock(firstStatement)
-			? transformStatementList(state, firstStatement, firstStatement.statements)
-			: transformStatementList(state, node, node.statements);
+  const nonEmptyStatements = node.statements.filter((v) => !ts.isEmptyStatement(v));
+  const firstStatement = nonEmptyStatements[0];
+  const statements =
+    nonEmptyStatements.length === 1 && ts.isBlock(firstStatement)
+      ? transformStatementList(state, firstStatement, firstStatement.statements)
+      : transformStatementList(state, node, node.statements);
 
-	const canFallThroughFrom = statements.tail === undefined || !luau.isFinalStatement(statements.tail.value);
-	if (canFallThroughFrom && shouldUpdateFallThroughFlag) {
-		luau.list.push(
-			statements,
-			luau.create(luau.SyntaxKind.Assignment, {
-				left: fallThroughFlagId,
-				operator: "=",
-				right: luau.bool(true),
-			}),
-		);
-	}
+  const canFallThroughFrom =
+    statements.tail === undefined || !luau.isFinalStatement(statements.tail.value);
+  if (canFallThroughFrom && shouldUpdateFallThroughFlag) {
+    luau.list.push(
+      statements,
+      luau.create(luau.SyntaxKind.Assignment, {
+        left: fallThroughFlagId,
+        operator: "=",
+        right: luau.bool(true),
+      }),
+    );
+  }
 
-	const clauseStatements = luau.list.make<luau.Statement>();
+  const clauseStatements = luau.list.make<luau.Statement>();
 
-	const hoistDeclaration = createHoistDeclaration(state, node);
-	if (hoistDeclaration) {
-		luau.list.push(clauseStatements, hoistDeclaration);
-	}
+  const hoistDeclaration = createHoistDeclaration(state, node);
+  if (hoistDeclaration) {
+    luau.list.push(clauseStatements, hoistDeclaration);
+  }
 
-	luau.list.push(
-		clauseStatements,
-		luau.create(luau.SyntaxKind.IfStatement, {
-			condition,
-			statements,
-			elseBody: luau.list.make(),
-		}),
-	);
+  luau.list.push(
+    clauseStatements,
+    luau.create(luau.SyntaxKind.IfStatement, {
+      condition,
+      statements,
+      elseBody: luau.list.make(),
+    }),
+  );
 
-	return {
-		canFallThroughFrom,
-		prereqs: prereqStatements,
-		clauseStatements,
-	};
+  return {
+    canFallThroughFrom,
+    prereqs: prereqStatements,
+    clauseStatements,
+  };
 }
 
 export function transformSwitchStatement(state: TransformState, node: ts.SwitchStatement) {
-	const result = luau.list.make<luau.Statement>();
-	const prereqs = new Prereqs();
-	const switchExpression = transformExpression(state, prereqs, node.expression);
-	const expression = expressionMightMutate(state, switchExpression, node.expression)
-		? prereqs.pushToVar(switchExpression, "exp")
-		: prereqs.pushToVarIfComplex(switchExpression, "exp");
-	luau.list.pushList(result, prereqs.statements);
-	const fallThroughFlagId = luau.tempId("fallthrough");
+  const result = luau.list.make<luau.Statement>();
+  const prereqs = new Prereqs();
+  const switchExpression = transformExpression(state, prereqs, node.expression);
+  const expression = expressionMightMutate(state, switchExpression, node.expression)
+    ? prereqs.pushToVar(switchExpression, "exp")
+    : prereqs.pushToVarIfComplex(switchExpression, "exp");
+  luau.list.pushList(result, prereqs.statements);
+  const fallThroughFlagId = luau.tempId("fallthrough");
 
-	let isFallThroughFlagNeeded = false;
+  let isFallThroughFlagNeeded = false;
 
-	const statements = luau.list.make<luau.Statement>();
-	let canFallThroughTo = false;
-	for (let i = 0; i < node.caseBlock.clauses.length; i++) {
-		const caseClauseNode = node.caseBlock.clauses[i];
+  const statements = luau.list.make<luau.Statement>();
+  let canFallThroughTo = false;
+  for (let i = 0; i < node.caseBlock.clauses.length; i++) {
+    const caseClauseNode = node.caseBlock.clauses[i];
 
-		if (ts.isCaseClause(caseClauseNode)) {
-			const shouldUpdateFallThroughFlag =
-				i < node.caseBlock.clauses.length - 1 && ts.isCaseClause(node.caseBlock.clauses[i + 1]);
-			const {
-				canFallThroughFrom,
-				prereqs: prereqStatements,
-				clauseStatements,
-			} = transformCaseClause(
-				state,
-				caseClauseNode,
-				expression,
-				fallThroughFlagId,
-				canFallThroughTo,
-				shouldUpdateFallThroughFlag,
-			);
+    if (ts.isCaseClause(caseClauseNode)) {
+      const shouldUpdateFallThroughFlag =
+        i < node.caseBlock.clauses.length - 1 && ts.isCaseClause(node.caseBlock.clauses[i + 1]);
+      const {
+        canFallThroughFrom,
+        prereqs: prereqStatements,
+        clauseStatements,
+      } = transformCaseClause(
+        state,
+        caseClauseNode,
+        expression,
+        fallThroughFlagId,
+        canFallThroughTo,
+        shouldUpdateFallThroughFlag,
+      );
 
-			luau.list.pushList(statements, prereqStatements);
-			luau.list.pushList(statements, clauseStatements);
+      luau.list.pushList(statements, prereqStatements);
+      luau.list.pushList(statements, clauseStatements);
 
-			canFallThroughTo = canFallThroughFrom;
+      canFallThroughTo = canFallThroughFrom;
 
-			if (canFallThroughFrom) {
-				isFallThroughFlagNeeded = true;
-			}
-		} else {
-			luau.list.pushList(statements, transformStatementList(state, caseClauseNode, caseClauseNode.statements));
-			break;
-		}
-	}
+      if (canFallThroughFrom) {
+        isFallThroughFlagNeeded = true;
+      }
+    } else {
+      luau.list.pushList(
+        statements,
+        transformStatementList(state, caseClauseNode, caseClauseNode.statements),
+      );
+      break;
+    }
+  }
 
-	if (isFallThroughFlagNeeded) {
-		luau.list.unshift(
-			statements,
-			luau.create(luau.SyntaxKind.VariableDeclaration, {
-				left: fallThroughFlagId,
-				right: luau.bool(false),
-			}),
-		);
-	}
+  if (isFallThroughFlagNeeded) {
+    luau.list.unshift(
+      statements,
+      luau.create(luau.SyntaxKind.VariableDeclaration, {
+        left: fallThroughFlagId,
+        right: luau.bool(false),
+      }),
+    );
+  }
 
-	luau.list.push(
-		result,
-		luau.create(luau.SyntaxKind.RepeatStatement, {
-			condition: luau.bool(true),
-			statements,
-		}),
-	);
-	return result;
+  luau.list.push(
+    result,
+    luau.create(luau.SyntaxKind.RepeatStatement, {
+      condition: luau.bool(true),
+      statements,
+    }),
+  );
+  return result;
 }

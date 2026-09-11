@@ -20,14 +20,14 @@
  * **Use `boolean` instead!**
  */
 interface Boolean {
-	/**
-	 * **DO NOT USE!**
-	 *
-	 * This field exists to force TypeScript to recognize this as a nominal type
-	 * @hidden
-	 * @deprecated
-	 */
-	readonly _nominal_Boolean: unique symbol;
+  /**
+   * **DO NOT USE!**
+   *
+   * This field exists to force TypeScript to recognize this as a nominal type
+   * @hidden
+   * @deprecated
+   */
+  readonly _nominal_Boolean: unique symbol;
 }
 
 /**
@@ -47,14 +47,14 @@ interface IArguments {}
  * **Use `number` instead!**
  */
 interface Number {
-	/**
-	 * **DO NOT USE!**
-	 *
-	 * This field exists to force TypeScript to recognize this as a nominal type
-	 * @hidden
-	 * @deprecated
-	 */
-	readonly _nominal_Number: unique symbol;
+  /**
+   * **DO NOT USE!**
+   *
+   * This field exists to force TypeScript to recognize this as a nominal type
+   * @hidden
+   * @deprecated
+   */
+  readonly _nominal_Number: unique symbol;
 }
 
 /**
@@ -95,14 +95,14 @@ interface RegExp {}
  * @deprecated
  */
 interface Function {
-	/**
-	 * **DO NOT USE!**
-	 *
-	 * This type only exists because TypeScript requires it!
-	 * @hidden
-	 * @deprecated
-	 */
-	prototype: never;
+  /**
+   * **DO NOT USE!**
+   *
+   * This type only exists because TypeScript requires it!
+   * @hidden
+   * @deprecated
+   */
+  prototype: never;
 }
 
 /**
@@ -137,18 +137,18 @@ interface ThisType<T> {}
 type Callback = (...args: Array<any>) => any;
 
 type LuaTuple<T extends Array<any>> = T & {
-	/**
-	 * **DO NOT USE!**
-	 *
-	 * This field exists to force TypeScript to recognize this as a nominal type
-	 * @hidden
-	 * @deprecated
-	 */
-	readonly _nominal_LuaTuple: unique symbol;
+  /**
+   * **DO NOT USE!**
+   *
+   * This field exists to force TypeScript to recognize this as a nominal type
+   * @hidden
+   * @deprecated
+   */
+  readonly _nominal_LuaTuple: unique symbol;
 };
 
 interface TypedPropertyDescriptor<T> {
-	value: (self: InferThis<T>, ...parameters: Parameters<T>) => ReturnType<T>;
+  value: (self: InferThis<T>, ...parameters: Parameters<T>) => ReturnType<T>;
 }
 
 /**

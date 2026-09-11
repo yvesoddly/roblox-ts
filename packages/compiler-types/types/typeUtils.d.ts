@@ -50,7 +50,11 @@ type NonNullable<T> = T & {};
 type Parameters<T> = T extends (...args: infer P) => any ? P : never;
 
 /** Obtain the parameters of a constructor function type in a `tuple | never` */
-type ConstructorParameters<T extends new (...args: any) => any> = T extends new (...args: infer P) => any ? P : never;
+type ConstructorParameters<T extends new (...args: any) => any> = T extends new (
+  ...args: infer P
+) => any
+  ? P
+  : never;
 
 /** Obtain the return type of a function type */
 type ReturnType<T> = T extends (...args: Array<any>) => infer R ? R : never;
@@ -65,26 +69,34 @@ type InstanceType<T> = T extends new (...args: Array<any>) => infer R ? R : neve
 type Reconstruct<T> = _<{ [K in keyof T]: T[K] }>;
 
 /** Converts a series of object unions to a series of intersections, e.g. A | B becomes A & B */
-type UnionToIntersection<T> = (T extends object ? (k: T) => void : never) extends (k: infer U) => void ? U : never;
+type UnionToIntersection<T> = (T extends object ? (k: T) => void : never) extends (
+  k: infer U,
+) => void
+  ? U
+  : never;
 
 /** Extracts the type of the 'this' parameter of a function type, or 'unknown' if the function type has no 'this' parameter. */
 type ThisParameterType<T> = T extends (this: infer U, ...args: Array<any>) => any ? U : unknown;
 
 /** Removes the 'this' parameter from a function type. */
 type OmitThisParameter<T> =
-	unknown extends ThisParameterType<T> ? T : T extends (...args: infer A) => infer R ? (...args: A) => R : T;
+  unknown extends ThisParameterType<T>
+    ? T
+    : T extends (...args: infer A) => infer R
+      ? (...args: A) => R
+      : T;
 
 /** Given an object `T`, returns a unioned type of all non-readonly property names. */
 type WritablePropertyNames<T> = {
-	[K in keyof T]-?: T[K] extends Callback
-		? never
-		: (<F>() => F extends { [Q in K]: T[K] } ? 1 : 2) extends <F>() => F extends {
-					-readonly [Q in K]: T[K];
-			  }
-					? 1
-					: 2
-			? K
-			: never;
+  [K in keyof T]-?: T[K] extends Callback
+    ? never
+    : (<F>() => F extends { [Q in K]: T[K] } ? 1 : 2) extends <F>() => F extends {
+          -readonly [Q in K]: T[K];
+        }
+          ? 1
+          : 2
+      ? K
+      : never;
 }[keyof T];
 
 /** Given an object `T`, returns an object with readonly fields filtered out. */
@@ -92,8 +104,8 @@ type WritableProperties<T> = Pick<T, WritablePropertyNames<T>>;
 
 /** Given an Instance `T`, returns a unioned type of all property names. */
 type InstancePropertyNames<T extends Instance> = Exclude<
-	ExcludeKeys<T, RBXScriptSignal | Callback | symbol>,
-	"Changed"
+  ExcludeKeys<T, RBXScriptSignal | Callback | symbol>,
+  "Changed"
 >;
 
 /** Given an Instance `T`, returns a unioned type of all method names. */
@@ -116,7 +128,7 @@ type WritableInstanceProperties<T extends Instance> = WritableProperties<Instanc
 
 /** Returns a union of all the keys of T which do not start with `_nominal_` */
 type ExcludeNominalKeys<T> = {
-	[K in keyof T]-?: K extends `_nominal_${infer _U}` ? never : K;
+  [K in keyof T]-?: K extends `_nominal_${infer _U}` ? never : K;
 }[keyof T];
 
 /** Returns a new object type of all the keys of T which do not start with `_nominal_` */

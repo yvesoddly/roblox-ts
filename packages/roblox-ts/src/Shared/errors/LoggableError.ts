@@ -1,13 +1,13 @@
 import { LogService } from "Shared/classes/LogService";
 
 export abstract class LoggableError {
-	constructor() {
-		debugger;
-	}
+  constructor() {
+    debugger;
+  }
 
-	public abstract toString(): string;
+  public abstract toString(): string;
 
-	public log() {
-		LogService.writeLine(this.toString());
-	}
+  public log() {
+    LogService.writeLine(this.toString());
+  }
 }

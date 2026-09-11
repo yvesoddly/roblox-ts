@@ -7,10 +7,10 @@ import { convertToIndexableExpression } from "TSTransformer/util/convertToIndexa
  * i.e. using `and` as our operator, `[a, b, c]` -> `a and b and c`
  */
 export function binaryExpressionChain(
-	expressions: Array<luau.Expression>,
-	operator: luau.BinaryOperator,
+  expressions: Array<luau.Expression>,
+  operator: luau.BinaryOperator,
 ): luau.Expression {
-	return expressions.reduce((acc, current) => luau.binary(acc, operator, current));
+  return expressions.reduce((acc, current) => luau.binary(acc, operator, current));
 }
 
 /**
@@ -19,8 +19,11 @@ export function binaryExpressionChain(
  * i.e. `["a", "b", "c"]` -> `exp.a.b.c`
  */
 export function propertyAccessExpressionChain(
-	expression: luau.Expression,
-	names: Array<string>,
+  expression: luau.Expression,
+  names: Array<string>,
 ): luau.IndexableExpression {
-	return names.reduce((acc, current) => luau.property(acc, current), convertToIndexableExpression(expression));
+  return names.reduce(
+    (acc, current) => luau.property(acc, current),
+    convertToIndexableExpression(expression),
+  );
 }

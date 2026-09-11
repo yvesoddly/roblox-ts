@@ -3,5 +3,5 @@ import { transformClassLikeDeclaration } from "TSTransformer/nodes/class/transfo
 import ts from "typescript";
 
 export function transformClassDeclaration(state: TransformState, node: ts.ClassDeclaration) {
-	return transformClassLikeDeclaration(state, node).statements;
+  return transformClassLikeDeclaration(state, node).statements;
 }
