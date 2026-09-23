@@ -64,8 +64,8 @@ for (const template of ["game", "place", "model", "plugin", "package"]) {
 		assert.equal(result.status, 0, result.stdout + result.stderr);
 		assertTemplate(project.directory, template === "place" ? "game" : template);
 		const pkg = project.read("package.json");
-		assert.equal(pkg.scripts.build, "rbxtsc");
-		assert.equal(pkg.scripts.watch, "rbxtsc -w");
+		assert.equal(pkg.scripts.build, "rbxtsc build");
+		assert.equal(pkg.scripts.watch, "rbxtsc build -w");
 		if (template === "package") {
 			assert.equal(pkg.name, "@rbxts/generated-project");
 			assert.equal(pkg.main, "out/init.luau");

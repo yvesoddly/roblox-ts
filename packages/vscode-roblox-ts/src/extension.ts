@@ -203,10 +203,10 @@ export async function activate(context: vscode.ExtensionContext) {
 			compilerProcess = childProcess.spawn("npm", ["run", watchScript, ...watchScriptArgs], options);
 		}  else if (!development && fs.existsSync(localInstall)) {
 			compilation.terminal.appendLine("roblox-ts has started, using local roblox-ts install");
-			compilerProcess = childProcess.spawn(`"${localInstall.replaceAll(/"/g, '\\"')}"`, parameters, options);
+			compilerProcess = childProcess.spawn(`"${localInstall.replaceAll(/"/g, '\\"')}"`, ["build", ...parameters], options);
 		} else {
 			compilation.terminal.appendLine("roblox-ts has started, using global roblox-ts install");
-			compilerProcess = childProcess.spawn(compilerCommand, parameters, options);
+			compilerProcess = childProcess.spawn(compilerCommand, ["build", ...parameters], options);
 		}
 
 		compilerProcess.on("error", error => {

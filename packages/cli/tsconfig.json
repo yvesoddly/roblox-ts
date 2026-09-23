@@ -1,11 +1,12 @@
 {
 	"extends": "../roblox-ts/tsconfig-base.json",
 	"compilerOptions": {
+		"module": "NodeNext",
+		"moduleResolution": "NodeNext",
+		// effect rc.112 has declaration errors; CLI source is still typechecked
+		"skipLibCheck": true,
 		"rootDir": "src",
 		"outDir": "out",
-		"paths": {
-			"CLI/*": ["./src/*"]
-		},
 		"tsBuildInfoFile": "out/tsconfig.tsbuildinfo"
 	},
 	"include": ["src/**/*.ts"],

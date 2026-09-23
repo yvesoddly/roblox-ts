@@ -114,7 +114,7 @@ async function fixture(t) {
 	fs.writeFileSync(path.join(directory, "src/main.ts"), "export {};\n");
 	fs.writeFileSync(
 		path.join(directory, "package.json"),
-		JSON.stringify({ name: "fixture", scripts: { watch: "rbxtsc -w" } }),
+		JSON.stringify({ name: "fixture", scripts: { watch: "rbxtsc build -w" } }),
 	);
 	fs.writeFileSync(
 		path.join(directory, "tsconfig.json"),
@@ -195,6 +195,35 @@ test("compiler commands choose configured npm scripts and stop the process tree"
 	await commands.get("roblox-ts.stop")();
 	assert.deepEqual(killed, [123]);
 });
+
+for (const installation of ["local", "global", "development"]) {
+	for (const parameters of [undefined, ["-w", "--verbose", "--project", "custom"]]) {
+		test(`direct ${installation} compiler starts build with ${parameters ? "custom" : "default"} parameters`, async t => {
+			const directory = await fixture(t);
+			const localInstall = path.join(directory, "node_modules", ".bin", "rbxtsc");
+			if (installation !== "global") {
+				fs.mkdirSync(path.dirname(localInstall), { recursive: true });
+				fs.writeFileSync(localInstall, "");
+			}
+			settings.set("roblox-ts.command.development", installation === "development");
+			if (parameters) {
+				settings.set("roblox-ts.command.parameters", parameters);
+			}
+
+			await commands.get("roblox-ts.start")();
+
+			assert.deepEqual(spawned[0].arguments_, [
+				installation === "local"
+					? `"${localInstall}"`
+					: installation === "development"
+						? "rbxtsc-dev"
+						: "rbxtsc",
+				["build", ...(parameters ?? ["-w"])],
+				{ cwd: directory.split(path.sep).join("/"), shell: true },
+			]);
+		});
+	}
+}
 
 test("failed compiler spawn reports the error without killing an undefined PID", async t => {
 	await fixture(t);
